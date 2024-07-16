@@ -3,6 +3,7 @@ package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.d
 import jakarta.persistence.*
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.CreatePostRequest
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.PostResponse
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.PostSimplifiedResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.service.Board
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -71,4 +72,8 @@ class Post private constructor(
 
 fun Post.toResponse(): PostResponse {
     return PostResponse(id!!, title, body, views, createdAt, updatedAt, auther, Board())
+}
+
+fun Post.toPostSimplifiedResponse(): PostSimplifiedResponse {
+    return PostSimplifiedResponse(id!!, title, views, auther, createdAt)
 }

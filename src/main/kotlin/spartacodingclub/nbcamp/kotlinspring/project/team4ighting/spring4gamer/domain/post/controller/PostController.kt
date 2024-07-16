@@ -1,10 +1,15 @@
 package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.controller
 
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
+import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.CreatePostRequest
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.PostResponse
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.PostSimplifiedResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.service.PostService
 
 @RestController
@@ -25,7 +30,17 @@ class PostController(
             .status(HttpStatus.CREATED)
             .body(postService.createPost(channelId, boardId, request, 1L))
     }
-    // TODO: 게시글 목록 조회 - GET
+
+    @GetMapping
+    fun getPostList(
+        @PathVariable("channelId") channelId: Long,
+        @PathVariable("boardId") boardId: Long,
+        @PageableDefault(page = 0, size = 10, sort = ["createdAt"], direction = Sort.Direction.DESC) pageable: Pageable
+    ): ResponseEntity<Page<PostSimplifiedResponse>> {
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(postService.getPostList(channelId, boardId, pageable))
+    }
     // TODO: 게시글 상세 조회 - GET
     // TODO: 게시글 수정 - PUT
     // TODO: 게시글 삭제 - DELETE
