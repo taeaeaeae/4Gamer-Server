@@ -14,7 +14,7 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.do
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.service.GameReviewService
 
 @RestController
-@RequestMapping("/api/v1/reviews")
+@RequestMapping("/api/v1/game-reviews")
 class GameReviewController(
     private val gameReviewService: GameReviewService
 ) {
@@ -37,26 +37,26 @@ class GameReviewController(
         return ResponseEntity.status(HttpStatus.OK).body(gameReviewService.getGameReviewList(pageable))
     }
 
-    @GetMapping("/{reviewId}")
-    fun getGameReview(@PathVariable reviewId: Long): ResponseEntity<GameReviewResponse> {
-        return ResponseEntity.status(HttpStatus.OK).body(gameReviewService.getGameReview(reviewId))
+    @GetMapping("/{gameReviewId}")
+    fun getGameReview(@PathVariable gameReviewId: Long): ResponseEntity<GameReviewResponse> {
+        return ResponseEntity.status(HttpStatus.OK).body(gameReviewService.getGameReview(gameReviewId))
     }
 
     @PutMapping("/{reviewId}")
     fun updateGameReview(
 //        @AuthenticationPrincipal memberId: Long, // TODO: 로그인 구현 후 사용 예정
-        @PathVariable reviewId: Long, @RequestBody @Valid request: UpdateGameReviewRequest
+        @PathVariable gameReviewId: Long, @RequestBody @Valid request: UpdateGameReviewRequest
     ): ResponseEntity<GameReviewResponse> {
         // TODO: 로그인 구현 후 임시 유저 ID인 1L 제거
-        return ResponseEntity.status(HttpStatus.OK).body(gameReviewService.updateGameReview(reviewId, request, 1L))
+        return ResponseEntity.status(HttpStatus.OK).body(gameReviewService.updateGameReview(gameReviewId, request, 1L))
     }
 
-    @DeleteMapping("/{reviewId}")
+    @DeleteMapping("/{gameReviewId}")
     fun deleteGameReview(
 //        @AuthenticationPrincipal memberId: Long, // TODO: 로그인 구현 후 사용 예정
-        @PathVariable reviewId: Long
+        @PathVariable gameReviewId: Long
     ): ResponseEntity<GameReviewResponse> {
-        gameReviewService.deleteGameReview(reviewId, 1L)
+        gameReviewService.deleteGameReview(gameReviewId, 1L)
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
     }
     

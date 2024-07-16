@@ -33,16 +33,16 @@ class GameReviewService(
         return gameReviewRepository.findAll(pageable).map { it.toResponse() }
     }
 
-    fun getGameReview(reviewId: Long): GameReviewResponse {
+    fun getGameReview(gameReviewId: Long): GameReviewResponse {
         val gameReview =
-            gameReviewRepository.findByIdOrNull(reviewId) ?: throw ModelNotFoundException("GameReview", reviewId)
+            gameReviewRepository.findByIdOrNull(gameReviewId) ?: throw ModelNotFoundException("GameReview", gameReviewId)
         return gameReview.toResponse()
     }
 
     @Transactional
-    fun updateGameReview(reviewId: Long, request: UpdateGameReviewRequest, memberId: Long): GameReviewResponse {
+    fun updateGameReview(gameReviewId: Long, request: UpdateGameReviewRequest, memberId: Long): GameReviewResponse {
         val gameReview =
-            gameReviewRepository.findByIdOrNull(reviewId) ?: throw ModelNotFoundException("GameReview", reviewId)
+            gameReviewRepository.findByIdOrNull(gameReviewId) ?: throw ModelNotFoundException("GameReview", gameReviewId)
 
         if (gameReview.memberId != memberId) {
             throw CustomAccessDeniedException("해당 게임리뷰에 대한 수정 권한이 없습니다.")
@@ -54,9 +54,9 @@ class GameReviewService(
     }
 
     @Transactional
-    fun deleteGameReview(reviewId: Long, memberId: Long) {
+    fun deleteGameReview(gameReviewId: Long, memberId: Long) {
         val gameReview =
-            gameReviewRepository.findByIdOrNull(reviewId) ?: throw ModelNotFoundException("GameReview", reviewId)
+            gameReviewRepository.findByIdOrNull(gameReviewId) ?: throw ModelNotFoundException("GameReview", gameReviewId)
 
         if (gameReview.memberId != memberId) {
             throw CustomAccessDeniedException("해당 게임리뷰에 대한 삭제 권한이 없습니다.")
