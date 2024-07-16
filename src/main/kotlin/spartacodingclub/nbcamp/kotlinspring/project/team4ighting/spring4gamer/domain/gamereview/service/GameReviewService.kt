@@ -18,6 +18,8 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.ex
 class GameReviewService(
     private val gameReviewRepository: GameReviewRepository
 ) {
+
+    @Transactional
     fun createGameReview(request: CreateGameReviewRequest, memberId: Long): GameReviewResponse {
         return gameReviewRepository.save(
             GameReview.from(
