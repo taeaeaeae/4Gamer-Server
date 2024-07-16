@@ -1,5 +1,6 @@
 package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.controller
 
+import jakarta.validation.Valid
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
@@ -21,7 +22,7 @@ class GameReviewController(
     @PostMapping
     fun createGameReview(
 //        @AuthenticationPrincipal memberId: Long, // TODO: 로그인 구현 후 사용 예정
-        @RequestBody request: CreateGameReviewRequest
+        @RequestBody @Valid request: CreateGameReviewRequest
     ): ResponseEntity<GameReviewResponse> {
         // TODO: 로그인 구현 후 임시 유저 ID인 1L 제거
         return ResponseEntity.status(HttpStatus.CREATED).body(
@@ -44,7 +45,7 @@ class GameReviewController(
     @PutMapping("/{reviewId}")
     fun updateGameReview(
 //        @AuthenticationPrincipal memberId: Long, // TODO: 로그인 구현 후 사용 예정
-        @PathVariable reviewId: Long, @RequestBody request: UpdateGameReviewRequest
+        @PathVariable reviewId: Long, @RequestBody @Valid request: UpdateGameReviewRequest
     ): ResponseEntity<GameReviewResponse> {
         // TODO: 로그인 구현 후 임시 유저 ID인 1L 제거
         return ResponseEntity.status(HttpStatus.OK).body(gameReviewService.updateGameReview(reviewId, request, 1L))
