@@ -19,19 +19,24 @@ class GameReview private constructor(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null
 
+    @Column(name = "game_title", nullable = false)
     val gameTitle = gameTitle
+
+    @Column(name = "description", nullable = false)
     var description: String = description
         private set
 
+    @Column(name = "point", nullable = false)
     var point: Byte = point
         private set
 
+    @Column(name = "member_id", nullable = false)
     val memberId: Long = memberId
 
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "created_at", updatable = false, nullable = false)
     val createdAt: ZonedDateTime = ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
 
-    @Column(name = "updated_at")
+    @Column(name = "updated_at", nullable = false)
     var updatedAt: ZonedDateTime = ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
         private set
 
