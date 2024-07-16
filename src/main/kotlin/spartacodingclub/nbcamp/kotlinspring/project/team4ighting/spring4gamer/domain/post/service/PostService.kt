@@ -42,7 +42,21 @@ class PostService(
         // val channel = channelRepository.findByIdOrNull(channelId) ?: throw ModelNotFountException("Channel", channelId)
         // val board = boardRepository.findByIdOrNull(boardId) ?: throw ModelNotFoundException("Board", boardId)
 
-        return postRepository.findByBoard(boardId, pageable).map { it.toPostSimplifiedResponse() }
+        return postRepository
+            .findByBoard(boardId, pageable)
+            .map { it.toPostSimplifiedResponse() }
+    }
+
+    fun getPost(
+        channelId: Long, boardId: Long, postId: Long
+    ): PostResponse {
+
+        // TODO: 각 Entity 구현 후 주석 해제
+        // val channel = channelRepository.findByIdOrNull(channelId) ?: throw ModelNotFountException("Channel", channelId)
+        // val board = boardRepository.findByIdOrNull(boardId) ?: throw ModelNotFoundException("Board", boardId)
+        val post = postRepository.findByIdAndBoard(postId, boardId)
+
+        return post.toResponse()
     }
 }
 

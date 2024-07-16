@@ -41,7 +41,17 @@ class PostController(
             .status(HttpStatus.OK)
             .body(postService.getPostList(channelId, boardId, pageable))
     }
-    // TODO: 게시글 상세 조회 - GET
+
+    @GetMapping("/{postId}")
+    fun getPost(
+        @PathVariable("channelId") channelId: Long,
+        @PathVariable("boardId") boardId: Long,
+        @PathVariable("postId") postId: Long
+    ): ResponseEntity<PostResponse> {
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(postService.getPost(channelId, boardId, postId))
+    }
     // TODO: 게시글 수정 - PUT
     // TODO: 게시글 삭제 - DELETE
 }
