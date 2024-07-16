@@ -28,11 +28,9 @@ class GameReview private constructor(
 
     val memberId: Long = memberId
 
-    @CreatedDate
     @Column(name = "created_at", updatable = false)
     val createdAt: ZonedDateTime = ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
 
-    @LastModifiedDate
     @Column(name = "updated_at")
     var updatedAt: ZonedDateTime = ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
         private set
