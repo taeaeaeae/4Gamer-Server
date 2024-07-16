@@ -42,7 +42,11 @@ class GameReview private constructor(
 
     companion object {
 
-        fun from(request: CreateGameReviewRequest, memberId: Long): GameReview {
+        fun from(
+            request: CreateGameReviewRequest,
+            memberId: Long
+        ): GameReview {
+
             return GameReview(
                 gameTitle = request.gameTitle,
                 description = request.description,
@@ -52,7 +56,11 @@ class GameReview private constructor(
         }
     }
 
-    fun update(description: String, point: Byte) {
+    fun update(
+        description: String,
+        point: Byte
+    ) {
+
         this.description = description
         this.point = point
         this.updatedAt = ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
@@ -62,5 +70,6 @@ class GameReview private constructor(
 }
 
 fun GameReview.toResponse(): GameReviewResponse {
+
     return GameReviewResponse(id!!, gameTitle, point, description, createdAt, updatedAt)
 }
