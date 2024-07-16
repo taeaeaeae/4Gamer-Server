@@ -34,7 +34,11 @@ class GameReviewController(
     ): ResponseEntity<Page<GameReviewResponse>> {
         return ResponseEntity.status(HttpStatus.OK).body(gameReviewService.getGameReviewList(pageable))
     }
-    // TODO: 리뷰 단건 조회 - GET
+
+    @GetMapping("/{reviewId}")
+    fun getGameReview(@PathVariable reviewId: Long): ResponseEntity<GameReviewResponse> {
+        return ResponseEntity.status(HttpStatus.OK).body(gameReviewService.getGameReview(reviewId))
+    }
     // TODO: 리뷰 수정 - PUT
     // TODO: 리뷰 삭제 - DELETE
     // TODO: 리뷰 신고 - POST
