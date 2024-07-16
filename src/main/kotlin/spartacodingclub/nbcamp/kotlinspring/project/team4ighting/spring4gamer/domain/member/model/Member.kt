@@ -11,13 +11,13 @@ class Member(
     @Id
     val id: UUID = UUID.randomUUID(),
 
-    @Column(name = "email", nullable = false)
+    @Column(name = "email", nullable = false, unique = true)
     val email: String,
 
     @Column(name = "password", nullable = false)
     val password: String,
 
-    @Column(name = "nickname", nullable = false)
+    @Column(name = "nickname", nullable = false, unique = true)
     val nickname: String,
 
     @Column(name = "lv", nullable = false)

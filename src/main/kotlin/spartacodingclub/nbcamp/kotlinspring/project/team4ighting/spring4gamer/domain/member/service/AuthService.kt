@@ -23,6 +23,7 @@ class AuthService(
     @Transactional
     fun signup(request: SignupRequest): MemberResponse {
         if (memberRepository.existsByEmail(request.email)) throw IllegalArgumentException("이미 가입된 이메일")
+        if (memberRepository.existsByNickname(request.nickname)) throw IllegalArgumentException("이미 존재하는 닉네임")
         return Member.from(
             email = request.email,
             password = passwordEncoder.encode(request.password),
