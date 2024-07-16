@@ -20,7 +20,7 @@ class GameReviewController(
 
     @PostMapping
     fun createGameReview(
-//        @AuthenticationPrincipal userId: Long, // TODO: 로그인 구현 후 사용 예정
+//        @AuthenticationPrincipal memberId: Long, // TODO: 로그인 구현 후 사용 예정
         @RequestBody request: CreateGameReviewRequest
     ): ResponseEntity<GameReviewResponse> {
         // TODO: 로그인 구현 후 임시 유저 ID인 1L 제거
@@ -43,12 +43,21 @@ class GameReviewController(
 
     @PutMapping("/{reviewId}")
     fun updateGameReview(
-//        @AuthenticationPrincipal userId: Long, // TODO: 로그인 구현 후 사용 예정
+//        @AuthenticationPrincipal memberId: Long, // TODO: 로그인 구현 후 사용 예정
         @PathVariable reviewId: Long, @RequestBody request: UpdateGameReviewRequest
     ): ResponseEntity<GameReviewResponse> {
         // TODO: 로그인 구현 후 임시 유저 ID인 1L 제거
         return ResponseEntity.status(HttpStatus.OK).body(gameReviewService.updateGameReview(reviewId, request, 1L))
     }
-    // TODO: 리뷰 삭제 - DELETE
+
+    @DeleteMapping("/{reviewId}")
+    fun deleteGameReview(
+//        @AuthenticationPrincipal memberId: Long, // TODO: 로그인 구현 후 사용 예정
+        @PathVariable reviewId: Long
+    ): ResponseEntity<GameReviewResponse> {
+        gameReviewService.deleteGameReview(reviewId, 1L)
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
+    }
+    
     // TODO: 리뷰 신고 - POST
 }

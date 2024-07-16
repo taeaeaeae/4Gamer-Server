@@ -52,4 +52,16 @@ class GameReviewService(
 
         return gameReview.toResponse()
     }
+
+    @Transactional
+    fun deleteGameReview(reviewId: Long, memberId: Long) {
+        val gameReview =
+            gameReviewRepository.findByIdOrNull(reviewId) ?: throw ModelNotFoundException("GameReview", reviewId)
+
+        if (gameReview.memberId != memberId) {
+            throw CustomAccessDeniedException("해당 게임리뷰에 대한 삭제 권한이 없습니다.")
+        }
+
+        gameReviewRepository.delete(gameReview)
+    }
 }
