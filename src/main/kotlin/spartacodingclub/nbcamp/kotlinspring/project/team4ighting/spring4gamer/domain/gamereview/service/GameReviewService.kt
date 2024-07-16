@@ -18,12 +18,11 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.ex
 class GameReviewService(
     private val gameReviewRepository: GameReviewRepository
 ) {
-
-    fun createGameReview(request: CreateGameReviewRequest, userId: Long): GameReviewResponse {
+    fun createGameReview(request: CreateGameReviewRequest, memberId: Long): GameReviewResponse {
         return gameReviewRepository.save(
             GameReview.from(
                 request,
-                userId
+                memberId
             )
         ).toResponse()
     }
@@ -39,11 +38,11 @@ class GameReviewService(
     }
 
     @Transactional
-    fun updateGameReview(reviewId: Long, request: UpdateGameReviewRequest, userId: Long): GameReviewResponse {
+    fun updateGameReview(reviewId: Long, request: UpdateGameReviewRequest, memberId: Long): GameReviewResponse {
         val gameReview =
             gameReviewRepository.findByIdOrNull(reviewId) ?: throw ModelNotFoundException("GameReview", reviewId)
 
-        if (gameReview.userId != userId) {
+        if (gameReview.memberId != memberId) {
             throw CustomAccessDeniedException("해당 게임리뷰에 대한 수정 권한이 없습니다.")
         }
 

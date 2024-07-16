@@ -12,7 +12,7 @@ class GameReview private constructor(
     gameTitle: String,
     point: Byte,
     description: String,
-    userId: Long
+    memberId: Long
 ) {
 
     @Id
@@ -26,7 +26,7 @@ class GameReview private constructor(
     var point: Byte = point
         private set
 
-    val userId: Long = userId
+    val memberId: Long = memberId
 
     @CreatedDate
     @Column(name = "created_at", updatable = false)
@@ -39,12 +39,12 @@ class GameReview private constructor(
 
     companion object {
 
-        fun from(request: CreateGameReviewRequest, userId: Long): GameReview {
+        fun from(request: CreateGameReviewRequest, memberId: Long): GameReview {
             return GameReview(
                 gameTitle = request.gameTitle,
                 description = request.description,
                 point = request.point,
-                userId = userId
+                memberId = memberId
             )
         }
     }
