@@ -1,8 +1,6 @@
 package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.model
 
 import jakarta.persistence.*
-import org.springframework.data.annotation.CreatedDate
-import org.springframework.data.annotation.LastModifiedDate
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.CreateGameReviewRequest
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.GameReviewResponse
 import java.time.ZoneId
@@ -23,7 +21,10 @@ class GameReview private constructor(
 
     val gameTitle = gameTitle
     var description: String = description
+        private set
+
     var point: Byte = point
+        private set
 
     val userId: Long = userId
 
@@ -48,7 +49,12 @@ class GameReview private constructor(
         }
     }
 
-    // TODO: description, point 수정 메서드
+    fun update(description: String, point: Byte) {
+        this.description = description
+        this.point = point
+        this.updatedAt = ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
+    }
+
     // TODO: 이미지 업로드
 }
 

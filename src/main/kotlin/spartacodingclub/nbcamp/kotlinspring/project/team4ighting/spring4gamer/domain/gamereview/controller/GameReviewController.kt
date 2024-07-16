@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.CreateGameReviewRequest
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.GameReviewResponse
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.UpdateGameReviewRequest
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.service.GameReviewService
 
 @RestController
@@ -39,7 +40,15 @@ class GameReviewController(
     fun getGameReview(@PathVariable reviewId: Long): ResponseEntity<GameReviewResponse> {
         return ResponseEntity.status(HttpStatus.OK).body(gameReviewService.getGameReview(reviewId))
     }
-    // TODO: 리뷰 수정 - PUT
+
+    @PutMapping("/{reviewId}")
+    fun updateGameReview(
+//        @AuthenticationPrincipal userId: Long, // TODO: 로그인 구현 후 사용 예정
+        @PathVariable reviewId: Long, @RequestBody request: UpdateGameReviewRequest
+    ): ResponseEntity<GameReviewResponse> {
+        // TODO: 로그인 구현 후 임시 유저 ID인 1L 제거
+        return ResponseEntity.status(HttpStatus.OK).body(gameReviewService.updateGameReview(reviewId, request, 1L))
+    }
     // TODO: 리뷰 삭제 - DELETE
     // TODO: 리뷰 신고 - POST
 }
