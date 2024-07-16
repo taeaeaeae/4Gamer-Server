@@ -21,7 +21,7 @@ class JwtHelper(
 
     fun validateToken(jwt: String): Result<Jws<Claims>> {
         return kotlin.runCatching {
-            Keys.hmacShaKeyFor(accessTokenSecret.toByteArray(StandardCharsets.UTF_8))
+            Keys.hmacShaKeyFor(accessTokenSecret.toByteArray())
                 .let { Jwts.parser().verifyWith(it).build().parseSignedClaims(jwt) }
         }
     }
@@ -33,7 +33,7 @@ class JwtHelper(
     private fun generateToken(subject: String, email: String, role: String, expirationPeriod: Duration): String {
         val claims = Jwts.claims().add(mapOf("email" to email, "role" to role)).build()
         val now = Instant.now()
-        val key = Keys.hmacShaKeyFor(accessTokenSecret.toByteArray(StandardCharsets.UTF_8))
+        val key = Keys.hmacShaKeyFor(accessTokenSecret.toByteArray())
 
         return Jwts.builder()
             .subject(subject)

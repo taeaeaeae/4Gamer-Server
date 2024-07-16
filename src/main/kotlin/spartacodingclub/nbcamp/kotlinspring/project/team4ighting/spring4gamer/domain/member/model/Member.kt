@@ -8,6 +8,9 @@ import java.util.UUID
 @Entity
 @Table(name = "member")
 class Member(
+    @Id
+    val id: UUID = UUID.randomUUID(),
+
     @Column(name = "email", nullable = false)
     val email: String,
 
@@ -17,11 +20,15 @@ class Member(
     @Column(name = "nickname", nullable = false)
     val nickname: String,
 
-    @Column(name = "level", nullable = false)
-    val level: Int = 0,
+    @Column(name = "lv", nullable = false)
+    val lv: Int = 0,
 
-    @Column(name = "exp", nullable = false)
-    val exp: Int = 0,
+    @Column(name = "exp_point", nullable = false)
+    val expPoint: Int = 0,
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
+    val role: MemberRole = MemberRole.USER,
 
     @Column(name = "created_at", nullable = false)
     val createdAt: ZonedDateTime,
@@ -32,9 +39,6 @@ class Member(
     @Column(name = "password_updated_at")
     val passwordUpdatedAt: ZonedDateTime? = null,
 ) {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: UUID? = null
 
     companion object {
         fun from(email: String, password: String, nickname: String): Member {
