@@ -87,4 +87,25 @@ class CommentService(
 
         return comment.toResponse()
     }
+
+    @Transactional
+    fun deleteComment(
+        channelId: Long,
+        boardId: Long,
+        postId: Long,
+        commentId: Long,
+        memberId: Long
+    ) {
+
+        // TODO: board 구현 후 사용 예정
+//        val board = commentRepository.findByIdAndChannel(boardId, channelId) ?: throw ModelNotFoundException("Board", boardId)
+        val post = postRepository.findByIdAndBoard(postId, boardId) ?: throw ModelNotFoundException("Post", postId)
+        val comment = commentRepository.findByIdAndPostId(commentId, postId) ?: throw ModelNotFoundException("Comment", commentId)
+
+        if (comment.memberId != memberId) {
+            throw CustomAccessDeniedException("해당 댓글에 대한 삭제 권한이 없습니다.")
+        }
+
+        commentRepository.delete(comment)
+    }
 }

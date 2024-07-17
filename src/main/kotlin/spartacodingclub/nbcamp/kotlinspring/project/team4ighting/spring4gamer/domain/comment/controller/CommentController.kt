@@ -62,5 +62,18 @@ class CommentController(
             .status(HttpStatus.OK)
             .body(commentService.updateComment(channelId, boardId, postId, commentId, request, 2L))
     }
-    // TODO: 삭제
+
+    @DeleteMapping("/{commentId}")
+    fun deleteComment(
+//        @AuthenticationPrincipal memberId: Long, // TODO: 로그인 구현 후 사용 예정
+        @PathVariable("channelId") channelId: Long,
+        @PathVariable("boardId") boardId: Long,
+        @PathVariable("postId") postId: Long,
+        @PathVariable("commentId") commentId: Long
+    ): ResponseEntity<Unit> {
+
+        return ResponseEntity
+            .status(HttpStatus.NO_CONTENT)
+            .body(commentService.deleteComment(channelId, boardId, postId, commentId, 3L))
+    }
 }
