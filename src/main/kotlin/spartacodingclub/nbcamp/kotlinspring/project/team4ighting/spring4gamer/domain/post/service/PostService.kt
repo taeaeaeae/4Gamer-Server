@@ -87,6 +87,23 @@ class PostService(
 
         return post.toResponse()
     }
+
+    @Transactional
+    fun deletePost(
+        channelId: Long,
+        boardId: Long,
+        postId: Long,
+        memberId: Long
+    ) {
+
+        val post = postRepository.findByIdOrNull(postId) ?: throw ModelNotFoundException("Post", postId)
+
+        if (post.memberId != memberId) {
+            throw CustomAccessDeniedException("해당 게시글에 대한 삭제 권한이 없습니다.")
+        }
+
+        postRepository.delete(post)
+    }
 }
 
 // TODO: Board 구현 후 삭제

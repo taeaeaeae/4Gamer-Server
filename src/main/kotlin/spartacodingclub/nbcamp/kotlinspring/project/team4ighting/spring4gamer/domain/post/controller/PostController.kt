@@ -53,7 +53,6 @@ class PostController(
             .status(HttpStatus.OK)
             .body(postService.getPost(channelId, boardId, postId))
     }
-    // TODO: 게시글 수정 - PUT
 
     @PutMapping("/{postId}")
     fun updatePost(
@@ -70,4 +69,16 @@ class PostController(
             .body(postService.updatePost(channelId, boardId, postId, request, 2L))
     }
     // TODO: 게시글 삭제 - DELETE
+    @DeleteMapping("/{postId}")
+    fun deletePost(
+        //        @AuthenticationPrincipal memberId: Long, // TODO: 로그인 구현 후 사용 예정
+        @PathVariable("channelId") channelId: Long,
+        @PathVariable("boardId") boardId: Long,
+        @PathVariable("postId") postId: Long
+    ): ResponseEntity<Unit> {
+
+        postService.deletePost(channelId, boardId, postId, 1L)
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
+    }
 }
