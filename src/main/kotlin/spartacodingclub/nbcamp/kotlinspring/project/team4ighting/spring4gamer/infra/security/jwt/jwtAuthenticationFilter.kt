@@ -14,6 +14,7 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.in
 class jwtAuthenticationFilter(
     private val jwtHelper: JwtHelper
 ) : OncePerRequestFilter() {
+
     companion object {
         private val BEARER_PATTERN = Regex("^Bearer (.+?)$")
     }
@@ -23,6 +24,7 @@ class jwtAuthenticationFilter(
         response: HttpServletResponse,
         filterChain: FilterChain
     ) {
+
         val jwt = request.getBearer()
         if (jwt != null) {
             jwtHelper.validateToken(jwt)
@@ -42,7 +44,6 @@ class jwtAuthenticationFilter(
                 }
 
         }
-
         filterChain.doFilter(request, response)
     }
 

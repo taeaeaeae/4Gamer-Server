@@ -9,6 +9,7 @@ class JwtAuthenticationToken(
     private val principal: MemberPrincipal,
     details: WebAuthenticationDetails,
 ) : AbstractAuthenticationToken(principal.authorities), Serializable {
+
     init {
         super.setAuthenticated(true)
         super.setDetails(details)

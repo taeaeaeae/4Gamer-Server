@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class CustomAuthenticationEntryPoint : AuthenticationEntryPoint {
+
     override fun commence(
         request: HttpServletRequest,
         response: HttpServletResponse,
