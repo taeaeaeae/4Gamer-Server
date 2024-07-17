@@ -20,43 +20,69 @@ class GameReviewService(
 ) {
 
     @Transactional
-    fun createGameReview(request: CreateGameReviewRequest, memberId: Long): GameReviewResponse {
-        return gameReviewRepository.save(
-            GameReview.from(
+    fun createGameReview(
+        request: CreateGameReviewRequest,
+        memberId: Long
+    ): GameReviewResponse {
+
+        return gameReviewRepository
+            .save(
+                GameReview.from(
                 request,
                 memberId
-            )
-        ).toResponse()
+                )
+            ).toResponse()
     }
 
-    fun getGameReviewList(pageable: Pageable): Page<GameReviewResponse> {
-        return gameReviewRepository.findAll(pageable).map { it.toResponse() }
+    fun getGameReviewList(
+        pageable: Pageable
+    ): Page<GameReviewResponse> {
+
+        return gameReviewRepository
+            .findAll(pageable)
+            .map { it.toResponse() }
     }
 
-    fun getGameReview(gameReviewId: Long): GameReviewResponse {
-        val gameReview =
-            gameReviewRepository.findByIdOrNull(gameReviewId) ?: throw ModelNotFoundException("GameReview", gameReviewId)
+    fun getGameReview(
+        gameReviewId: Long
+    ): GameReviewResponse {
+
+        val gameReview = gameReviewRepository.findByIdOrNull(gameReviewId)
+            ?: throw ModelNotFoundException("GameReview", gameReviewId)
+
         return gameReview.toResponse()
     }
 
     @Transactional
-    fun updateGameReview(gameReviewId: Long, request: UpdateGameReviewRequest, memberId: Long): GameReviewResponse {
-        val gameReview =
-            gameReviewRepository.findByIdOrNull(gameReviewId) ?: throw ModelNotFoundException("GameReview", gameReviewId)
+    fun updateGameReview(
+        gameReviewId: Long,
+        request: UpdateGameReviewRequest,
+        memberId: Long
+    ): GameReviewResponse {
+
+        val gameReview = gameReviewRepository.findByIdOrNull(gameReviewId)
+                ?: throw ModelNotFoundException("GameReview", gameReviewId)
 
         if (gameReview.memberId != memberId) {
             throw CustomAccessDeniedException("해당 게임리뷰에 대한 수정 권한이 없습니다.")
         }
 
-        gameReview.update(description = request.description, point = request.point)
+        gameReview.update(
+            description = request.description,
+            point = request.point
+        )
 
         return gameReview.toResponse()
     }
 
     @Transactional
-    fun deleteGameReview(gameReviewId: Long, memberId: Long) {
-        val gameReview =
-            gameReviewRepository.findByIdOrNull(gameReviewId) ?: throw ModelNotFoundException("GameReview", gameReviewId)
+    fun deleteGameReview(
+        gameReviewId: Long,
+        memberId: Long
+    ) {
+
+        val gameReview = gameReviewRepository.findByIdOrNull(gameReviewId)
+            ?: throw ModelNotFoundException("GameReview", gameReviewId)
 
         if (gameReview.memberId != memberId) {
             throw CustomAccessDeniedException("해당 게임리뷰에 대한 삭제 권한이 없습니다.")
