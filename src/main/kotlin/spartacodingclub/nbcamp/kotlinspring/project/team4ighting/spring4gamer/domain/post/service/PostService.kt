@@ -2,14 +2,19 @@ package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.d
 
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.CreatePostRequest
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.PostResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.PostSimplifiedResponse
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.UpdatePostRequest
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.model.Post
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.model.toPostSimplifiedResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.model.toResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.repository.PostRepository
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception.CustomAccessDeniedException
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception.ModelNotFoundException
 import java.time.ZoneId
 import java.time.ZonedDateTime
 
@@ -18,6 +23,7 @@ class PostService(
     private val postRepository: PostRepository
 ) {
 
+    @Transactional
     fun createPost(channelId: Long, boardId: Long, request: CreatePostRequest, memberId: Long): PostResponse {
         // TODO: 각 Entity 구현 후 주석 해제
         // val channel = channelRepository.findByIdOrNull(channelId) ?: throw ModelNotFountException("Channel", channelId)
@@ -55,6 +61,29 @@ class PostService(
         // val channel = channelRepository.findByIdOrNull(channelId) ?: throw ModelNotFountException("Channel", channelId)
         // val board = boardRepository.findByIdOrNull(boardId) ?: throw ModelNotFoundException("Board", boardId)
         val post = postRepository.findByIdAndBoard(postId, boardId)
+
+        return post.toResponse()
+    }
+
+    @Transactional
+    fun updatePost(
+        channelId: Long,
+        boardId: Long,
+        postId: Long,
+        request: UpdatePostRequest,
+        memberId: Long
+    ): PostResponse {
+
+        val post = postRepository.findByIdOrNull(postId) ?: throw ModelNotFoundException("Post", postId)
+
+        if (post.memberId != memberId) {
+            throw CustomAccessDeniedException("해당 게시글에 대한 수정 권한이 없습니다.")
+        }
+
+        post.update(
+            title = request.title,
+            body = request.body
+        )
 
         return post.toResponse()
     }

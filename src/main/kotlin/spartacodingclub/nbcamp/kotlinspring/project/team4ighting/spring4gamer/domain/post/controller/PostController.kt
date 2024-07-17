@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.CreatePostRequest
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.PostResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.PostSimplifiedResponse
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.UpdatePostRequest
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.service.PostService
 
 @RestController
@@ -53,5 +54,20 @@ class PostController(
             .body(postService.getPost(channelId, boardId, postId))
     }
     // TODO: 게시글 수정 - PUT
+
+    @PutMapping("/{postId}")
+    fun updatePost(
+//        @AuthenticationPrincipal memberId: Long, // TODO: 로그인 구현 후 사용 예정
+        @PathVariable("channelId") channelId: Long,
+        @PathVariable("boardId") boardId: Long,
+        @PathVariable("postId") postId: Long,
+        @RequestBody request: UpdatePostRequest
+    ): ResponseEntity<PostResponse> {
+
+        // TODO: 로그인 구현 후 임시 유저 ID인 1L 제거
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(postService.updatePost(channelId, boardId, postId, request, 2L))
+    }
     // TODO: 게시글 삭제 - DELETE
 }
