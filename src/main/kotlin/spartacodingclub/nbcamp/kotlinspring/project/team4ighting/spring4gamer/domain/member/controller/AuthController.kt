@@ -20,15 +20,11 @@ class AuthController(
 
     @PostMapping("/signin")
     fun signin(@RequestBody request: SigninRequest): ResponseEntity<SigninResponse> =
-        ResponseEntity
-            .status(HttpStatus.OK)
-            .body(authService.signin(request))
-    
+        ResponseEntity.status(HttpStatus.OK).body(authService.signin(request))
+
 
     @PostMapping("/signup")
     fun signup(@RequestBody request: SignupRequest): ResponseEntity<MemberResponse> =
-        ResponseEntity
-            .status(HttpStatus.CREATED)
-            .body(authService.signup(request))
+        ResponseEntity.status(HttpStatus.CREATED).body(authService.signup(request))
 
 }
