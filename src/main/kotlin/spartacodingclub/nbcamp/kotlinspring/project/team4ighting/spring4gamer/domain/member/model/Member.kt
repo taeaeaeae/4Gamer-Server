@@ -15,16 +15,16 @@ class Member(
     val email: String,
 
     @Column(name = "password", nullable = false)
-    val password: String,
+    var password: String,
 
     @Column(name = "nickname", nullable = false, unique = true)
-    val nickname: String,
+    var nickname: String,
 
     @Column(name = "lv", nullable = false)
-    val lv: Int = 0,
+    var lv: Int = 0,
 
     @Column(name = "exp_point", nullable = false)
-    val expPoint: Int = 0,
+    var expPoint: Int = 0,
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
@@ -34,10 +34,10 @@ class Member(
     val createdAt: ZonedDateTime,
 
     @Column(name = "updated_at")
-    val updatedAt: ZonedDateTime? = null,
+    var updatedAt: ZonedDateTime? = null,
 
     @Column(name = "password_updated_at")
-    val passwordUpdatedAt: ZonedDateTime? = null,
+    var passwordUpdatedAt: ZonedDateTime? = null,
 ) {
 
     companion object {
@@ -50,6 +50,5 @@ class Member(
             )
         }
     }
-
 
 }
