@@ -2,6 +2,7 @@ package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.i
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
@@ -25,11 +26,12 @@ class SecurityConfig(
             .formLogin { it.disable() }
             .csrf { it.disable() }
             .authorizeHttpRequests {
+                it.requestMatchers(HttpMethod.GET, "/**")
+                    .permitAll()
                 it.requestMatchers(
                     "/api/v1/auth/signin",
                     "/api/v1/auth/signup",
-                    "/api/v1/members/{id}",
-                    "/**"
+                    "/api/v1/members/{id}"
                 )
                     .permitAll()
                     .anyRequest().authenticated()
