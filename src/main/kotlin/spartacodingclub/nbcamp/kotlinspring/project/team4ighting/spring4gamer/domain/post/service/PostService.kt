@@ -24,7 +24,13 @@ class PostService(
 ) {
 
     @Transactional
-    fun createPost(channelId: Long, boardId: Long, request: CreatePostRequest, memberId: Long): PostResponse {
+    fun createPost(
+        channelId: Long,
+        boardId: Long,
+        request: CreatePostRequest,
+        memberId: Long
+    ): PostResponse {
+
         // TODO: 각 Entity 구현 후 주석 해제
         // val channel = channelRepository.findByIdOrNull(channelId) ?: throw ModelNotFountException("Channel", channelId)
         // val board = boardRepository.findByIdOrNull(boardId) ?: throw ModelNotFoundException("Board", boardId)
@@ -37,13 +43,18 @@ class PostService(
                 ),
                 board = Board(), // TODO: Board 구현 후 Board() -> 위 board로 대체
                 memberId = memberId,
-                auther = "TEST USER" // TODO: Member 구현 후 삭제
-//                auther = member.nickname // TODO: Member 구현 후 사용
+                author = "TEST USER" // TODO: Member 구현 후 삭제
+//                author = member.nickname // TODO: Member 구현 후 사용
             )
         ).toResponse()
     }
 
-    fun getPostList(channelId: Long, boardId: Long, pageable: Pageable): Page<PostSimplifiedResponse> {
+    fun getPostList(
+        channelId: Long,
+        boardId: Long,
+        pageable: Pageable
+    ): Page<PostSimplifiedResponse> {
+
         // TODO: 각 Entity 구현 후 주석 해제
         // val channel = channelRepository.findByIdOrNull(channelId) ?: throw ModelNotFountException("Channel", channelId)
         // val board = boardRepository.findByIdOrNull(boardId) ?: throw ModelNotFoundException("Board", boardId)
@@ -54,7 +65,9 @@ class PostService(
     }
 
     fun getPost(
-        channelId: Long, boardId: Long, postId: Long
+        channelId: Long,
+        boardId: Long,
+        postId: Long
     ): PostResponse {
 
         // TODO: 각 Entity 구현 후 주석 해제
@@ -74,7 +87,8 @@ class PostService(
         memberId: Long
     ): PostResponse {
 
-        val post = postRepository.findByIdOrNull(postId) ?: throw ModelNotFoundException("Post", postId)
+        val post = postRepository.findByIdOrNull(postId)
+            ?: throw ModelNotFoundException("Post", postId)
 
         if (post.memberId != memberId) {
             throw CustomAccessDeniedException("해당 게시글에 대한 수정 권한이 없습니다.")
@@ -96,7 +110,8 @@ class PostService(
         memberId: Long
     ) {
 
-        val post = postRepository.findByIdOrNull(postId) ?: throw ModelNotFoundException("Post", postId)
+        val post = postRepository.findByIdOrNull(postId)
+            ?: throw ModelNotFoundException("Post", postId)
 
         if (post.memberId != memberId) {
             throw CustomAccessDeniedException("해당 게시글에 대한 삭제 권한이 없습니다.")

@@ -26,6 +26,7 @@ class PostController(
         @PathVariable("boardId") boardId: Long,
         @RequestBody request: CreatePostRequest
     ): ResponseEntity<PostResponse> {
+
         // TODO: 로그인 구현 후 임시 유저 ID인 1L 제거
         return ResponseEntity
             .status(HttpStatus.CREATED)
@@ -38,6 +39,7 @@ class PostController(
         @PathVariable("boardId") boardId: Long,
         @PageableDefault(page = 0, size = 10, sort = ["createdAt"], direction = Sort.Direction.DESC) pageable: Pageable
     ): ResponseEntity<Page<PostSimplifiedResponse>> {
+
         return ResponseEntity
             .status(HttpStatus.OK)
             .body(postService.getPostList(channelId, boardId, pageable))
@@ -49,6 +51,7 @@ class PostController(
         @PathVariable("boardId") boardId: Long,
         @PathVariable("postId") postId: Long
     ): ResponseEntity<PostResponse> {
+
         return ResponseEntity
             .status(HttpStatus.OK)
             .body(postService.getPost(channelId, boardId, postId))
@@ -68,7 +71,7 @@ class PostController(
             .status(HttpStatus.OK)
             .body(postService.updatePost(channelId, boardId, postId, request, 2L))
     }
-    // TODO: 게시글 삭제 - DELETE
+
     @DeleteMapping("/{postId}")
     fun deletePost(
         //        @AuthenticationPrincipal memberId: Long, // TODO: 로그인 구현 후 사용 예정
@@ -79,6 +82,8 @@ class PostController(
 
         postService.deletePost(channelId, boardId, postId, 1L)
 
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
+        return ResponseEntity
+            .status(HttpStatus.NO_CONTENT)
+            .build()
     }
 }

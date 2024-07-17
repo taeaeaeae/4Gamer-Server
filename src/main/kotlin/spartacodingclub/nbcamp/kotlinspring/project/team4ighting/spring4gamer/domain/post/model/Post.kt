@@ -15,8 +15,9 @@ class Post private constructor(
     body: String,
     board: Board,
     memberId: Long,
-    auther: String
+    author: String
 ) {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null
@@ -35,7 +36,7 @@ class Post private constructor(
     @Column(name = "member_id", nullable = false)
     val memberId: Long = memberId
 
-    val auther: String = auther
+    val author: String = author
 
     //    @ManyToMany(fetch = FetchType.LAZY)
 //    @JoinColumn(name = "board_id", nullable = false)
@@ -52,18 +53,28 @@ class Post private constructor(
 
     companion object {
 
-        fun from(request: CreatePostRequest, board: Board, memberId: Long, auther: String): Post {
+        fun from(
+            request: CreatePostRequest,
+            board: Board,
+            memberId: Long,
+            author: String)
+        : Post {
+
             return Post(
                 title = request.title,
                 body = request.body,
                 board = board,
                 memberId = memberId,
-                auther = auther
+                author = author
             )
         }
     }
 
-    fun update(title: String, body: String) {
+    fun update(
+        title: String,
+        body: String
+    ) {
+
         this.title = title
         this.body = body
         this.updatedAt = ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
@@ -71,9 +82,9 @@ class Post private constructor(
 }
 
 fun Post.toResponse(): PostResponse {
-    return PostResponse(id!!, title, body, views, createdAt, updatedAt, auther, Board())
+    return PostResponse(id!!, title, body, views, createdAt, updatedAt, author, Board()) // TODO: Board 구현 후 수정해야 함
 }
 
 fun Post.toPostSimplifiedResponse(): PostSimplifiedResponse {
-    return PostSimplifiedResponse(id!!, title, views, auther, createdAt)
+    return PostSimplifiedResponse(id!!, title, views, author, createdAt)
 }
