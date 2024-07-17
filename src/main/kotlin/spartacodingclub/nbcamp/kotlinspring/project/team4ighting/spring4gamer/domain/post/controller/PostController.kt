@@ -1,5 +1,7 @@
 package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.controller
 
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
@@ -49,12 +51,14 @@ class PostController(
     fun getPost(
         @PathVariable("channelId") channelId: Long,
         @PathVariable("boardId") boardId: Long,
-        @PathVariable("postId") postId: Long
+        @PathVariable("postId") postId: Long,
+        request: HttpServletRequest,
+        response: HttpServletResponse
     ): ResponseEntity<PostResponse> {
 
         return ResponseEntity
             .status(HttpStatus.OK)
-            .body(postService.getPost(channelId, boardId, postId))
+            .body(postService.getPost(channelId, boardId, postId, request, response))
     }
 
     @PutMapping("/{postId}")

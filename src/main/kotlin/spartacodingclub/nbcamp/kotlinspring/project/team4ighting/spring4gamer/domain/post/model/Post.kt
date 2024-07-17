@@ -32,6 +32,7 @@ class Post private constructor(
 
     @Column(name = "views", nullable = false)
     var views: Long = 0
+        private set
 
     @Column(name = "member_id", nullable = false)
     val memberId: Long = memberId
@@ -78,6 +79,10 @@ class Post private constructor(
         this.title = title
         this.body = body
         this.updatedAt = ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
+    }
+
+    fun updateViews() {
+        this.views += 1
     }
 }
 

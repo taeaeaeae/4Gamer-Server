@@ -1,5 +1,7 @@
 package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.service
 
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
@@ -15,6 +17,7 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.do
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.repository.PostRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception.CustomAccessDeniedException
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception.ModelNotFoundException
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.infra.CookieUtil
 import java.time.ZoneId
 import java.time.ZonedDateTime
 
@@ -64,16 +67,23 @@ class PostService(
             .map { it.toPostSimplifiedResponse() }
     }
 
+    @Transactional
     fun getPost(
         channelId: Long,
         boardId: Long,
-        postId: Long
+        postId: Long,
+        request: HttpServletRequest,
+        response: HttpServletResponse
     ): PostResponse {
 
         // TODO: 각 Entity 구현 후 주석 해제
         // val channel = channelRepository.findByIdOrNull(channelId) ?: throw ModelNotFountException("Channel", channelId)
         // val board = boardRepository.findByIdOrNull(boardId) ?: throw ModelNotFoundException("Board", boardId)
+        // TODO: 1. board에서 channelId와 일치하는지 확인
+        // TODO: 2. post에서 boardId와 일치하는지 확인
         val post = postRepository.findByIdAndBoard(postId, boardId)
+
+        viewCountUp(post, request, response)
 
         return post.toResponse()
     }
@@ -118,6 +128,28 @@ class PostService(
         }
 
         postRepository.delete(post)
+    }
+
+    fun viewCountUp(
+        post: Post,
+        request: HttpServletRequest,
+        response: HttpServletResponse
+    ) {
+
+        request.cookies?.map {
+            if (it.name == "viewCounts") {
+                if (it.value.contains("[${post.id}]")) {
+                    return
+                } else {
+                    CookieUtil.generateMidnightExpiryCookie(post.id!!, it, response)
+                    return post.updateViews()
+                }
+            }
+        }
+
+        CookieUtil.generateMidnightExpiryCookie(post.id!!, null, response)
+
+        return post.updateViews() // 조회수 증가
     }
 }
 
