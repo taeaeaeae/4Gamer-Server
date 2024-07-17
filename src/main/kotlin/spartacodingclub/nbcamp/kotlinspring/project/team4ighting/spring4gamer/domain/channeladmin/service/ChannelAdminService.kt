@@ -7,6 +7,7 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.do
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.board.model.Board
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.board.model.toResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channel.dto.ChannelResponse
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channel.model.Channel
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channel.model.toResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channel.repository.ChannelRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channeladmin.dto.CreateBoardRequest
@@ -48,9 +49,10 @@ class ChannelAdminService(
 
     @Transactional
     fun updateBoard(channelId: Long, boardId: Long, request: UpdateBoardRequest): BoardResponse {
-        val channelAdmin = channelAdminRepository.findByChannelIdAndId(channelId, boardId)
+        val board = channelAdminRepository.findByChannelIdAndId(channelId, boardId)
             ?: throw ModelNotFoundException("Channel", channelId)
-        return channelAdminRepository.save(channelAdmin).toResponse()
+        board.update(request)
+        return board.toResponse()
     }
 
     @Transactional
@@ -84,8 +86,10 @@ class ChannelAdminService(
     @Transactional
     fun updateChannel(channelId: Long, request: UpdateChannelRequest): ChannelResponse {
         val channel = channelRepository.findChannelById(channelId)
-        return channelRepository.save(channel).toResponse()
+        channel.update(request)
+        return channel.toResponse()
     }
+
 
     @Transactional
     fun deleteChannel(channelId: Long) {

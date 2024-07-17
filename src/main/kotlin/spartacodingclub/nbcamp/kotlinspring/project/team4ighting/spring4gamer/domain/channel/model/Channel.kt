@@ -30,9 +30,10 @@ class Channel(
     @OneToMany(mappedBy = "channel", fetch = FetchType.LAZY, orphanRemoval = true)
     val board: List<Board>
 ) {
-    fun updateChannel(updateChannelRequest: UpdateChannelRequest) {
+    fun update(updateChannelRequest: UpdateChannelRequest) {
         title = updateChannelRequest.title
         introduction = updateChannelRequest.introduction
+        updatedAt = ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
     }
 
     @Column(name = "created_at", nullable = false)
