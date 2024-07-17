@@ -19,25 +19,34 @@ class GameReview private constructor(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null
 
+    @Column(name = "game_title", nullable = false)
     val gameTitle = gameTitle
+
+    @Column(name = "description", nullable = false)
     var description: String = description
         private set
 
+    @Column(name = "point", nullable = false)
     var point: Byte = point
         private set
 
+    @Column(name = "member_id", nullable = false)
     val memberId: Long = memberId
 
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "created_at", updatable = false, nullable = false)
     val createdAt: ZonedDateTime = ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
 
-    @Column(name = "updated_at")
+    @Column(name = "updated_at", nullable = false)
     var updatedAt: ZonedDateTime = ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
         private set
 
     companion object {
 
-        fun from(request: CreateGameReviewRequest, memberId: Long): GameReview {
+        fun from(
+            request: CreateGameReviewRequest,
+            memberId: Long
+        ): GameReview {
+
             return GameReview(
                 gameTitle = request.gameTitle,
                 description = request.description,
@@ -47,7 +56,11 @@ class GameReview private constructor(
         }
     }
 
-    fun update(description: String, point: Byte) {
+    fun update(
+        description: String,
+        point: Byte
+    ) {
+
         this.description = description
         this.point = point
         this.updatedAt = ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
@@ -57,5 +70,6 @@ class GameReview private constructor(
 }
 
 fun GameReview.toResponse(): GameReviewResponse {
+
     return GameReviewResponse(id!!, gameTitle, point, description, createdAt, updatedAt)
 }
