@@ -13,6 +13,7 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.do
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.repository.GameReviewRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception.CustomAccessDeniedException
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception.ModelNotFoundException
+import java.util.UUID
 
 @Service
 class GameReviewService(
@@ -22,7 +23,7 @@ class GameReviewService(
     @Transactional
     fun createGameReview(
         request: CreateGameReviewRequest,
-        memberId: Long
+        memberId: UUID
     ): GameReviewResponse {
 
         return gameReviewRepository
@@ -57,7 +58,7 @@ class GameReviewService(
     fun updateGameReview(
         gameReviewId: Long,
         request: UpdateGameReviewRequest,
-        memberId: Long
+        memberId: UUID
     ): GameReviewResponse {
 
         val gameReview = gameReviewRepository.findByIdOrNull(gameReviewId)
@@ -78,7 +79,7 @@ class GameReviewService(
     @Transactional
     fun deleteGameReview(
         gameReviewId: Long,
-        memberId: Long
+        memberId: UUID
     ) {
 
         val gameReview = gameReviewRepository.findByIdOrNull(gameReviewId)

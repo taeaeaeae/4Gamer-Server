@@ -7,11 +7,13 @@ import org.springframework.data.domain.Sort
 import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.CreateGameReviewRequest
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.GameReviewResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.UpdateGameReviewRequest
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.service.GameReviewService
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.infra.security.MemberPrincipal
 
 @RestController
 @RequestMapping("/api/v1/game-reviews")
@@ -21,14 +23,13 @@ class GameReviewController(
 
     @PostMapping
     fun createGameReview(
-//        @AuthenticationPrincipal memberId: Long, // TODO: 로그인 구현 후 사용 예정
+        @AuthenticationPrincipal member: MemberPrincipal,
         @RequestBody @Valid request: CreateGameReviewRequest
     ): ResponseEntity<GameReviewResponse> {
 
-        // TODO: 로그인 구현 후 임시 유저 ID인 1L 제거
         return ResponseEntity
             .status(HttpStatus.CREATED)
-            .body(gameReviewService.createGameReview(request, 1L))
+            .body(gameReviewService.createGameReview(request, member.id))
     }
 
     @GetMapping
@@ -51,31 +52,30 @@ class GameReviewController(
             .body(gameReviewService.getGameReview(gameReviewId))
     }
 
-    @PutMapping("/{reviewId}")
+    @PutMapping("/{gameReviewId}")
     fun updateGameReview(
-//        @AuthenticationPrincipal memberId: Long, // TODO: 로그인 구현 후 사용 예정
+        @AuthenticationPrincipal member: MemberPrincipal,
         @PathVariable gameReviewId: Long,
         @RequestBody @Valid request: UpdateGameReviewRequest
     ): ResponseEntity<GameReviewResponse> {
 
-        // TODO: 로그인 구현 후 임시 유저 ID인 1L 제거
         return ResponseEntity
             .status(HttpStatus.OK)
-            .body(gameReviewService.updateGameReview(gameReviewId, request, 1L))
+            .body(gameReviewService.updateGameReview(gameReviewId, request, member.id))
     }
 
     @DeleteMapping("/{gameReviewId}")
     fun deleteGameReview(
-//        @AuthenticationPrincipal memberId: Long, // TODO: 로그인 구현 후 사용 예정
+        @AuthenticationPrincipal member: MemberPrincipal,
         @PathVariable gameReviewId: Long
     ): ResponseEntity<GameReviewResponse> {
 
-        gameReviewService.deleteGameReview(gameReviewId, 1L)
+        gameReviewService.deleteGameReview(gameReviewId, member.id)
 
         return ResponseEntity
             .status(HttpStatus.NO_CONTENT)
             .build()
     }
-    
+
     // TODO: 리뷰 신고 - POST
 }
