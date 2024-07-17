@@ -5,12 +5,13 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.do
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.model.Post
 import java.time.ZoneId
 import java.time.ZonedDateTime
+import java.util.UUID
 
 @Entity
 @Table(name = "comment")
 class Comment private constructor(
     content: String,
-    memberId: Long,
+    memberId: UUID,
     post: Post,
     author: String
 ) {
@@ -24,7 +25,7 @@ class Comment private constructor(
         private set
 
     @Column(name = "member_id", nullable = false)
-    val memberId: Long = memberId
+    val memberId: UUID = memberId
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
@@ -43,7 +44,7 @@ class Comment private constructor(
 
         fun from(
             content: String,
-            memberId: Long,
+            memberId: UUID,
             post: Post,
             author: String
         ): Comment {

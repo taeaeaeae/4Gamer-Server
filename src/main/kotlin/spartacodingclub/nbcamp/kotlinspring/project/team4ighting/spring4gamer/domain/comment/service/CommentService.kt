@@ -11,14 +11,17 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.do
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.model.Comment
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.model.toResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.repository.CommentRepository
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.repository.MemberRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.repository.PostRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception.CustomAccessDeniedException
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception.ModelNotFoundException
+import java.util.*
 
 @Service
 class CommentService(
     private val commentRepository: CommentRepository,
-    private val postRepository: PostRepository
+    private val postRepository: PostRepository,
+    private val memberRepository: MemberRepository
 ) {
 
     @Transactional
@@ -27,22 +30,20 @@ class CommentService(
         boardId: Long,
         postId: Long,
         request: CreateCommentRequest,
-        memberId: Long
+        memberId: UUID
     ): CommentResponse {
 
         // TODO: board 구현 후 사용 예정
 //        val board = commentRepository.findByIdAndChannel(boardId, channelId) ?: throw ModelNotFoundException("Board", boardId)
         val post = postRepository.findByIdAndBoard(postId, boardId) ?: throw ModelNotFoundException("Post", postId)
-        // TODO: member 구현 후 사용 예정
-//        val member = memberRepository.findByIdOrNull(memberId) ?: throw ModelNotFoundException("Member", memberId)
+        val member = memberRepository.findByIdOrNull(memberId) ?: throw ModelNotFoundException("Member", memberId)
 
         return commentRepository.save(
             Comment.from(
                 content = request.content,
                 memberId = memberId,
                 post = post,
-                author = "TEST USER" // TODO: Member 구현 후 삭제
-//                author = member.nickname // TODO: Member 구현 후 사용
+                author = member.nickname
             )
         ).toResponse()
     }
@@ -69,13 +70,14 @@ class CommentService(
         postId: Long,
         commentId: Long,
         request: UpdateCommentRequest,
-        memberId: Long
+        memberId: UUID
     ): CommentResponse {
 
         // TODO: board 구현 후 사용 예정
 //        val board = commentRepository.findByIdAndChannel(boardId, channelId) ?: throw ModelNotFoundException("Board", boardId)
         val post = postRepository.findByIdAndBoard(postId, boardId) ?: throw ModelNotFoundException("Post", postId)
-        val comment = commentRepository.findByIdAndPostId(commentId, postId) ?: throw ModelNotFoundException("Comment", commentId)
+        val comment =
+            commentRepository.findByIdAndPostId(commentId, postId) ?: throw ModelNotFoundException("Comment", commentId)
 
         if (comment.memberId != memberId) {
             throw CustomAccessDeniedException("해당 댓글에 대한 수정 권한이 없습니다.")
@@ -94,13 +96,14 @@ class CommentService(
         boardId: Long,
         postId: Long,
         commentId: Long,
-        memberId: Long
+        memberId: UUID
     ) {
 
         // TODO: board 구현 후 사용 예정
 //        val board = commentRepository.findByIdAndChannel(boardId, channelId) ?: throw ModelNotFoundException("Board", boardId)
         val post = postRepository.findByIdAndBoard(postId, boardId) ?: throw ModelNotFoundException("Post", postId)
-        val comment = commentRepository.findByIdAndPostId(commentId, postId) ?: throw ModelNotFoundException("Comment", commentId)
+        val comment = commentRepository.findByIdAndPostId(commentId, postId)
+            ?: throw ModelNotFoundException("Comment", commentId)
 
         if (comment.memberId != memberId) {
             throw CustomAccessDeniedException("해당 댓글에 대한 삭제 권한이 없습니다.")
