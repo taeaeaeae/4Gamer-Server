@@ -7,6 +7,7 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.do
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.service.Board
 import java.time.ZoneId
 import java.time.ZonedDateTime
+import java.util.*
 
 @Entity
 @Table(name = "post")
@@ -14,7 +15,7 @@ class Post private constructor(
     title: String,
     body: String,
     board: Board,
-    memberId: Long,
+    memberId: UUID,
     author: String
 ) {
 
@@ -35,7 +36,7 @@ class Post private constructor(
         private set
 
     @Column(name = "member_id", nullable = false)
-    val memberId: Long = memberId
+    val memberId: UUID = memberId
 
     val author: String = author
 
@@ -57,9 +58,10 @@ class Post private constructor(
         fun from(
             request: CreatePostRequest,
             board: Board,
-            memberId: Long,
-            author: String)
-        : Post {
+            memberId: UUID,
+            author: String
+        )
+                : Post {
 
             return Post(
                 title = request.title,
