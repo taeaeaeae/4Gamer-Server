@@ -20,7 +20,7 @@ class ChannelService(
     private val memberRepository: MemberRepository,
 ) {
     fun createChannel(request: CreateChannelRequest, id: UUID): ChannelResponse {
-        val member = memberRepository.findByIdOrNull(id) ?: throw ModelNotFoundException("Member", id)
+        val member = memberRepository.findByIdOrNull(id)
         if (request.title.length !in 1..64) {
             throw IllegalStateException("제목은 최소 1자에서 64자까지 가능")
         } else if (request.gameTitle.length > 129) {
@@ -36,7 +36,7 @@ class ChannelService(
                 introduction = request.introduction,
                 alias = request.alias,
                 board = listOf(),
-                member = member
+                member = member!!
             )
         ).toResponse()
     }
