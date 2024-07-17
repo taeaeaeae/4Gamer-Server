@@ -10,7 +10,7 @@ data class MemberResponse(
 ) {
     companion object {
         fun from(member: Member): MemberResponse {
-            return MemberResponse(member.id!!, member.email, member.nickname)
+            return MemberResponse(member.id, member.email, member.nickname)
         }
     }
 }
