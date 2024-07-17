@@ -6,7 +6,7 @@ import org.hibernate.annotations.UpdateTimestamp
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.board.dto.BoardResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channel.model.Channel
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channeladmin.dto.UpdateBoardRequest
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channeladmin.dto.UpdateChannelRequest
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.model.Post
 import java.time.ZoneId
 import java.time.ZonedDateTime
 
@@ -34,8 +34,8 @@ class Board(
     @JoinColumn(name = "channel_id", nullable = false)
     val channel: Channel,
 
-    @OneToMany(mappedBy= "board", fetch = FetchType.LAZY, orphanRemoval = true)
-    val post: Post
+    @OneToMany(mappedBy = "board", fetch = FetchType.LAZY, orphanRemoval = true)
+    val post: List<Post>
 ) {
     fun update(updateBoardRequest: UpdateBoardRequest) {
         title = updateBoardRequest.title

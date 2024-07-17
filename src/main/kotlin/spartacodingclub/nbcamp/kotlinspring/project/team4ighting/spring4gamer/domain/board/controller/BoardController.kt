@@ -2,6 +2,7 @@ package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.d
 
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -13,8 +14,9 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.do
 class BoardController(
     private val boardService: BoardService,
 ) {
+    @GetMapping("/boards")
     fun getBoardList(
-        @PathVariable("boards") channelId: Long,
+        @PathVariable channelId: Long,
     ): ResponseEntity<List<BoardResponse>> {
         return ResponseEntity
             .status(HttpStatus.OK)
