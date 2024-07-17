@@ -8,6 +8,7 @@ data class MemberResponse(
     val email: String,
     val nickname: String
 ) {
+
     companion object {
         fun from(member: Member): MemberResponse {
             return MemberResponse(member.id, member.email, member.nickname)
