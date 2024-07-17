@@ -81,7 +81,7 @@ class PostService(
         // val board = boardRepository.findByIdOrNull(boardId) ?: throw ModelNotFoundException("Board", boardId)
         // TODO: 1. board에서 channelId와 일치하는지 확인
         // TODO: 2. post에서 boardId와 일치하는지 확인
-        val post = postRepository.findByIdAndBoard(postId, boardId)
+        val post = postRepository.findByIdAndBoard(postId, boardId) ?: throw ModelNotFoundException("Post", postId)
 
         viewCountUp(post, request, response)
 

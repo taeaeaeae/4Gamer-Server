@@ -9,5 +9,5 @@ interface PostRepository : JpaRepository<Post, Long> {
 
     fun findByBoard(boardId: Long, pageable: Pageable): Page<Post>
 
-    fun findByIdAndBoard(id: Long, boardId: Long): Post
+    fun findByIdAndBoard(id: Long, boardId: Long): Post?
 }
