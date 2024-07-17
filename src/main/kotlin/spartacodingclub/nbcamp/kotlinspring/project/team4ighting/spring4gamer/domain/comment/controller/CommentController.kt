@@ -1,5 +1,9 @@
 package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.controller
 
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
+import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -27,4 +31,19 @@ class CommentController(
             .status(HttpStatus.CREATED)
             .body(commentService.createComment(channelId, boardId, postId, request, 1L))
     }
+
+    @GetMapping
+    fun getCommentList(
+        @PathVariable("channelId") channelId: Long,
+        @PathVariable("boardId") boardId: Long,
+        @PathVariable("postId") postId: Long,
+        @PageableDefault(page = 0, size = 10, sort = ["createdAt"], direction = Sort.Direction.DESC) pageable: Pageable
+    ): ResponseEntity<Page<CommentResponse>> {
+
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(commentService.getCommentList(channelId, boardId, postId, pageable))
+    }
+    // TODO: 수정
+    // TODO: 삭제
 }

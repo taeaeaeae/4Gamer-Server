@@ -1,5 +1,7 @@
 package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.service
 
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.dto.CommentResponse
@@ -40,5 +42,20 @@ class CommentService(
 //                author = member.nickname // TODO: Member 구현 후 사용
             )
         ).toResponse()
+    }
+
+    fun getCommentList(
+        channelId: Long,
+        boardId: Long,
+        postId: Long,
+        pageable: Pageable
+    ): Page<CommentResponse> {
+
+        // TODO: board 구현 후 사용 예정
+//        val board = commentRepository.findByIdAndChannel(boardId, channelId) ?: throw ModelNotFoundException("Board", boardId)
+        val post = postRepository.findByIdAndBoard(postId, boardId) ?: throw ModelNotFoundException("Post", postId)
+        val comment = commentRepository.findByPostId(postId, pageable)
+
+        return comment.map { it.toResponse() }
     }
 }
