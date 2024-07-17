@@ -5,6 +5,7 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.do
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.GameReviewResponse
 import java.time.ZoneId
 import java.time.ZonedDateTime
+import java.util.*
 
 @Entity
 @Table(name = "game_review")
@@ -12,7 +13,7 @@ class GameReview private constructor(
     gameTitle: String,
     point: Byte,
     description: String,
-    memberId: Long
+    memberId: UUID
 ) {
 
     @Id
@@ -31,7 +32,7 @@ class GameReview private constructor(
         private set
 
     @Column(name = "member_id", nullable = false)
-    val memberId: Long = memberId
+    val memberId: UUID = memberId
 
     @Column(name = "created_at", updatable = false, nullable = false)
     val createdAt: ZonedDateTime = ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
@@ -44,7 +45,7 @@ class GameReview private constructor(
 
         fun from(
             request: CreateGameReviewRequest,
-            memberId: Long
+            memberId: UUID
         ): GameReview {
 
             return GameReview(
@@ -65,8 +66,6 @@ class GameReview private constructor(
         this.point = point
         this.updatedAt = ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
     }
-
-    // TODO: 이미지 업로드
 }
 
 fun GameReview.toResponse(): GameReviewResponse {
