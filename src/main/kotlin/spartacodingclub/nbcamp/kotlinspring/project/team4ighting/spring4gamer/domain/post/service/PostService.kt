@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.repository.CommentRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.repository.MemberRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.CreatePostRequest
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.PostResponse
@@ -26,7 +27,8 @@ import java.util.*
 @Service
 class PostService(
     private val postRepository: PostRepository,
-    private val memberRepository: MemberRepository
+    private val memberRepository: MemberRepository,
+    private val commentRepository: CommentRepository
 ) {
 
     @Transactional
@@ -129,6 +131,7 @@ class PostService(
             throw CustomAccessDeniedException("해당 게시글에 대한 삭제 권한이 없습니다.")
         }
 
+        commentRepository.deleteByPostId(postId)
         postRepository.delete(post)
     }
 

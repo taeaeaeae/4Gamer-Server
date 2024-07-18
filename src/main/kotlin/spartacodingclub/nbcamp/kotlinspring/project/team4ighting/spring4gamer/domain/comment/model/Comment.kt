@@ -1,11 +1,10 @@
 package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.model
 
 import jakarta.persistence.*
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.BaseTimeEntity
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.dto.CommentResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.model.Post
-import java.time.ZoneId
-import java.time.ZonedDateTime
-import java.util.UUID
+import java.util.*
 
 @Entity
 @Table(name = "comment")
@@ -14,7 +13,7 @@ class Comment private constructor(
     memberId: UUID,
     post: Post,
     author: String
-) {
+) : BaseTimeEntity() {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,13 +29,6 @@ class Comment private constructor(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
     val post: Post = post
-
-    @Column(name = "created_at", updatable = false, nullable = false)
-    val createdAt: ZonedDateTime = ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
-
-    @Column(name = "updated_at", nullable = false)
-    var updatedAt: ZonedDateTime = ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
-        private set
 
     val author: String = author
 
@@ -61,7 +53,6 @@ class Comment private constructor(
     fun update(content: String) {
 
         this.content = content
-        this.updatedAt = ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
     }
 }
 
