@@ -10,6 +10,7 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.do
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channel.model.Channel
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channel.model.toResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channel.repository.ChannelRepository
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.model.MemberRole
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.repository.MemberRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception.ModelNotFoundException
 import java.util.*
@@ -29,6 +30,8 @@ class ChannelService(
             throw IllegalStateException("소개글은 최소 10자에서 256자까지 가능")
         }
 
+        member!!.role = MemberRole.CHANNEL_ADMIN
+
         return channelRepository.save(
             Channel(
                 title = request.title,
@@ -36,7 +39,8 @@ class ChannelService(
                 introduction = request.introduction,
                 alias = request.alias,
                 board = listOf(),
-                member = member!!
+                member = member,
+                admin = id.toString()
             )
         ).toResponse()
     }

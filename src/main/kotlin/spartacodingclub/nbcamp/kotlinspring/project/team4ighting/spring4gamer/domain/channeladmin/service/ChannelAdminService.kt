@@ -64,11 +64,11 @@ class ChannelAdminService(
 
     @Transactional
     fun doBlack(channelId: Long, memberId: UUID, id: UUID): ChannelBlackList {
-        val channel = channelRepository.findChannelById(channelId)
+        val channel = channelRepository.findByIdOrNull(channelId)
         val member = memberRepository.findByIdOrNull(memberId)
         return channelBlackListRepository.save(
             ChannelBlackList.doBlack(
-                channel,
+                channel!!,
                 member!!,
             )
         )
@@ -77,7 +77,7 @@ class ChannelAdminService(
     @Transactional
     fun unBlack(channelId: Long, memberId: UUID, id: UUID) {
         val channelBlackListId = ChannelBlackListId()
-        channelBlackListId.channel = channelRepository.findChannelById(channelId)
+        channelBlackListId.channel = channelRepository.findByIdOrNull(channelId)
         channelBlackListId.member = memberRepository.findByIdOrNull(memberId)
         val black = channelBlackListRepository.findByChannelBlacklistId(channelBlackListId)
         black?.let { channelBlackListRepository.delete(it) }

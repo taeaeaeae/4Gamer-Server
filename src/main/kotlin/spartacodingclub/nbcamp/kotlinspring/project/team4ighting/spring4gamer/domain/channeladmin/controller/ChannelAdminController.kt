@@ -58,22 +58,23 @@ class ChannelAdminController(
     fun doBlackMember(
         @AuthenticationPrincipal principal: MemberPrincipal,
         @PathVariable channelId: Long,
-        @RequestParam memberId: UUID
+        @RequestParam memberId: String
     ): ResponseEntity<ChannelBlackList> {
+        val memberUUID = UUID.fromString(memberId)
         return ResponseEntity
             .status(HttpStatus.CREATED)
-            .body(channelAdminService.doBlack(channelId, memberId, principal.id))
+            .body(channelAdminService.doBlack(channelId, memberUUID, principal.id))
     } // 회원 이용 차단
 
     @DeleteMapping("/channels/{channelId}/blacklist")
     fun unBlackMember(
         @AuthenticationPrincipal principal: MemberPrincipal,
         @PathVariable channelId: Long,
-        @RequestParam memberId: UUID
+        @RequestParam memberId: String
     ): ResponseEntity<Unit> {
         return ResponseEntity
             .status(HttpStatus.NO_CONTENT)
-            .body(channelAdminService.unBlack(channelId, memberId, principal.id))
+            .body(channelAdminService.unBlack(channelId, UUID.fromString(memberId), principal.id))
     } // 회원 이용 차단 해제
 
     @PutMapping("/{channelId}")

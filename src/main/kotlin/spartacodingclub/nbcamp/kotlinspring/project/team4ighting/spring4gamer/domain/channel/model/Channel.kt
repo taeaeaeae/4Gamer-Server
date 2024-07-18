@@ -18,10 +18,20 @@ class Channel(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
 
+    @Column(name = "title", nullable = false)
     var title: String,
+
+    @Column(name = "gameTitle", nullable = false)
     var gameTitle: String,
+
+    @Column(name = "introduction", nullable = false)
     var introduction: String,
+
+    @Column(name = "alias", nullable = false)
     var alias: String,
+
+    @Column(name = "admin", nullable = false)
+    var admin: String,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
