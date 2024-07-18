@@ -6,9 +6,9 @@ import org.hibernate.annotations.UpdateTimestamp
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.board.model.Board
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channel.dto.ChannelResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channeladmin.dto.UpdateChannelRequest
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.model.Member
 import java.time.ZoneId
 import java.time.ZonedDateTime
+import java.util.*
 
 @Entity
 @Table(name = "channel")
@@ -31,11 +31,8 @@ class Channel(
     var alias: String,
 
     @Column(name = "admin", nullable = false)
-    var admin: String,
+    var admin: UUID,
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", nullable = false)
-    val member: Member,
 
     @OneToMany(mappedBy = "channel", fetch = FetchType.LAZY, orphanRemoval = true)
     val board: List<Board>

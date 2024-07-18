@@ -39,8 +39,7 @@ class ChannelService(
                 introduction = request.introduction,
                 alias = request.alias,
                 board = listOf(),
-                member = member,
-                admin = id.toString()
+                admin = id
             )
         ).toResponse()
     }
