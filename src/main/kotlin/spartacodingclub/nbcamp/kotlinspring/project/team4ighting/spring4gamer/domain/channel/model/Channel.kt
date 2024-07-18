@@ -32,10 +32,6 @@ class Channel(
 
     @Column(name = "admin", nullable = false)
     var admin: UUID,
-
-
-    @OneToMany(mappedBy = "channel", fetch = FetchType.LAZY, orphanRemoval = true)
-    val board: List<Board>
 ) {
     fun update(updateChannelRequest: UpdateChannelRequest) {
         title = updateChannelRequest.title

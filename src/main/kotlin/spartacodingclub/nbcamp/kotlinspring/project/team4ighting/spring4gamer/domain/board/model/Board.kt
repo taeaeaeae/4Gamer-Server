@@ -33,9 +33,6 @@ class Board(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "channel_id", nullable = false)
     val channel: Channel,
-
-    @OneToMany(mappedBy = "board", fetch = FetchType.LAZY, orphanRemoval = true)
-    val post: List<Post>
 ) {
     fun update(updateBoardRequest: UpdateBoardRequest) {
         title = updateBoardRequest.title

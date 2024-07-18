@@ -20,7 +20,10 @@ class ChannelService(
     private val channelRepository: ChannelRepository,
     private val memberRepository: MemberRepository,
 ) {
-    fun createChannel(request: CreateChannelRequest, id: UUID): ChannelResponse {
+    fun createChannel(
+        request: CreateChannelRequest,
+        id: UUID): ChannelResponse {
+
         val member = memberRepository.findByIdOrNull(id)
         if (request.title.length !in 1..64) {
             throw IllegalStateException("제목은 최소 1자에서 64자까지 가능")
@@ -38,19 +41,22 @@ class ChannelService(
                 gameTitle = request.gameTitle,
                 introduction = request.introduction,
                 alias = request.alias,
-                board = listOf(),
                 admin = id
             )
         ).toResponse()
     }
 
     @Transactional
-    fun getChannelList(pageable: Pageable): Slice<ChannelResponse> {
+    fun getChannelList(
+        pageable: Pageable): Slice<ChannelResponse> {
+
         return channelRepository.findAllBy(pageable)
     }
 
     @Transactional
-    fun getChannel(channelId: Long): ChannelResponse {
+    fun getChannel(
+        channelId: Long): ChannelResponse {
+
         val channel = channelRepository.findByIdOrNull(channelId) ?: throw ModelNotFoundException("Channel", channelId)
         return channel.toResponse()
     }

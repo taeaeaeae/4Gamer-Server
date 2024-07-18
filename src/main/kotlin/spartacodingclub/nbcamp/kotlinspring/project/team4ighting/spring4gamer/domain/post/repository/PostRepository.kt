@@ -11,4 +11,6 @@ interface PostRepository : JpaRepository<Post, Long> {
     fun findByBoard(board: Board, pageable: Pageable): Page<Post>
 
     fun findByIdAndBoard(id: Long, board: Board): Post?
+
+    fun deleteByBoard(board: Board)
 }
