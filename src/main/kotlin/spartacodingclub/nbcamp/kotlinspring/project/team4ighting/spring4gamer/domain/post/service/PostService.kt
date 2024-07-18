@@ -21,8 +21,6 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.do
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception.CustomAccessDeniedException
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception.ModelNotFoundException
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.infra.CookieUtil
-import java.time.ZoneId
-import java.time.ZonedDateTime
 import java.util.*
 
 @Service
@@ -41,8 +39,11 @@ class PostService(
         memberId: UUID
     ): PostResponse {
 
-        val board = boardRepository.findByIdAndChannelId(boardId, channelId) ?: throw ModelNotFoundException("Board", boardId)
-        val member = memberRepository.findByIdOrNull(memberId) ?: throw ModelNotFoundException("Member", memberId)
+        val board = boardRepository.findByIdAndChannelId(boardId, channelId)
+            ?: throw ModelNotFoundException("Board", boardId)
+        val member = memberRepository.findByIdOrNull(memberId)
+            ?: throw ModelNotFoundException("Member", memberId)
+
         return postRepository.save(
             Post.from(
                 request = CreatePostRequest(
@@ -62,12 +63,11 @@ class PostService(
         pageable: Pageable
     ): Page<PostSimplifiedResponse> {
 
-        // TODO: 각 Entity 구현 후 주석 해제
-        // val channel = channelRepository.findByIdOrNull(channelId) ?: throw ModelNotFountException("Channel", channelId)
-        // val board = boardRepository.findByIdOrNull(boardId) ?: throw ModelNotFoundException("Board", boardId)
+        val board = boardRepository.findByIdAndChannelId(boardId, channelId)
+            ?: throw ModelNotFoundException("Board", boardId)
 
         return postRepository
-            .findByBoardId(boardId, pageable)
+            .findByBoard(board, pageable)
             .map { it.toPostSimplifiedResponse() }
     }
 
@@ -80,12 +80,10 @@ class PostService(
         response: HttpServletResponse
     ): PostResponse {
 
-        // TODO: 각 Entity 구현 후 주석 해제
-        // val channel = channelRepository.findByIdOrNull(channelId) ?: throw ModelNotFountException("Channel", channelId)
-        // val board = boardRepository.findByIdOrNull(boardId) ?: throw ModelNotFoundException("Board", boardId)
-        // TODO: 1. board에서 channelId와 일치하는지 확인
-        // TODO: 2. post에서 boardId와 일치하는지 확인
-        val post = postRepository.findByIdAndBoardId(postId, boardId) ?: throw ModelNotFoundException("Post", postId)
+        val board = boardRepository.findByIdAndChannelId(boardId, channelId)
+            ?: throw ModelNotFoundException("Board", boardId)
+        val post = postRepository.findByIdAndBoard(postId, board)
+            ?: throw ModelNotFoundException("Post", postId)
 
         viewCountUp(post, request, response)
 
