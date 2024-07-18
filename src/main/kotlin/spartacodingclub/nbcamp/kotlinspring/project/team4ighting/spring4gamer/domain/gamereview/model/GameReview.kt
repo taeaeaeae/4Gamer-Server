@@ -1,10 +1,10 @@
 package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.model
 
 import jakarta.persistence.*
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.BaseTimeEntity
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.CreateGameReviewRequest
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.GameReviewResponse
-import java.time.ZoneId
-import java.time.ZonedDateTime
+import java.util.*
 
 @Entity
 @Table(name = "game_review")
@@ -12,8 +12,8 @@ class GameReview private constructor(
     gameTitle: String,
     point: Byte,
     description: String,
-    memberId: Long
-) {
+    memberId: UUID
+) : BaseTimeEntity() {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,20 +31,13 @@ class GameReview private constructor(
         private set
 
     @Column(name = "member_id", nullable = false)
-    val memberId: Long = memberId
-
-    @Column(name = "created_at", updatable = false, nullable = false)
-    val createdAt: ZonedDateTime = ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
-
-    @Column(name = "updated_at", nullable = false)
-    var updatedAt: ZonedDateTime = ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
-        private set
+    val memberId: UUID = memberId
 
     companion object {
 
         fun from(
             request: CreateGameReviewRequest,
-            memberId: Long
+            memberId: UUID
         ): GameReview {
 
             return GameReview(
@@ -63,10 +56,7 @@ class GameReview private constructor(
 
         this.description = description
         this.point = point
-        this.updatedAt = ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
     }
-
-    // TODO: 이미지 업로드
 }
 
 fun GameReview.toResponse(): GameReviewResponse {

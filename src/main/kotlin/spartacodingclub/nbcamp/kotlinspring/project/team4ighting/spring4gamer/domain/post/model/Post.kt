@@ -1,12 +1,12 @@
 package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.model
 
 import jakarta.persistence.*
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.BaseTimeEntity
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.CreatePostRequest
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.PostResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.PostSimplifiedResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.service.Board
-import java.time.ZoneId
-import java.time.ZonedDateTime
+import java.util.*
 
 @Entity
 @Table(name = "post")
@@ -14,9 +14,9 @@ class Post private constructor(
     title: String,
     body: String,
     board: Board,
-    memberId: Long,
+    memberId: UUID,
     author: String
-) {
+) : BaseTimeEntity() {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,7 +35,7 @@ class Post private constructor(
         private set
 
     @Column(name = "member_id", nullable = false)
-    val memberId: Long = memberId
+    val memberId: UUID = memberId
 
     val author: String = author
 
@@ -45,21 +45,15 @@ class Post private constructor(
     @Column(name = "board_id", nullable = false)
     val board: Long = 1L // TODO: Board 구현 후 수정해야 함
 
-    @Column(name = "created_at", updatable = false, nullable = false)
-    val createdAt: ZonedDateTime = ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
-
-    @Column(name = "updated_at", nullable = false)
-    var updatedAt: ZonedDateTime = ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
-        private set
-
     companion object {
 
         fun from(
             request: CreatePostRequest,
             board: Board,
-            memberId: Long,
-            author: String)
-        : Post {
+            memberId: UUID,
+            author: String
+        )
+                : Post {
 
             return Post(
                 title = request.title,
@@ -78,7 +72,6 @@ class Post private constructor(
 
         this.title = title
         this.body = body
-        this.updatedAt = ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
     }
 
     fun updateViews() {

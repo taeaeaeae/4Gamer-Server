@@ -7,6 +7,8 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.repository.CommentRepository
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.repository.MemberRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.CreatePostRequest
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.PostResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.PostSimplifiedResponse
@@ -20,10 +22,13 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.ex
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.infra.CookieUtil
 import java.time.ZoneId
 import java.time.ZonedDateTime
+import java.util.*
 
 @Service
 class PostService(
-    private val postRepository: PostRepository
+    private val postRepository: PostRepository,
+    private val memberRepository: MemberRepository,
+    private val commentRepository: CommentRepository
 ) {
 
     @Transactional
@@ -31,13 +36,13 @@ class PostService(
         channelId: Long,
         boardId: Long,
         request: CreatePostRequest,
-        memberId: Long
+        memberId: UUID
     ): PostResponse {
 
         // TODO: 각 Entity 구현 후 주석 해제
         // val channel = channelRepository.findByIdOrNull(channelId) ?: throw ModelNotFountException("Channel", channelId)
         // val board = boardRepository.findByIdOrNull(boardId) ?: throw ModelNotFoundException("Board", boardId)
-//        val member = memberRepository.findByIdOrNull(memberId) ?: throw ModelNotFoundException("Member", memberId)
+        val member = memberRepository.findByIdOrNull(memberId) ?: throw ModelNotFoundException("Member", memberId)
         return postRepository.save(
             Post.from(
                 request = CreatePostRequest(
@@ -46,8 +51,7 @@ class PostService(
                 ),
                 board = Board(), // TODO: Board 구현 후 Board() -> 위 board로 대체
                 memberId = memberId,
-                author = "TEST USER" // TODO: Member 구현 후 삭제
-//                author = member.nickname // TODO: Member 구현 후 사용
+                author = member.nickname // TODO: Member 구현 후 사용
             )
         ).toResponse()
     }
@@ -81,7 +85,7 @@ class PostService(
         // val board = boardRepository.findByIdOrNull(boardId) ?: throw ModelNotFoundException("Board", boardId)
         // TODO: 1. board에서 channelId와 일치하는지 확인
         // TODO: 2. post에서 boardId와 일치하는지 확인
-        val post = postRepository.findByIdAndBoard(postId, boardId)
+        val post = postRepository.findByIdAndBoard(postId, boardId) ?: throw ModelNotFoundException("Post", postId)
 
         viewCountUp(post, request, response)
 
@@ -94,7 +98,7 @@ class PostService(
         boardId: Long,
         postId: Long,
         request: UpdatePostRequest,
-        memberId: Long
+        memberId: UUID
     ): PostResponse {
 
         val post = postRepository.findByIdOrNull(postId)
@@ -117,7 +121,7 @@ class PostService(
         channelId: Long,
         boardId: Long,
         postId: Long,
-        memberId: Long
+        memberId: UUID
     ) {
 
         val post = postRepository.findByIdOrNull(postId)
@@ -127,6 +131,7 @@ class PostService(
             throw CustomAccessDeniedException("해당 게시글에 대한 삭제 권한이 없습니다.")
         }
 
+        commentRepository.deleteByPostId(postId)
         postRepository.delete(post)
     }
 
@@ -149,7 +154,7 @@ class PostService(
 
         CookieUtil.generateMidnightExpiryCookie(post.id!!, null, response)
 
-        return post.updateViews() // 조회수 증가
+        return post.updateViews()
     }
 }
 
