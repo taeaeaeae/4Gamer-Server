@@ -22,7 +22,8 @@ class ChannelService(
 ) {
     fun createChannel(
         request: CreateChannelRequest,
-        id: UUID): ChannelResponse {
+        id: UUID
+    ): ChannelResponse {
 
         val member = memberRepository.findByIdOrNull(id)
         if (request.title.length !in 1..64) {
@@ -48,7 +49,8 @@ class ChannelService(
 
     @Transactional
     fun getChannelList(
-        pageable: Pageable): Slice<ChannelResponse> {
+        pageable: Pageable
+    ): Slice<ChannelResponse> {
 
         return channelRepository.findAllBy(pageable)
     }
@@ -57,7 +59,8 @@ class ChannelService(
     fun getChannel(
         channelId: Long): ChannelResponse {
 
-        val channel = channelRepository.findByIdOrNull(channelId) ?: throw ModelNotFoundException("Channel", channelId)
+        val channel = channelRepository.findByIdOrNull(channelId)
+            ?: throw ModelNotFoundException("Channel", channelId)
         return channel.toResponse()
     }
 }

@@ -17,6 +17,7 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.do
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channeladmin.model.ChannelBlackListId
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channeladmin.repository.ChannelAdminRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channeladmin.repository.ChannelBlackListRepository
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.repository.CommentRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.repository.MemberRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.repository.PostRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception.ModelNotFoundException
@@ -29,15 +30,17 @@ class ChannelAdminService(
     private val channelBlackListRepository: ChannelBlackListRepository,
     private val memberRepository: MemberRepository,
     private val boardRepository: BoardRepository,
-    private val postRepository: PostRepository
+    private val postRepository: PostRepository,
 ) {
     @Transactional
     fun createBoard(
         channelId: Long,
         request: CreateBoardRequest,
-        id: UUID): BoardResponse {
+        id: UUID
+    ): BoardResponse {
 
-        val channel = channelRepository.findByIdOrNull(channelId) ?: throw ModelNotFoundException("Channel", channelId)
+        val channel = channelRepository.findByIdOrNull(channelId)
+            ?: throw ModelNotFoundException("Channel", channelId)
         if (request.title.length !in 1..64) {
             throw IllegalStateException("제목은 최소 1자에서 64자까지 가능")
         } else if (request.introduction.length !in 10..256) {
@@ -59,7 +62,8 @@ class ChannelAdminService(
         channelId: Long,
         boardId: Long,
         request: UpdateBoardRequest,
-        id: UUID): BoardResponse {
+        id: UUID
+    ): BoardResponse {
 
         val board = channelAdminRepository.findByIdAndChannelId(boardId, channelId)
             ?: throw ModelNotFoundException("Channel", channelId)
@@ -71,7 +75,8 @@ class ChannelAdminService(
     fun deleteBoard(
         channelId: Long,
         boardId: Long,
-        id: UUID) {
+        id: UUID
+    ) {
 
         val board = channelAdminRepository.findByIdAndChannelId(boardId, channelId)
             ?: throw ModelNotFoundException("Channel", channelId)
@@ -83,14 +88,17 @@ class ChannelAdminService(
     fun doBlack(
         channelId: Long,
         memberId: UUID,
-        id: UUID): ChannelBlackList {
+        id: UUID
+    ): ChannelBlackList {
 
         val channel = channelRepository.findByIdOrNull(channelId)
+            ?: throw ModelNotFoundException("Channel", channelId)
         val member = memberRepository.findByIdOrNull(memberId)
+            ?: throw ModelNotFoundException("Member", memberId)
         return channelBlackListRepository.save(
             ChannelBlackList.doBlack(
-                channel!!,
-                member!!,
+                channel,
+                member,
             )
         )
     }
@@ -99,11 +107,14 @@ class ChannelAdminService(
     fun unBlack(
         channelId: Long,
         memberId: UUID,
-        id: UUID) {
+        id: UUID
+    ) {
 
         val channelBlackListId = ChannelBlackListId()
         channelBlackListId.channel = channelRepository.findByIdOrNull(channelId)
+            ?: throw ModelNotFoundException("Channel", channelId)
         channelBlackListId.member = memberRepository.findByIdOrNull(memberId)
+            ?: throw ModelNotFoundException("Member", memberId)
         val black = channelBlackListRepository.findByChannelBlacklistId(channelBlackListId)
         black?.let { channelBlackListRepository.delete(it) }
     }
@@ -112,10 +123,12 @@ class ChannelAdminService(
     fun updateChannel(
         channelId: Long,
         request: UpdateChannelRequest,
-        id: UUID): ChannelResponse {
+        id: UUID
+    ): ChannelResponse {
 
         val channel = channelRepository.findByIdOrNull(channelId)
-        channel!!.update(request)
+            ?: throw ModelNotFoundException("Channel", channelId)
+        channel.update(request)
         return channel.toResponse()
     }
 
@@ -123,10 +136,12 @@ class ChannelAdminService(
     @Transactional
     fun deleteChannel(
         channelId: Long,
-        id: UUID) {
+        id: UUID
+    ) {
 
         val channel = channelRepository.findByIdOrNull(channelId)
-        boardRepository.deleteByChannel(channel!!)
+            ?: throw ModelNotFoundException("Channel", channelId)
+        boardRepository.deleteByChannel(channel)
         channelRepository.delete(channel)
     }
 }
