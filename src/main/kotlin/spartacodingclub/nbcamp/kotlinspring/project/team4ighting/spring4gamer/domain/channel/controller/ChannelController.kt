@@ -22,6 +22,7 @@ class ChannelController(
         @AuthenticationPrincipal principal: MemberPrincipal,
         @RequestBody request: CreateChannelRequest
     ): ResponseEntity<ChannelResponse> {
+
         return ResponseEntity
             .status(HttpStatus.CREATED)
             .body(channelService.createChannel(request, principal.id))
