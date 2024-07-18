@@ -6,4 +6,5 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.do
 
 interface BoardRepository : JpaRepository<Board, Long> {
 
+    fun findByIdAndChannelId(boardId: Long, channelId: Long): Board?
 }

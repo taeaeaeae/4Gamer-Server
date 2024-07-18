@@ -7,7 +7,7 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.do
 
 interface PostRepository : JpaRepository<Post, Long> {
 
-    fun findByBoard(boardId: Long, pageable: Pageable): Page<Post>
+    fun findByBoardId(boardId: Long, pageable: Pageable): Page<Post>
 
-    fun findByIdAndBoard(id: Long, boardId: Long): Post?
+    fun findByIdAndBoardId(id: Long, boardId: Long): Post?
 }

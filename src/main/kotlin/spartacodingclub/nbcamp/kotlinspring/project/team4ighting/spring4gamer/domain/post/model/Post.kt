@@ -2,10 +2,11 @@ package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.d
 
 import jakarta.persistence.*
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.BaseTimeEntity
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.board.model.Board
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.board.model.toResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.CreatePostRequest
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.PostResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.PostSimplifiedResponse
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.service.Board
 import java.util.*
 
 @Entity
@@ -39,11 +40,9 @@ class Post private constructor(
 
     val author: String = author
 
-    //    @ManyToMany(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "board_id", nullable = false)
-//    val board: Board = board
-    @Column(name = "board_id", nullable = false)
-    val board: Long = 1L // TODO: Board 구현 후 수정해야 함
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "board_id", nullable = false)
+    val board: Board = board
 
     companion object {
 
@@ -52,8 +51,7 @@ class Post private constructor(
             board: Board,
             memberId: UUID,
             author: String
-        )
-                : Post {
+        ): Post {
 
             return Post(
                 title = request.title,
@@ -75,14 +73,17 @@ class Post private constructor(
     }
 
     fun updateViews() {
+
         this.views += 1
     }
 }
 
 fun Post.toResponse(): PostResponse {
-    return PostResponse(id!!, title, body, views, createdAt, updatedAt, author, Board()) // TODO: Board 구현 후 수정해야 함
+
+    return PostResponse(id!!, title, body, views, createdAt, updatedAt, author, board.toResponse())
 }
 
 fun Post.toPostSimplifiedResponse(): PostSimplifiedResponse {
+
     return PostSimplifiedResponse(id!!, title, views, author, createdAt)
 }
