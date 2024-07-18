@@ -64,7 +64,7 @@ class GameReviewController(
     fun deleteGameReview(
         @AuthenticationPrincipal member: MemberPrincipal,
         @PathVariable gameReviewId: Long
-    ): ResponseEntity<GameReviewResponse> {
+    ): ResponseEntity<Unit> {
 
         gameReviewService.deleteGameReview(gameReviewId, member.id)
 
