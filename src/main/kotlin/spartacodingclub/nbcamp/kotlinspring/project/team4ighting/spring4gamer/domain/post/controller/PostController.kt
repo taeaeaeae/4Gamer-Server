@@ -29,24 +29,22 @@ class PostController(
         @PathVariable channelId: Long,
         @PathVariable boardId: Long,
         @RequestBody request: CreatePostRequest
-    ): ResponseEntity<PostResponse> {
+    ): ResponseEntity<PostResponse> =
 
-        return ResponseEntity
+        ResponseEntity
             .status(HttpStatus.CREATED)
             .body(postService.createPost(channelId, boardId, request, member.id))
-    }
 
     @GetMapping
     fun getPostList(
         @PathVariable channelId: Long,
         @PathVariable boardId: Long,
         @PageableDefault(page = 0, size = 10, sort = ["createdAt"], direction = Sort.Direction.DESC) pageable: Pageable
-    ): ResponseEntity<Page<PostSimplifiedResponse>> {
+    ): ResponseEntity<Page<PostSimplifiedResponse>> =
 
-        return ResponseEntity
+        ResponseEntity
             .status(HttpStatus.OK)
             .body(postService.getPostList(channelId, boardId, pageable))
-    }
 
     @GetMapping("/{postId}")
     fun getPost(
@@ -55,12 +53,11 @@ class PostController(
         @PathVariable postId: Long,
         request: HttpServletRequest,
         response: HttpServletResponse
-    ): ResponseEntity<PostResponse> {
+    ): ResponseEntity<PostResponse> =
 
-        return ResponseEntity
+        ResponseEntity
             .status(HttpStatus.OK)
             .body(postService.getPost(channelId, boardId, postId, request, response))
-    }
 
     @PutMapping("/{postId}")
     fun updatePost(
@@ -69,12 +66,11 @@ class PostController(
         @PathVariable boardId: Long,
         @PathVariable postId: Long,
         @RequestBody request: UpdatePostRequest
-    ): ResponseEntity<PostResponse> {
+    ): ResponseEntity<PostResponse> =
 
-        return ResponseEntity
+        ResponseEntity
             .status(HttpStatus.OK)
             .body(postService.updatePost(channelId, boardId, postId, request, member.id))
-    }
 
     @DeleteMapping("/{postId}")
     fun deletePost(
