@@ -42,7 +42,6 @@ class ChannelAdminService(
                 gameTitle = channel.gameTitle,
                 introduction = channel.introduction,
                 channel = channel,
-                post = listOf(),
             )
         ).toResponse()
     }
