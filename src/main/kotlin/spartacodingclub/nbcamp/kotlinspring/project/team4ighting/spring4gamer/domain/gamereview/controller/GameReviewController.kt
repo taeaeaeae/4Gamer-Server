@@ -25,44 +25,40 @@ class GameReviewController(
     fun createGameReview(
         @AuthenticationPrincipal member: MemberPrincipal,
         @RequestBody @Valid request: CreateGameReviewRequest
-    ): ResponseEntity<GameReviewResponse> {
+    ): ResponseEntity<GameReviewResponse> =
 
-        return ResponseEntity
+        ResponseEntity
             .status(HttpStatus.CREATED)
             .body(gameReviewService.createGameReview(request, member.id))
-    }
 
     @GetMapping
     fun getGameReviewList(
         @PageableDefault(page = 0, size = 10, sort = ["createdAt"], direction = Sort.Direction.DESC) pageable: Pageable
-    ): ResponseEntity<Page<GameReviewResponse>> {
+    ): ResponseEntity<Page<GameReviewResponse>> =
 
-        return ResponseEntity
+        ResponseEntity
             .status(HttpStatus.OK)
             .body(gameReviewService.getGameReviewList(pageable))
-    }
 
     @GetMapping("/{gameReviewId}")
     fun getGameReview(
         @PathVariable gameReviewId: Long
-    ): ResponseEntity<GameReviewResponse> {
+    ): ResponseEntity<GameReviewResponse> =
 
-        return ResponseEntity
+        ResponseEntity
             .status(HttpStatus.OK)
             .body(gameReviewService.getGameReview(gameReviewId))
-    }
 
     @PutMapping("/{gameReviewId}")
     fun updateGameReview(
         @AuthenticationPrincipal member: MemberPrincipal,
         @PathVariable gameReviewId: Long,
         @RequestBody @Valid request: UpdateGameReviewRequest
-    ): ResponseEntity<GameReviewResponse> {
+    ): ResponseEntity<GameReviewResponse> =
 
-        return ResponseEntity
+        ResponseEntity
             .status(HttpStatus.OK)
             .body(gameReviewService.updateGameReview(gameReviewId, request, member.id))
-    }
 
     @DeleteMapping("/{gameReviewId}")
     fun deleteGameReview(
