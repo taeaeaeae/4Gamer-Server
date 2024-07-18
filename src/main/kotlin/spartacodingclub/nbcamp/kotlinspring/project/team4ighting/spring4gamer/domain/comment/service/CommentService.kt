@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.board.repository.BoardRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.dto.CommentResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.dto.CreateCommentRequest
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.dto.UpdateCommentRequest
@@ -21,7 +22,8 @@ import java.util.*
 class CommentService(
     private val commentRepository: CommentRepository,
     private val postRepository: PostRepository,
-    private val memberRepository: MemberRepository
+    private val memberRepository: MemberRepository,
+    private val boardRepository: BoardRepository
 ) {
 
     @Transactional
@@ -33,10 +35,12 @@ class CommentService(
         memberId: UUID
     ): CommentResponse {
 
-        // TODO: board 구현 후 사용 예정
-//        val board = commentRepository.findByIdAndChannel(boardId, channelId) ?: throw ModelNotFoundException("Board", boardId)
-        val post = postRepository.findByIdAndBoard(postId, boardId) ?: throw ModelNotFoundException("Post", postId)
-        val member = memberRepository.findByIdOrNull(memberId) ?: throw ModelNotFoundException("Member", memberId)
+        val board = boardRepository.findByIdAndChannelId(boardId, channelId)
+            ?: throw ModelNotFoundException("Board", boardId)
+        val post = postRepository.findByIdAndBoard(postId, board)
+            ?: throw ModelNotFoundException("Post", postId)
+        val member = memberRepository.findByIdOrNull(memberId)
+            ?: throw ModelNotFoundException("Member", memberId)
 
         return commentRepository.save(
             Comment.from(
@@ -55,10 +59,11 @@ class CommentService(
         pageable: Pageable
     ): Page<CommentResponse> {
 
-        // TODO: board 구현 후 사용 예정
-//        val board = commentRepository.findByIdAndChannel(boardId, channelId) ?: throw ModelNotFoundException("Board", boardId)
-        val post = postRepository.findByIdAndBoard(postId, boardId) ?: throw ModelNotFoundException("Post", postId)
-        val comment = commentRepository.findByPostId(postId, pageable)
+        val board = boardRepository.findByIdAndChannelId(boardId, channelId)
+            ?: throw ModelNotFoundException("Board", boardId)
+        val post = postRepository.findByIdAndBoard(postId, board)
+            ?: throw ModelNotFoundException("Post", postId)
+        val comment = commentRepository.findByPost(post, pageable)
 
         return comment.map { it.toResponse() }
     }
@@ -73,11 +78,12 @@ class CommentService(
         memberId: UUID
     ): CommentResponse {
 
-        // TODO: board 구현 후 사용 예정
-//        val board = commentRepository.findByIdAndChannel(boardId, channelId) ?: throw ModelNotFoundException("Board", boardId)
-        val post = postRepository.findByIdAndBoard(postId, boardId) ?: throw ModelNotFoundException("Post", postId)
-        val comment =
-            commentRepository.findByIdAndPostId(commentId, postId) ?: throw ModelNotFoundException("Comment", commentId)
+        val board = boardRepository.findByIdAndChannelId(boardId, channelId)
+            ?: throw ModelNotFoundException("Board", boardId)
+        val post = postRepository.findByIdAndBoard(postId, board)
+            ?: throw ModelNotFoundException("Post", postId)
+        val comment = commentRepository.findByIdAndPost(commentId, post)
+            ?: throw ModelNotFoundException("Comment", commentId)
 
         if (comment.memberId != memberId) {
             throw CustomAccessDeniedException("해당 댓글에 대한 수정 권한이 없습니다.")
@@ -99,10 +105,11 @@ class CommentService(
         memberId: UUID
     ) {
 
-        // TODO: board 구현 후 사용 예정
-//        val board = commentRepository.findByIdAndChannel(boardId, channelId) ?: throw ModelNotFoundException("Board", boardId)
-        val post = postRepository.findByIdAndBoard(postId, boardId) ?: throw ModelNotFoundException("Post", postId)
-        val comment = commentRepository.findByIdAndPostId(commentId, postId)
+        val board = boardRepository.findByIdAndChannelId(boardId, channelId)
+            ?: throw ModelNotFoundException("Board", boardId)
+        val post = postRepository.findByIdAndBoard(postId, board)
+            ?: throw ModelNotFoundException("Post", postId)
+        val comment = commentRepository.findByIdAndPost(commentId, post)
             ?: throw ModelNotFoundException("Comment", commentId)
 
         if (comment.memberId != memberId) {

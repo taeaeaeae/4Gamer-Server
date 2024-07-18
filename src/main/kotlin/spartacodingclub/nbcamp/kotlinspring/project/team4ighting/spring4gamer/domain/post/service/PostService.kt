@@ -129,7 +129,7 @@ class PostService(
             throw CustomAccessDeniedException("해당 게시글에 대한 삭제 권한이 없습니다.")
         }
 
-        commentRepository.deleteByPostId(postId)
+        commentRepository.deleteByPost(post)
         postRepository.delete(post)
     }
 
