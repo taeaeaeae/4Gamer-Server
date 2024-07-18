@@ -26,8 +26,8 @@ class PostController(
     @PostMapping
     fun createPost(
         @AuthenticationPrincipal member: MemberPrincipal,
-        @PathVariable("channelId") channelId: Long,
-        @PathVariable("boardId") boardId: Long,
+        @PathVariable channelId: Long,
+        @PathVariable boardId: Long,
         @RequestBody request: CreatePostRequest
     ): ResponseEntity<PostResponse> {
 
@@ -38,8 +38,8 @@ class PostController(
 
     @GetMapping
     fun getPostList(
-        @PathVariable("channelId") channelId: Long,
-        @PathVariable("boardId") boardId: Long,
+        @PathVariable channelId: Long,
+        @PathVariable boardId: Long,
         @PageableDefault(page = 0, size = 10, sort = ["createdAt"], direction = Sort.Direction.DESC) pageable: Pageable
     ): ResponseEntity<Page<PostSimplifiedResponse>> {
 
@@ -50,9 +50,9 @@ class PostController(
 
     @GetMapping("/{postId}")
     fun getPost(
-        @PathVariable("channelId") channelId: Long,
-        @PathVariable("boardId") boardId: Long,
-        @PathVariable("postId") postId: Long,
+        @PathVariable channelId: Long,
+        @PathVariable boardId: Long,
+        @PathVariable postId: Long,
         request: HttpServletRequest,
         response: HttpServletResponse
     ): ResponseEntity<PostResponse> {
@@ -65,13 +65,12 @@ class PostController(
     @PutMapping("/{postId}")
     fun updatePost(
         @AuthenticationPrincipal member: MemberPrincipal,
-        @PathVariable("channelId") channelId: Long,
-        @PathVariable("boardId") boardId: Long,
-        @PathVariable("postId") postId: Long,
+        @PathVariable channelId: Long,
+        @PathVariable boardId: Long,
+        @PathVariable postId: Long,
         @RequestBody request: UpdatePostRequest
     ): ResponseEntity<PostResponse> {
 
-        // TODO: 로그인 구현 후 임시 유저 ID인 1L 제거
         return ResponseEntity
             .status(HttpStatus.OK)
             .body(postService.updatePost(channelId, boardId, postId, request, member.id))
@@ -80,9 +79,9 @@ class PostController(
     @DeleteMapping("/{postId}")
     fun deletePost(
         @AuthenticationPrincipal member: MemberPrincipal,
-        @PathVariable("channelId") channelId: Long,
-        @PathVariable("boardId") boardId: Long,
-        @PathVariable("postId") postId: Long
+        @PathVariable channelId: Long,
+        @PathVariable boardId: Long,
+        @PathVariable postId: Long
     ): ResponseEntity<Unit> {
 
         postService.deletePost(channelId, boardId, postId, member.id)
