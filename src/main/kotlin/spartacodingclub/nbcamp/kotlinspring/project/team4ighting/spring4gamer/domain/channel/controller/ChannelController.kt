@@ -14,14 +14,14 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.in
 @RestController
 @RequestMapping("/api/v1/channels")
 class ChannelController(
-    private val channelService : ChannelService,
+    private val channelService: ChannelService,
 ) {
 
     @PostMapping
     fun creatChannel(
         @AuthenticationPrincipal principal: MemberPrincipal,
         @RequestBody request: CreateChannelRequest
-    ) : ResponseEntity<ChannelResponse> {
+    ): ResponseEntity<ChannelResponse> {
         return ResponseEntity
             .status(HttpStatus.CREATED)
             .body(channelService.createChannel(request, principal.id))
@@ -36,7 +36,7 @@ class ChannelController(
     @GetMapping("/{channelId}")
     fun getChannel(
         @PathVariable("channelId") channelId: Long,
-    ): ResponseEntity<ChannelResponse>{
+    ): ResponseEntity<ChannelResponse> {
         return ResponseEntity.status(HttpStatus.OK).body(channelService.getChannel(channelId))
     }// 채널 단건 조회
 }
