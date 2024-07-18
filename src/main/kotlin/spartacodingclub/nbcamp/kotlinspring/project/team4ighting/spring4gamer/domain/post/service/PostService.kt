@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.board.repository.BoardRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.repository.CommentRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.repository.MemberRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.CreatePostRequest
@@ -20,15 +21,14 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.do
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception.CustomAccessDeniedException
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception.ModelNotFoundException
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.infra.CookieUtil
-import java.time.ZoneId
-import java.time.ZonedDateTime
 import java.util.*
 
 @Service
 class PostService(
     private val postRepository: PostRepository,
     private val memberRepository: MemberRepository,
-    private val commentRepository: CommentRepository
+    private val commentRepository: CommentRepository,
+    private val boardRepository: BoardRepository
 ) {
 
     @Transactional
@@ -39,19 +39,20 @@ class PostService(
         memberId: UUID
     ): PostResponse {
 
-        // TODO: 각 Entity 구현 후 주석 해제
-        // val channel = channelRepository.findByIdOrNull(channelId) ?: throw ModelNotFountException("Channel", channelId)
-        // val board = boardRepository.findByIdOrNull(boardId) ?: throw ModelNotFoundException("Board", boardId)
-        val member = memberRepository.findByIdOrNull(memberId) ?: throw ModelNotFoundException("Member", memberId)
+        val board = boardRepository.findByIdAndChannelId(boardId, channelId)
+            ?: throw ModelNotFoundException("Board", boardId)
+        val member = memberRepository.findByIdOrNull(memberId)
+            ?: throw ModelNotFoundException("Member", memberId)
+
         return postRepository.save(
             Post.from(
                 request = CreatePostRequest(
                     title = request.title,
                     body = request.body
                 ),
-                board = Board(), // TODO: Board 구현 후 Board() -> 위 board로 대체
+                board = board,
                 memberId = memberId,
-                author = member.nickname // TODO: Member 구현 후 사용
+                author = member.nickname
             )
         ).toResponse()
     }
@@ -62,12 +63,11 @@ class PostService(
         pageable: Pageable
     ): Page<PostSimplifiedResponse> {
 
-        // TODO: 각 Entity 구현 후 주석 해제
-        // val channel = channelRepository.findByIdOrNull(channelId) ?: throw ModelNotFountException("Channel", channelId)
-        // val board = boardRepository.findByIdOrNull(boardId) ?: throw ModelNotFoundException("Board", boardId)
+        val board = boardRepository.findByIdAndChannelId(boardId, channelId)
+            ?: throw ModelNotFoundException("Board", boardId)
 
         return postRepository
-            .findByBoard(boardId, pageable)
+            .findByBoard(board, pageable)
             .map { it.toPostSimplifiedResponse() }
     }
 
@@ -80,12 +80,10 @@ class PostService(
         response: HttpServletResponse
     ): PostResponse {
 
-        // TODO: 각 Entity 구현 후 주석 해제
-        // val channel = channelRepository.findByIdOrNull(channelId) ?: throw ModelNotFountException("Channel", channelId)
-        // val board = boardRepository.findByIdOrNull(boardId) ?: throw ModelNotFoundException("Board", boardId)
-        // TODO: 1. board에서 channelId와 일치하는지 확인
-        // TODO: 2. post에서 boardId와 일치하는지 확인
-        val post = postRepository.findByIdAndBoard(postId, boardId) ?: throw ModelNotFoundException("Post", postId)
+        val board = boardRepository.findByIdAndChannelId(boardId, channelId)
+            ?: throw ModelNotFoundException("Board", boardId)
+        val post = postRepository.findByIdAndBoard(postId, board)
+            ?: throw ModelNotFoundException("Post", postId)
 
         viewCountUp(post, request, response)
 
@@ -155,26 +153,5 @@ class PostService(
         CookieUtil.generateMidnightExpiryCookie(post.id!!, null, response)
 
         return post.updateViews()
-    }
-}
-
-// TODO: Board 구현 후 삭제
-class Board {
-    val id = 1L
-    val title = "Test Board Tile"
-    val introduction = "Test Introduction"
-    val channel: Channel = Channel()
-    val createdAt = ZonedDateTime.of(2024, 7, 16, 12, 12, 12, 12, ZoneId.of("Asia/Seoul"))
-    val updatedAt = ZonedDateTime.of(2024, 7, 16, 12, 12, 12, 12, ZoneId.of("Asia/Seoul"))
-
-    class Channel {
-        val id = 1L
-        val title = "Test Channel Title"
-        val gameTitle = "Test Channel Game"
-        val introduction = "Test Channel Introduction"
-        val alias = "Test Channel Alias"
-
-        val createdAt = ZonedDateTime.of(2024, 7, 16, 12, 12, 12, 12, ZoneId.of("Asia/Seoul"))
-        val updatedAt = ZonedDateTime.of(2024, 7, 16, 12, 12, 12, 12, ZoneId.of("Asia/Seoul"))
     }
 }

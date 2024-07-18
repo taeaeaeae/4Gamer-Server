@@ -1,6 +1,6 @@
 package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto
 
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.service.Board
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.board.dto.BoardResponse
 import java.time.ZonedDateTime
 
 data class PostResponse(
@@ -13,5 +13,5 @@ data class PostResponse(
     val createdAt: ZonedDateTime,
     val updatedAt: ZonedDateTime,
     val author: String, // 닉네임
-    val board: Board,
+    val board: BoardResponse,
 )

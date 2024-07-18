@@ -28,7 +28,7 @@ class Member(
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
-    val role: MemberRole = MemberRole.USER,
+    var role: MemberRole = MemberRole.USER,
 
     @Column(name = "created_at", nullable = false)
     val createdAt: ZonedDateTime,
