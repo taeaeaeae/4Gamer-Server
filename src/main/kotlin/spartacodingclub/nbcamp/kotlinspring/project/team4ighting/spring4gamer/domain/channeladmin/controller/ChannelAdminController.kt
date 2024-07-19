@@ -44,7 +44,7 @@ class ChannelAdminController(
         @AuthenticationPrincipal principal: MemberPrincipal,
         @PathVariable channelId: Long,
         @PathVariable boardId: Long,
-        @RequestBody request: UpdateBoardRequest
+        @RequestBody @Valid request: UpdateBoardRequest
     ): ResponseEntity<BoardResponse> =
 
         ResponseEntity
@@ -108,7 +108,7 @@ class ChannelAdminController(
     fun updateChannel(
         @AuthenticationPrincipal principal: MemberPrincipal,
         @PathVariable channelId: Long,
-        @RequestBody request: UpdateChannelRequest
+        @RequestBody @Valid request: UpdateChannelRequest
     ): ResponseEntity<ChannelResponse> =
 
         ResponseEntity

@@ -2,6 +2,7 @@ package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.d
 
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import jakarta.validation.Valid
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
@@ -28,7 +29,7 @@ class PostController(
         @AuthenticationPrincipal member: MemberPrincipal,
         @PathVariable channelId: Long,
         @PathVariable boardId: Long,
-        @RequestBody request: CreatePostRequest
+        @RequestBody @Valid request: CreatePostRequest
     ): ResponseEntity<PostResponse> =
 
         ResponseEntity
@@ -71,7 +72,7 @@ class PostController(
         @PathVariable channelId: Long,
         @PathVariable boardId: Long,
         @PathVariable postId: Long,
-        @RequestBody request: UpdatePostRequest
+        @RequestBody @Valid request: UpdatePostRequest
     ): ResponseEntity<PostResponse> =
 
         ResponseEntity
