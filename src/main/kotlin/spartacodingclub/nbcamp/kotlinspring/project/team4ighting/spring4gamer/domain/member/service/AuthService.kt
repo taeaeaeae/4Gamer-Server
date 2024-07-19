@@ -9,6 +9,7 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.do
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.dto.request.SignupRequest
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.model.Member
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.model.MemberRole
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.model.toResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.repository.MemberRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.infra.security.jwt.JwtHelper
 
@@ -22,16 +23,20 @@ class AuthService(
     @Transactional
     fun signup(request: SignupRequest): MemberResponse {
 
-        if (memberRepository.existsByEmail(request.email)) throw IllegalArgumentException("이미 가입된 이메일")
-        if (memberRepository.existsByNickname(request.nickname)) throw IllegalArgumentException("이미 존재하는 닉네임")
+        if (memberRepository.existsByEmail(request.email))
+            throw IllegalArgumentException("이미 가입된 이메일")
+        if (memberRepository.existsByNickname(request.nickname))
+            throw IllegalArgumentException("이미 존재하는 닉네임")
 
-        return Member.from(
-            email = request.email,
-            password = passwordEncoder.encode(request.password),
-            nickname = request.nickname,
-        ).let { memberRepository.save(it) }
-            .let { MemberResponse.from(it) }
+        return memberRepository.save(
+            Member.from(
+                email = request.email,
+                password = passwordEncoder.encode(request.password),
+                nickname = request.nickname,
+            )
+        ).toResponse()
     }
+
 
     fun signin(request: SigninRequest): SigninResponse {
 
@@ -41,7 +46,7 @@ class AuthService(
             throw IllegalArgumentException("password가 일치하지 않습니다.")
 
         return SigninResponse(
-            jwtHelper.generateAccessToken(
+            accessToken = jwtHelper.generateAccessToken(
                 subject = member.id.toString(),
                 email = member.email,
                 role = MemberRole.USER.name
