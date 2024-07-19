@@ -1,0 +1,7 @@
+package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channeladmin.repository
+
+import org.springframework.data.jpa.repository.JpaRepository
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channeladmin.model.ChannelBlacklist
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channeladmin.model.ChannelBlacklistId
+
+interface ChannelBlacklistRepository : JpaRepository<ChannelBlacklist, ChannelBlacklistId>
