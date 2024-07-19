@@ -12,5 +12,6 @@ interface PostRepository : JpaRepository<Post, Long> {
 
     fun findByIdAndBoard(id: Long, board: Board): Post?
 
-    fun deleteByBoard(board: Board)
+    fun findAllByBoardId(boardId: Long): List<Post>
+    fun findAllByBoardIdIn(boardId: Iterable<Long>): List<Post>
 }

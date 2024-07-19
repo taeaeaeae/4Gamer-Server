@@ -1,55 +1,64 @@
 package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.board.model
 
 import jakarta.persistence.*
-import org.hibernate.annotations.CreationTimestamp
-import org.hibernate.annotations.UpdateTimestamp
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.board.dto.BoardResponse
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.common.type.BaseTimeEntity
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.board.dto.response.BoardResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channel.model.Channel
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channeladmin.dto.UpdateBoardRequest
-import java.time.ZoneId
-import java.time.ZonedDateTime
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channeladmin.dto.request.CreateBoardRequest
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channeladmin.dto.request.UpdateBoardRequest
 
 @Entity
 @Table(name = "board")
-class Board(
+class Board private constructor(
+    title: String,
+    introduction: String,
+    channel: Channel
+) : BaseTimeEntity() {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null,
+    val id: Long? = null
 
     @Column(name = "title", nullable = false)
-    var title: String,
-
-    @Column(name = "gameTitle", nullable = false)
-    var gameTitle: String,
+    var title: String = title
+        private set
 
     @Column(name = "introduction", nullable = false)
-    var introduction: String,
-
-    @Column(name = "alias", nullable = false)
-    var alias: String,
+    var introduction: String = introduction
+        private set
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "channel_id", nullable = false)
-    val channel: Channel,
-) {
-    fun update(updateBoardRequest: UpdateBoardRequest) {
-        title = updateBoardRequest.title
-        introduction = updateBoardRequest.introduction
-        updatedAt = ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
+    val channel: Channel = channel
+
+
+    companion object {
+
+        fun from(
+            request: CreateBoardRequest,
+            channel: Channel
+        ): Board =
+
+            Board(
+                title = request.title,
+                introduction = request.introduction,
+                channel = channel
+            )
     }
 
-    @Column(name = "created_at", nullable = false)
-    @CreationTimestamp
-    var createdAt: ZonedDateTime = ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
 
-    @Column(name = "updated_at", nullable = false)
-    @UpdateTimestamp
-    var updatedAt: ZonedDateTime = ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
+    fun update(updateBoardRequest: UpdateBoardRequest) {
+
+        title = updateBoardRequest.title
+        introduction = updateBoardRequest.introduction
+    }
 }
 
-fun Board.toResponse(): BoardResponse {
-    return BoardResponse(
-        id!!, title
+fun Board.toResponse(): BoardResponse =
+
+    BoardResponse(
+        id = id!!,
+        title = title,
+        createdAt = createdAt,
+        updatedAt = updatedAt
     )
-}

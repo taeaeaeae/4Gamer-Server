@@ -1,55 +1,78 @@
 package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channel.model
 
 import jakarta.persistence.*
-import org.hibernate.annotations.CreationTimestamp
-import org.hibernate.annotations.UpdateTimestamp
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.board.model.Board
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channel.dto.ChannelResponse
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channeladmin.dto.UpdateChannelRequest
-import java.time.ZoneId
-import java.time.ZonedDateTime
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.common.type.BaseTimeEntity
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channel.dto.request.CreateChannelRequest
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channel.dto.response.ChannelResponse
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channeladmin.dto.request.UpdateChannelRequest
 import java.util.*
 
 @Entity
 @Table(name = "channel")
-class Channel(
+class Channel private constructor(
+    title: String,
+    gameTitle: String,
+    introduction: String,
+    alias: String,
+    admin: UUID
+) : BaseTimeEntity() {
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null,
+    val id: Long? = null
 
     @Column(name = "title", nullable = false)
-    var title: String,
+    var title: String = title
+        private set
 
-    @Column(name = "gameTitle", nullable = false)
-    var gameTitle: String,
+    @Column(name = "game_title", nullable = false)
+    var gameTitle: String = gameTitle
+        private set
 
     @Column(name = "introduction", nullable = false)
-    var introduction: String,
+    var introduction: String = introduction
+        private set
 
     @Column(name = "alias", nullable = false)
-    var alias: String,
+    var alias: String = alias
+        private set
 
     @Column(name = "admin", nullable = false)
-    var admin: UUID,
-) {
-    fun update(updateChannelRequest: UpdateChannelRequest) {
-        title = updateChannelRequest.title
-        introduction = updateChannelRequest.introduction
-        updatedAt = ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
+    var admin: UUID = admin
+        private set
+
+
+    companion object {
+
+        fun from(
+            request: CreateChannelRequest,
+            admin: UUID
+        ): Channel =
+
+            Channel(
+                title = request.title,
+                gameTitle = request.gameTitle,
+                introduction = request.introduction,
+                alias = request.alias,
+                admin = admin
+            )
     }
 
-    @Column(name = "created_at", nullable = false)
-    @CreationTimestamp
-    var createdAt: ZonedDateTime = ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
 
-    @Column(name = "updated_at", nullable = false)
-    @UpdateTimestamp
-    var updatedAt: ZonedDateTime = ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
+    fun update(updateChannelRequest: UpdateChannelRequest) {
+
+        title = updateChannelRequest.title
+        introduction = updateChannelRequest.introduction
+    }
 }
 
-fun Channel.toResponse(): ChannelResponse {
-    return ChannelResponse(
-        id!!, title, gameTitle, introduction, alias,
+fun Channel.toResponse(): ChannelResponse =
+
+    ChannelResponse(
+        id = id!!,
+        title = title,
+        gameTitle = gameTitle,
+        introduction = introduction,
+        alias = alias
     )
-}

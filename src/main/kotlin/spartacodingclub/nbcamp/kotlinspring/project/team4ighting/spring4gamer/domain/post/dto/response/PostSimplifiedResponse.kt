@@ -1,4 +1,4 @@
-package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto
+package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.response
 
 import java.time.ZonedDateTime
 

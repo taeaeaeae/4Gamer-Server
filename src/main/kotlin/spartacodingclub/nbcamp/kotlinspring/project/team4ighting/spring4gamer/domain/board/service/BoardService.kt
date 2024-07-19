@@ -2,7 +2,7 @@ package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.d
 
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.board.dto.BoardResponse
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.board.dto.response.BoardResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.board.model.toResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.board.repository.BoardRepository
 
@@ -12,7 +12,8 @@ class BoardService(
 ) {
 
     @Transactional
-    fun getBoardList(channelId: Long): List<BoardResponse> {
-        return boardRepository.findAll().map { it.toResponse() }
-    }
+    fun getBoardList(channelId: Long): List<BoardResponse> =
+
+        boardRepository.findAll()
+            .map { it.toResponse() }
 }

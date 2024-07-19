@@ -8,12 +8,12 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.do
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.model.Member
 
 @Embeddable
-class ChannelBlackListId {
+class ChannelBlacklistId (
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "channel_id", nullable = false)
-    var channel: Channel? = null
+    var channel: Channel? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     var member: Member? = null
-}
+)

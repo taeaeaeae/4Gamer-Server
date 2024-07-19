@@ -1,8 +1,8 @@
 package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.model
 
 import jakarta.persistence.*
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.BaseTimeEntity
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.dto.CommentResponse
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.common.type.BaseTimeEntity
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.dto.response.CommentResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.model.Post
 import java.util.*
 
@@ -30,7 +30,9 @@ class Comment private constructor(
     @JoinColumn(name = "post_id", nullable = false)
     val post: Post = post
 
+    @Column(name = "author", nullable = false)
     val author: String = author
+
 
     companion object {
 
@@ -39,15 +41,14 @@ class Comment private constructor(
             memberId: UUID,
             post: Post,
             author: String
-        ): Comment {
+        ): Comment =
 
-            return Comment(
+            Comment(
                 content = content,
                 memberId = memberId,
                 post = post,
                 author = author
             )
-        }
     }
 
     fun update(content: String) {
@@ -56,7 +57,12 @@ class Comment private constructor(
     }
 }
 
-fun Comment.toResponse(): CommentResponse {
+fun Comment.toResponse(): CommentResponse =
 
-    return CommentResponse(id!!, content, author)
-}
+    CommentResponse(
+        id = id!!,
+        content = content,
+        author = author,
+        createdAt = createdAt,
+        updatedAt = updatedAt
+    )

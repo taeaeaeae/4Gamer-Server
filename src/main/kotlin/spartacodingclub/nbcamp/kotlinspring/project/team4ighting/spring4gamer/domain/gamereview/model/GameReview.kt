@@ -1,9 +1,9 @@
 package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.model
 
 import jakarta.persistence.*
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.BaseTimeEntity
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.CreateGameReviewRequest
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.GameReviewResponse
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.common.type.BaseTimeEntity
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.request.CreateGameReviewRequest
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.response.GameReviewResponse
 import java.util.*
 
 @Entity
@@ -33,21 +33,22 @@ class GameReview private constructor(
     @Column(name = "member_id", nullable = false)
     val memberId: UUID = memberId
 
+
     companion object {
 
         fun from(
             request: CreateGameReviewRequest,
             memberId: UUID
-        ): GameReview {
+        ): GameReview =
 
-            return GameReview(
+            GameReview(
                 gameTitle = request.gameTitle,
                 description = request.description,
                 point = request.point,
                 memberId = memberId
             )
-        }
     }
+
 
     fun update(
         description: String,
@@ -59,7 +60,13 @@ class GameReview private constructor(
     }
 }
 
-fun GameReview.toResponse(): GameReviewResponse {
+fun GameReview.toResponse(): GameReviewResponse =
 
-    return GameReviewResponse(id!!, gameTitle, point, description, createdAt, updatedAt)
-}
+    GameReviewResponse(
+        id = id!!,
+        gameTitle = gameTitle,
+        point = point,
+        description = description,
+        createdAt = createdAt,
+        updatedAt = updatedAt
+    )

@@ -5,9 +5,9 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.CreateGameReviewRequest
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.GameReviewResponse
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.UpdateGameReviewRequest
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.request.CreateGameReviewRequest
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.response.GameReviewResponse
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.request.UpdateGameReviewRequest
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.model.GameReview
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.model.toResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.repository.GameReviewRepository
@@ -24,35 +24,28 @@ class GameReviewService(
     fun createGameReview(
         request: CreateGameReviewRequest,
         memberId: UUID
-    ): GameReviewResponse {
+    ): GameReviewResponse =
 
-        return gameReviewRepository
-            .save(
-                GameReview.from(
+        gameReviewRepository.save(
+            GameReview.from(
                 request,
                 memberId
-                )
-            ).toResponse()
-    }
+            )
+        ).toResponse()
 
-    fun getGameReviewList(
-        pageable: Pageable
-    ): Page<GameReviewResponse> {
 
-        return gameReviewRepository
-            .findAll(pageable)
+    fun getGameReviewList(pageable: Pageable): Page<GameReviewResponse> =
+
+        gameReviewRepository.findAll(pageable)
             .map { it.toResponse() }
-    }
 
-    fun getGameReview(
-        gameReviewId: Long
-    ): GameReviewResponse {
 
-        val gameReview = gameReviewRepository.findByIdOrNull(gameReviewId)
+    fun getGameReview(gameReviewId: Long): GameReviewResponse =
+
+        gameReviewRepository.findByIdOrNull(gameReviewId)
+            ?.toResponse()
             ?: throw ModelNotFoundException("GameReview", gameReviewId)
 
-        return gameReview.toResponse()
-    }
 
     @Transactional
     fun updateGameReview(
@@ -61,20 +54,21 @@ class GameReviewService(
         memberId: UUID
     ): GameReviewResponse {
 
-        val gameReview = gameReviewRepository.findByIdOrNull(gameReviewId)
+        val targetGameReview = gameReviewRepository.findByIdOrNull(gameReviewId)
                 ?: throw ModelNotFoundException("GameReview", gameReviewId)
 
-        if (gameReview.memberId != memberId) {
+        if (targetGameReview.memberId != memberId) {
             throw CustomAccessDeniedException("해당 게임리뷰에 대한 수정 권한이 없습니다.")
         }
 
-        gameReview.update(
+        targetGameReview.update(
             description = request.description,
             point = request.point
         )
 
-        return gameReview.toResponse()
+        return gameReviewRepository.save(targetGameReview).toResponse()
     }
+
 
     @Transactional
     fun deleteGameReview(
@@ -82,13 +76,13 @@ class GameReviewService(
         memberId: UUID
     ) {
 
-        val gameReview = gameReviewRepository.findByIdOrNull(gameReviewId)
+        val targetGameReview = gameReviewRepository.findByIdOrNull(gameReviewId)
             ?: throw ModelNotFoundException("GameReview", gameReviewId)
 
-        if (gameReview.memberId != memberId) {
+        if (targetGameReview.memberId != memberId) {
             throw CustomAccessDeniedException("해당 게임리뷰에 대한 삭제 권한이 없습니다.")
         }
 
-        gameReviewRepository.delete(gameReview)
+        gameReviewRepository.delete(targetGameReview)
     }
 }
