@@ -21,8 +21,10 @@ class AuthService(
 
     @Transactional
     fun signup(request: SignupRequest): MemberResponse {
+
         if (memberRepository.existsByEmail(request.email)) throw IllegalArgumentException("이미 가입된 이메일")
         if (memberRepository.existsByNickname(request.nickname)) throw IllegalArgumentException("이미 존재하는 닉네임")
+
         return Member.from(
             email = request.email,
             password = passwordEncoder.encode(request.password),
@@ -32,12 +34,12 @@ class AuthService(
     }
 
     fun signin(request: SigninRequest): SigninResponse {
-        val member = memberRepository.findByEmail(request.email) ?: throw IllegalArgumentException("회원정보를 찾을 수 없습니다.")
-        if (!passwordEncoder.matches(
-                request.password,
-                member.password
-            )
-        ) throw IllegalArgumentException("password가 일치하지 않습니다.")
+
+        val member = memberRepository.findByEmail(request.email)
+            ?: throw IllegalArgumentException("회원정보를 찾을 수 없습니다.")
+        if (!passwordEncoder.matches(request.password, member.password))
+            throw IllegalArgumentException("password가 일치하지 않습니다.")
+
         return SigninResponse(
             jwtHelper.generateAccessToken(
                 subject = member.id.toString(),
@@ -46,5 +48,4 @@ class AuthService(
             )
         )
     }
-
 }

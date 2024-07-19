@@ -12,21 +12,28 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.ex
 class GlobalExceptionHandler {
 
     @ExceptionHandler(ModelNotFoundException::class)
-    fun handleModelNotFoundException(e: ModelNotFoundException): ResponseEntity<ErrorResponse> {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse(e.message))
-    }
+    fun handleModelNotFoundException(e: ModelNotFoundException): ResponseEntity<ErrorResponse> =
+
+        ResponseEntity
+            .status(HttpStatus.NOT_FOUND)
+            .body(ErrorResponse(e.message))
+
 
     @ExceptionHandler(CustomAccessDeniedException::class)
-    fun handleCustomAccessDeniedException(e: CustomAccessDeniedException): ResponseEntity<ErrorResponse> {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorResponse(e.message))
-    }
+    fun handleCustomAccessDeniedException(e: CustomAccessDeniedException): ResponseEntity<ErrorResponse> =
+
+        ResponseEntity
+            .status(HttpStatus.FORBIDDEN)
+            .body(ErrorResponse(e.message))
+
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
     fun handleMethodArgumentNotValidException(
         e: MethodArgumentNotValidException,
         bindingResult: BindingResult
-    ): ResponseEntity<ErrorResponse> {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+    ): ResponseEntity<ErrorResponse> =
+
+        ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
             .body(ErrorResponse(bindingResult.fieldError?.defaultMessage))
-    }
 }

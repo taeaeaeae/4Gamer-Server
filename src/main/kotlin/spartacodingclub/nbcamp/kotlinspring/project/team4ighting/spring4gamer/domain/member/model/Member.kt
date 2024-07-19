@@ -41,14 +41,14 @@ class Member(
 ) {
 
     companion object {
-        fun from(email: String, password: String, nickname: String): Member {
-            return Member(
+
+        fun from(email: String, password: String, nickname: String): Member =
+
+            Member(
                 email = email,
                 password = password,
                 nickname = nickname,
                 createdAt = ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
             )
-        }
     }
-
 }

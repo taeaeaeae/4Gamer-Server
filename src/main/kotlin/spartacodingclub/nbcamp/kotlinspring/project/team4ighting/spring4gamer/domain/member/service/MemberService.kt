@@ -15,11 +15,13 @@ class MemberService(
 ) {
 
     fun getMember(id: UUID): MemberResponse {
+
         val member = repository.findByIdOrNull(id) ?: throw EntityNotFoundException("model not found")
         return MemberResponse.from(member)
     }
 
     fun getSimpleMember(id: UUID): MemberSimplifiedResponse {
+        
         val member = repository.findByIdOrNull(id) ?: throw EntityNotFoundException("model not found")
         return MemberSimplifiedResponse.from(member)
     }

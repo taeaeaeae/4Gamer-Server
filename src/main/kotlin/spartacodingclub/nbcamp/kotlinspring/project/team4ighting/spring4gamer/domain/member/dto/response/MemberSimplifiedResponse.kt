@@ -9,7 +9,9 @@ class MemberSimplifiedResponse(
 ) {
 
     companion object {
+
         fun from(member: Member): MemberSimplifiedResponse =
+
             MemberSimplifiedResponse(member.id, member.nickname)
     }
 }
