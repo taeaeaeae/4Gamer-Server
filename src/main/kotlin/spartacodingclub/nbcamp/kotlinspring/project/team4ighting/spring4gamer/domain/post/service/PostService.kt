@@ -10,10 +10,10 @@ import org.springframework.transaction.annotation.Transactional
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.board.repository.BoardRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.repository.CommentRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.repository.MemberRepository
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.CreatePostRequest
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.PostResponse
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.PostSimplifiedResponse
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.UpdatePostRequest
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.request.CreatePostRequest
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.response.PostResponse
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.response.PostSimplifiedResponse
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.request.UpdatePostRequest
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.model.Post
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.model.toPostSimplifiedResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.model.toResponse
@@ -61,15 +61,14 @@ class PostService(
         channelId: Long,
         boardId: Long,
         pageable: Pageable
-    ): Page<PostSimplifiedResponse> {
+    ): Page<PostSimplifiedResponse> =
 
-        val board = boardRepository.findByIdAndChannelId(boardId, channelId)
-            ?: throw ModelNotFoundException("Board", boardId)
+        postRepository.findByBoard(
+            board = (boardRepository.findByIdAndChannelId(boardId, channelId)
+                ?: throw ModelNotFoundException("Board", boardId)),
+            pageable = pageable
+        ).map { it.toPostSimplifiedResponse() }
 
-        return postRepository
-            .findByBoard(board, pageable)
-            .map { it.toPostSimplifiedResponse() }
-    }
 
     @Transactional
     fun getPost(
@@ -87,8 +86,9 @@ class PostService(
 
         viewCountUp(post, request, response)
 
-        return post.toResponse()
+        return postRepository.save(post).toResponse()
     }
+
 
     @Transactional
     fun updatePost(
@@ -99,20 +99,23 @@ class PostService(
         memberId: UUID
     ): PostResponse {
 
-        val post = postRepository.findByIdOrNull(postId)
+        val board = boardRepository.findByIdAndChannelId(boardId, channelId)
+            ?: throw ModelNotFoundException("Board", boardId)
+        val targetPost = postRepository.findByIdAndBoard(postId, board)
             ?: throw ModelNotFoundException("Post", postId)
 
-        if (post.memberId != memberId) {
+        if (targetPost.memberId != memberId) {
             throw CustomAccessDeniedException("해당 게시글에 대한 수정 권한이 없습니다.")
         }
 
-        post.update(
+        targetPost.update(
             title = request.title,
             body = request.body
         )
 
-        return post.toResponse()
+        return postRepository.save(targetPost).toResponse()
     }
+
 
     @Transactional
     fun deletePost(
@@ -122,18 +125,23 @@ class PostService(
         memberId: UUID
     ) {
 
-        val post = postRepository.findByIdOrNull(postId)
+        val board = boardRepository.findByIdAndChannelId(boardId, channelId)
+            ?: throw ModelNotFoundException("Board", boardId)
+        val targetPost = postRepository.findByIdAndBoard(postId, board)
             ?: throw ModelNotFoundException("Post", postId)
 
-        if (post.memberId != memberId) {
+        if (targetPost.memberId != memberId) {
             throw CustomAccessDeniedException("해당 게시글에 대한 삭제 권한이 없습니다.")
         }
 
-        commentRepository.deleteByPost(post)
-        postRepository.delete(post)
+        val comments = commentRepository.findAllByPostId(targetPost.id!!)
+
+        commentRepository.deleteAllInBatch(comments)
+        postRepository.delete(targetPost)
     }
 
-    fun viewCountUp(
+
+    private fun viewCountUp(
         post: Post,
         request: HttpServletRequest,
         response: HttpServletResponse

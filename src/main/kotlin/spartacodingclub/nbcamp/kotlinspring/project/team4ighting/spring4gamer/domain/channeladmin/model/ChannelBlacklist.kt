@@ -6,16 +6,20 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.do
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.model.Member
 
 @Entity(name = "channelblacklist")
-class ChannelBlackList {
+class ChannelBlacklist (
     @EmbeddedId
-    val channelBlacklistId: ChannelBlackListId = ChannelBlackListId()
+    val id: ChannelBlacklistId
+) {
 
     companion object {
-        fun doBlack(channel: Channel, member: Member): ChannelBlackList {
-            val channelBlackList = ChannelBlackList()
-            channelBlackList.channelBlacklistId.channel = channel
-            channelBlackList.channelBlacklistId.member = member
-            return channelBlackList
-        }
+
+        fun from(channel: Channel, member: Member): ChannelBlacklist =
+
+            ChannelBlacklist(
+               id = ChannelBlacklistId(
+                   channel = channel,
+                   member = member
+               )
+            )
     }
 }

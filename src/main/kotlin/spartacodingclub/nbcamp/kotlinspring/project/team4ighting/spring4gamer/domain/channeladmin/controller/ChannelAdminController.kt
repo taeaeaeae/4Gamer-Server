@@ -1,101 +1,128 @@
 package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channeladmin.controller
 
+import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.board.dto.BoardResponse
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channel.dto.ChannelResponse
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channeladmin.dto.CreateBoardRequest
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channeladmin.dto.UpdateBoardRequest
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channeladmin.dto.UpdateChannelRequest
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channeladmin.model.ChannelBlackList
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.board.dto.response.BoardResponse
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channel.dto.response.ChannelResponse
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channeladmin.dto.request.CreateBoardRequest
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channeladmin.dto.request.UpdateBoardRequest
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channeladmin.dto.request.UpdateChannelRequest
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channeladmin.model.ChannelBlacklist
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channeladmin.service.ChannelAdminService
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.infra.security.MemberPrincipal
 import java.util.*
 
 @RestController
-@RequestMapping("/api/v1/channel-admin")
+@RequestMapping("/api/v1/channel-admin/channels/{channelId}")
 class ChannelAdminController(
     private val channelAdminService: ChannelAdminService
 ) {
-    @PostMapping("/channels/{channelId}/boards")
+
+    /*
+     * 채널 게시판 관련
+     */
+
+    // 채널 게시판 생성
+    @PostMapping("/boards")
     fun creatBoard(
         @AuthenticationPrincipal principal: MemberPrincipal,
         @PathVariable channelId: Long,
-        @RequestBody request: CreateBoardRequest
-    ): ResponseEntity<BoardResponse> {
-        return ResponseEntity
-            .status(HttpStatus.CREATED)
-            .body(channelAdminService.createBoard(channelId, request, principal.id))
-    } // 채널 게시판 생성
+        @RequestBody @Valid request: CreateBoardRequest
+    ): ResponseEntity<BoardResponse> =
 
-    @PutMapping("/channels/{channelId}/boards/{boardId}")
+        ResponseEntity
+            .status(HttpStatus.CREATED)
+            .body(channelAdminService.createBoard(channelId, request))
+
+
+    // 채널 게시판 수정
+    @PutMapping("/boards/{boardId}")
     fun updateBoard(
         @AuthenticationPrincipal principal: MemberPrincipal,
         @PathVariable channelId: Long,
         @PathVariable boardId: Long,
         @RequestBody request: UpdateBoardRequest
-    ): ResponseEntity<BoardResponse> {
-        return ResponseEntity
-            .status(HttpStatus.OK)
-            .body(channelAdminService.updateBoard(channelId, boardId, request, principal.id))
-    } // 채널 게시판 수정
+    ): ResponseEntity<BoardResponse> =
 
-    @DeleteMapping("/channels/{channelId}/boards/{boardId}")
+        ResponseEntity
+            .status(HttpStatus.OK)
+            .body(channelAdminService.updateBoard(channelId, boardId, request))
+
+
+    // 채널 게시판 삭제
+    @DeleteMapping("/boards/{boardId}")
     fun deleteBoard(
         @AuthenticationPrincipal principal: MemberPrincipal,
         @PathVariable channelId: Long,
         @PathVariable boardId: Long,
-    ): ResponseEntity<Unit> {
-        channelAdminService.deleteBoard(channelId, boardId, principal.id)
-        return ResponseEntity
-            .status(HttpStatus.NO_CONTENT)
-            .build()
-    } // 채널 게시판 삭제
+    ): ResponseEntity<Unit> =
 
-    @PostMapping("/channels/{channelId}/blacklist")
+        ResponseEntity
+            .status(HttpStatus.NO_CONTENT)
+            .body(channelAdminService.deleteBoard(channelId, boardId))
+
+
+    /*
+     * 회원 차단 관련
+     */
+
+    // 회원 이용 차단
+    @PostMapping("/blacklist")
     fun doBlackMember(
         @AuthenticationPrincipal principal: MemberPrincipal,
         @PathVariable channelId: Long,
         @RequestParam memberId: String
-    ): ResponseEntity<ChannelBlackList> {
-        val memberUUID = UUID.fromString(memberId)
-        return ResponseEntity
-            .status(HttpStatus.CREATED)
-            .body(channelAdminService.doBlack(channelId, memberUUID, principal.id))
-    } // 회원 이용 차단
+    ): ResponseEntity<ChannelBlacklist> =
 
-    @DeleteMapping("/channels/{channelId}/blacklist")
+        UUID.fromString(memberId).let { memberUUID ->
+            ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(channelAdminService.doBlack(channelId, memberUUID))
+        }
+
+
+    // 회원 이용 차단 해제
+    @DeleteMapping("/blacklist")
     fun unBlackMember(
         @AuthenticationPrincipal principal: MemberPrincipal,
         @PathVariable channelId: Long,
         @RequestParam memberId: String
-    ): ResponseEntity<Unit> {
-        return ResponseEntity
-            .status(HttpStatus.NO_CONTENT)
-            .body(channelAdminService.unBlack(channelId, UUID.fromString(memberId), principal.id))
-    } // 회원 이용 차단 해제
+    ): ResponseEntity<Unit> =
 
-    @PutMapping("/{channelId}")
+        UUID.fromString(memberId).let { memberUUID ->
+            ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .body(channelAdminService.unBlack(channelId, memberUUID))
+        }
+
+
+    /*
+     * 채널 자체 관련
+     */
+
+    // 채널 수정
+    @PutMapping
     fun updateChannel(
         @AuthenticationPrincipal principal: MemberPrincipal,
         @PathVariable channelId: Long,
         @RequestBody request: UpdateChannelRequest
-    ): ResponseEntity<ChannelResponse> {
-        return ResponseEntity
-            .status(HttpStatus.OK)
-            .body(channelAdminService.updateChannel(channelId, request, principal.id))
-    } // 채널 수정
+    ): ResponseEntity<ChannelResponse> =
 
-    @DeleteMapping("/{channelId}")
+        ResponseEntity
+            .status(HttpStatus.OK)
+            .body(channelAdminService.updateChannel(channelId, request))
+
+    // 채널 삭제
+    @DeleteMapping
     fun deleteChannel(
         @AuthenticationPrincipal principal: MemberPrincipal,
         @PathVariable channelId: Long,
-    ): ResponseEntity<Unit> {
-        channelAdminService.deleteChannel(channelId, principal.id)
-        return ResponseEntity
+    ): ResponseEntity<Unit> =
+
+        ResponseEntity
             .status(HttpStatus.NO_CONTENT)
-            .build()
-    } // 채널 삭제
+            .body(channelAdminService.deleteChannel(channelId))
 }

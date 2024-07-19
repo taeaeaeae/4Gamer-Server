@@ -6,9 +6,9 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.board.repository.BoardRepository
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.dto.CommentResponse
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.dto.CreateCommentRequest
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.dto.UpdateCommentRequest
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.dto.response.CommentResponse
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.dto.request.CreateCommentRequest
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.dto.request.UpdateCommentRequest
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.model.Comment
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.model.toResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.repository.CommentRepository
@@ -52,6 +52,7 @@ class CommentService(
         ).toResponse()
     }
 
+
     fun getCommentList(
         channelId: Long,
         boardId: Long,
@@ -63,10 +64,11 @@ class CommentService(
             ?: throw ModelNotFoundException("Board", boardId)
         val post = postRepository.findByIdAndBoard(postId, board)
             ?: throw ModelNotFoundException("Post", postId)
-        val comment = commentRepository.findByPost(post, pageable)
 
-        return comment.map { it.toResponse() }
+        return commentRepository.findByPost(post, pageable)
+            .map { it.toResponse() }
     }
+
 
     @Transactional
     fun updateComment(
@@ -82,19 +84,20 @@ class CommentService(
             ?: throw ModelNotFoundException("Board", boardId)
         val post = postRepository.findByIdAndBoard(postId, board)
             ?: throw ModelNotFoundException("Post", postId)
-        val comment = commentRepository.findByIdAndPost(commentId, post)
+        val targetComment = commentRepository.findByIdAndPost(commentId, post)
             ?: throw ModelNotFoundException("Comment", commentId)
 
-        if (comment.memberId != memberId) {
+        if (targetComment.memberId != memberId) {
             throw CustomAccessDeniedException("해당 댓글에 대한 수정 권한이 없습니다.")
         }
 
-        comment.update(
+        targetComment.update(
             content = request.content
         )
 
-        return comment.toResponse()
+        return commentRepository.save(targetComment).toResponse()
     }
+
 
     @Transactional
     fun deleteComment(
@@ -109,13 +112,13 @@ class CommentService(
             ?: throw ModelNotFoundException("Board", boardId)
         val post = postRepository.findByIdAndBoard(postId, board)
             ?: throw ModelNotFoundException("Post", postId)
-        val comment = commentRepository.findByIdAndPost(commentId, post)
+        val targetComment = commentRepository.findByIdAndPost(commentId, post)
             ?: throw ModelNotFoundException("Comment", commentId)
 
-        if (comment.memberId != memberId) {
+        if (targetComment.memberId != memberId) {
             throw CustomAccessDeniedException("해당 댓글에 대한 삭제 권한이 없습니다.")
         }
 
-        commentRepository.delete(comment)
+        commentRepository.delete(targetComment)
     }
 }

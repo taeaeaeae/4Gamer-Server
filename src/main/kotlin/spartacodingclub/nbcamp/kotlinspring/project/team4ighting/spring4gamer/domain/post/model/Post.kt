@@ -1,12 +1,12 @@
 package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.model
 
 import jakarta.persistence.*
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.BaseTimeEntity
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.common.type.BaseTimeEntity
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.board.model.Board
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.board.model.toResponse
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.CreatePostRequest
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.PostResponse
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.PostSimplifiedResponse
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.request.CreatePostRequest
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.response.PostResponse
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.response.PostSimplifiedResponse
 import java.util.*
 
 @Entity
@@ -44,6 +44,7 @@ class Post private constructor(
     @JoinColumn(name = "board_id", nullable = false)
     val board: Board = board
 
+
     companion object {
 
         fun from(
@@ -51,9 +52,9 @@ class Post private constructor(
             board: Board,
             memberId: UUID,
             author: String
-        ): Post {
+        ): Post =
 
-            return Post(
+            Post(
                 title = request.title,
                 body = request.body,
                 board = board,
@@ -61,7 +62,7 @@ class Post private constructor(
                 author = author
             )
         }
-    }
+
 
     fun update(
         title: String,
@@ -72,18 +73,33 @@ class Post private constructor(
         this.body = body
     }
 
+
     fun updateViews() {
 
         this.views += 1
     }
 }
 
-fun Post.toResponse(): PostResponse {
+fun Post.toResponse(): PostResponse =
 
-    return PostResponse(id!!, title, body, views, createdAt, updatedAt, author, board.toResponse())
-}
+    PostResponse(
+        id = id!!,
+        title = title,
+        body = body,
+        views = views,
+        createdAt = createdAt,
+        updatedAt = updatedAt,
+        author = author,
+        board = board.toResponse()
+    )
 
-fun Post.toPostSimplifiedResponse(): PostSimplifiedResponse {
 
-    return PostSimplifiedResponse(id!!, title, views, author, createdAt)
-}
+fun Post.toPostSimplifiedResponse(): PostSimplifiedResponse =
+
+    PostSimplifiedResponse(
+        id = id!!,
+        title = title,
+        view = views,
+        author = author,
+        createdAt = createdAt
+    )

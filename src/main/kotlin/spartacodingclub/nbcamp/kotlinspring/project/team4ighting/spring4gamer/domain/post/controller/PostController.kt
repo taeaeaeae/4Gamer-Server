@@ -10,10 +10,10 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.CreatePostRequest
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.PostResponse
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.PostSimplifiedResponse
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.UpdatePostRequest
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.request.CreatePostRequest
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.response.PostResponse
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.response.PostSimplifiedResponse
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.request.UpdatePostRequest
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.service.PostService
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.infra.security.MemberPrincipal
 
@@ -35,16 +35,21 @@ class PostController(
             .status(HttpStatus.CREATED)
             .body(postService.createPost(channelId, boardId, request, member.id))
 
+
     @GetMapping
     fun getPostList(
         @PathVariable channelId: Long,
         @PathVariable boardId: Long,
-        @PageableDefault(page = 0, size = 10, sort = ["createdAt"], direction = Sort.Direction.DESC) pageable: Pageable
+        @PageableDefault(
+            page = 0, size = 10,
+            sort = ["createdAt"], direction = Sort.Direction.DESC
+        ) pageable: Pageable
     ): ResponseEntity<Page<PostSimplifiedResponse>> =
 
         ResponseEntity
             .status(HttpStatus.OK)
             .body(postService.getPostList(channelId, boardId, pageable))
+
 
     @GetMapping("/{postId}")
     fun getPost(
@@ -59,6 +64,7 @@ class PostController(
             .status(HttpStatus.OK)
             .body(postService.getPost(channelId, boardId, postId, request, response))
 
+
     @PutMapping("/{postId}")
     fun updatePost(
         @AuthenticationPrincipal member: MemberPrincipal,
@@ -72,18 +78,16 @@ class PostController(
             .status(HttpStatus.OK)
             .body(postService.updatePost(channelId, boardId, postId, request, member.id))
 
+
     @DeleteMapping("/{postId}")
     fun deletePost(
         @AuthenticationPrincipal member: MemberPrincipal,
         @PathVariable channelId: Long,
         @PathVariable boardId: Long,
         @PathVariable postId: Long
-    ): ResponseEntity<Unit> {
+    ): ResponseEntity<Unit> =
 
-        postService.deletePost(channelId, boardId, postId, member.id)
-
-        return ResponseEntity
+        ResponseEntity
             .status(HttpStatus.NO_CONTENT)
-            .build()
-    }
+            .body(postService.deletePost(channelId, boardId, postId, member.id))
 }

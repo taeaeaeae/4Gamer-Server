@@ -11,6 +11,7 @@ interface CommentRepository : JpaRepository<Comment, Long> {
     fun findByPost(post: Post, pageable: Pageable): Page<Comment>
 
     fun findByIdAndPost(commentId: Long, post: Post): Comment?
+    fun findAllByPostIdIn(postIds: Collection<Long>): List<Comment>
 
-    fun deleteByPost(post: Post)
+    fun findAllByPostId(postId: Long): List<Comment>
 }
