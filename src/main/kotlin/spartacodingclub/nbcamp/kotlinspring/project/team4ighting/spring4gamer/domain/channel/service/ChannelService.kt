@@ -28,8 +28,9 @@ class ChannelService(
 
         val member = memberRepository.findByIdOrNull(memberId)
             ?: throw ModelNotFoundException("Member", memberId)
-        member.role = MemberRole.CHANNEL_ADMIN
+        member.assignChannelAdmin()
 
+        memberRepository.save(member)
         return channelRepository.save(
             Channel.from(
                 request = request,

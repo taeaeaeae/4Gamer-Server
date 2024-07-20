@@ -16,6 +16,7 @@ class CustomAuthenticationEntryPoint : AuthenticationEntryPoint {
         response: HttpServletResponse,
         authException: AuthenticationException,
     ) {
+
         response.status = HttpServletResponse.SC_UNAUTHORIZED
         response.contentType = MediaType.APPLICATION_JSON_VALUE
         response.characterEncoding = "UTF-8"

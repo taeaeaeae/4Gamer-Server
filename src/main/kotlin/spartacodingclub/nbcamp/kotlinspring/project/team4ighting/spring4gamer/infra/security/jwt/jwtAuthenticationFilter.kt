@@ -19,6 +19,7 @@ class jwtAuthenticationFilter(
         private val BEARER_PATTERN = Regex("^Bearer (.+?)$")
     }
 
+
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
@@ -42,14 +43,16 @@ class jwtAuthenticationFilter(
                         SecurityContextHolder.getContext().authentication = authentication
                     }
                 }
-
         }
         filterChain.doFilter(request, response)
     }
 
-    private fun HttpServletRequest.getBearer(): String? {
-        return this.getHeader(HttpHeaders.AUTHORIZATION)?.let {
-            BEARER_PATTERN.find(it)?.groupValues?.get(1)
+
+    private fun HttpServletRequest.getBearer(): String? =
+
+        this.getHeader(HttpHeaders.AUTHORIZATION)?.let {
+            BEARER_PATTERN.find(it)
+                ?.groupValues
+                ?.get(1)
         }
-    }
 }

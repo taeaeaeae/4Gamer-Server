@@ -7,6 +7,7 @@ data class SigninRequest(
     @field: Email
     @field: NotBlank
     val email: String,
+
     @field: NotBlank
     val password: String
 )

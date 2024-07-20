@@ -21,10 +21,16 @@ class MemberController(
 
     @GetMapping("/member")
     fun getMember(@AuthenticationPrincipal principal: MemberPrincipal): ResponseEntity<MemberResponse> =
-        ResponseEntity.status(HttpStatus.OK).body(memberService.getMember(principal.id))
+
+        ResponseEntity
+            .status(HttpStatus.OK)
+            .body(memberService.getMember(principal.id))
+
 
     @GetMapping("/members/{id}")
     fun getSimpleMember(@PathVariable id: String): ResponseEntity<MemberSimplifiedResponse> =
-        ResponseEntity.status(HttpStatus.OK).body(memberService.getSimpleMember(UUID.fromString(id)))
 
+        ResponseEntity
+            .status(HttpStatus.OK)
+            .body(memberService.getSimpleMember(UUID.fromString(id)))
 }
