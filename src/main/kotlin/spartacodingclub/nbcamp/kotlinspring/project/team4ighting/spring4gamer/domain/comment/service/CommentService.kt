@@ -10,9 +10,12 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.do
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.dto.request.CreateCommentRequest
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.dto.request.UpdateCommentRequest
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.model.Comment
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.model.CommentReaction
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.model.toResponse
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.repository.CommentReactionRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.repository.CommentRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.repository.MemberRepository
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.model.PostReaction
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.repository.PostRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception.CustomAccessDeniedException
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception.ModelNotFoundException
@@ -23,7 +26,8 @@ class CommentService(
     private val commentRepository: CommentRepository,
     private val postRepository: PostRepository,
     private val memberRepository: MemberRepository,
-    private val boardRepository: BoardRepository
+    private val boardRepository: BoardRepository,
+    private val commentReactionRepository: CommentReactionRepository
 ) {
 
     @Transactional
@@ -120,5 +124,62 @@ class CommentService(
         }
 
         commentRepository.delete(targetComment)
+    }
+
+
+
+    @Transactional
+    fun addReaction(
+        channelId: Long,
+        boardId: Long,
+        postId: Long,
+        commentId: Long,
+        memberId: UUID,
+        isUpvoting: Boolean
+    ) {
+
+        val board = boardRepository.findByIdAndChannelId(boardId, channelId)
+            ?: throw ModelNotFoundException("Board", boardId)
+        val post = postRepository.findByIdAndBoard(postId, board)
+            ?: throw ModelNotFoundException("Post", postId)
+        val targetComment = commentRepository.findByIdAndPost(commentId, post)
+            ?: throw ModelNotFoundException("Comment", commentId)
+        val member = memberRepository.findByIdOrNull(memberId)
+            ?: throw ModelNotFoundException("Member", memberId)
+
+        val reaction = commentReactionRepository.findByIdCommentIdAndIdMemberId(commentId, memberId)
+
+        if (reaction == null) {
+            val newReaction = CommentReaction.from(member, targetComment, isUpvoting)
+
+            targetComment.increaseReaction(isUpvoting)
+            commentReactionRepository.save(newReaction)
+        } else {
+            targetComment.applySwitchedReaction(isUpvoting)
+            reaction.isUpvoting = isUpvoting
+        }
+    }
+
+
+    @Transactional
+    fun deleteReaction(
+        channelId: Long,
+        boardId: Long,
+        postId: Long,
+        commentId: Long,
+        memberId: UUID
+    ) {
+
+        val board = boardRepository.findByIdAndChannelId(boardId, channelId)
+            ?: throw ModelNotFoundException("Board", boardId)
+        val post = postRepository.findByIdAndBoard(postId, board)
+            ?: throw ModelNotFoundException("Post", postId)
+        val targetComment = commentRepository.findByIdAndPost(commentId, post)
+            ?: throw ModelNotFoundException("Comment", commentId)
+        val reaction = commentReactionRepository.findByIdCommentIdAndIdMemberId(commentId, memberId)
+            ?: throw ModelNotFoundException("CommentReaction", "${commentId}/${memberId}")
+
+        targetComment.decreaseReaction(reaction.isUpvoting)
+        commentReactionRepository.delete(reaction)
     }
 }

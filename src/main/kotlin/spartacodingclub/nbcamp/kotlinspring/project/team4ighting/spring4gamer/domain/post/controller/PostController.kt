@@ -91,4 +91,35 @@ class PostController(
         ResponseEntity
             .status(HttpStatus.NO_CONTENT)
             .body(postService.deletePost(channelId, boardId, postId, member.id))
+
+
+    /*
+     * 반응 관련
+     */
+
+    @PutMapping("/{postId}/reaction")
+    fun addReaction(
+        @AuthenticationPrincipal member: MemberPrincipal,
+        @PathVariable channelId: Long,
+        @PathVariable boardId: Long,
+        @PathVariable postId: Long,
+        @RequestParam(name = "is-upvoting", required = true) isUpvoting: Boolean
+    ): ResponseEntity<Unit> =
+
+        ResponseEntity
+            .status(HttpStatus.OK)
+            .body(postService.addReaction(channelId, boardId, postId, member.id, isUpvoting))
+
+
+    @DeleteMapping("/{postId}/reaction")
+    fun deleteREaction(
+        @AuthenticationPrincipal member: MemberPrincipal,
+        @PathVariable channelId: Long,
+        @PathVariable boardId: Long,
+        @PathVariable postId: Long
+    ): ResponseEntity<Unit> =
+
+        ResponseEntity
+            .status(HttpStatus.NO_CONTENT)
+            .body(postService.deleteReaction(channelId, boardId, postId, member.id))
 }

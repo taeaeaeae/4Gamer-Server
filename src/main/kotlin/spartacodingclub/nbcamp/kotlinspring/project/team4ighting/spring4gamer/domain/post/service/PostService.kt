@@ -14,9 +14,8 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.do
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.response.PostResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.response.PostSimplifiedResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.request.UpdatePostRequest
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.model.Post
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.model.toPostSimplifiedResponse
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.model.toResponse
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.model.*
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.repository.PostReactionRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.repository.PostRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception.CustomAccessDeniedException
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception.ModelNotFoundException
@@ -28,7 +27,8 @@ class PostService(
     private val postRepository: PostRepository,
     private val memberRepository: MemberRepository,
     private val commentRepository: CommentRepository,
-    private val boardRepository: BoardRepository
+    private val boardRepository: BoardRepository,
+    private val postReactionRepository: PostReactionRepository
 ) {
 
     @Transactional
@@ -140,6 +140,55 @@ class PostService(
         postRepository.delete(targetPost)
     }
 
+
+    @Transactional
+    fun addReaction(
+        channelId: Long,
+        boardId: Long,
+        postId: Long,
+        memberId: UUID,
+        isUpvoting: Boolean
+    ) {
+
+        val board = boardRepository.findByIdAndChannelId(boardId, channelId)
+            ?: throw ModelNotFoundException("Board", boardId)
+        val targetPost = postRepository.findByIdAndBoard(postId, board)
+            ?: throw ModelNotFoundException("Post", postId)
+        val member = memberRepository.findByIdOrNull(memberId)
+            ?: throw ModelNotFoundException("Member", memberId)
+
+        val reaction = postReactionRepository.findByIdPostIdAndIdMemberId(postId, memberId)
+
+        if (reaction == null) {
+            val newReaction = PostReaction.from(member, targetPost, isUpvoting)
+
+            targetPost.increaseReaction(isUpvoting)
+            postReactionRepository.save(newReaction)
+        } else {
+            targetPost.applySwitchedReaction(isUpvoting)
+            reaction.isUpvoting = isUpvoting
+        }
+    }
+
+
+    @Transactional
+    fun deleteReaction(
+        channelId: Long,
+        boardId: Long,
+        postId: Long,
+        memberId: UUID
+    ) {
+
+        val board = boardRepository.findByIdAndChannelId(boardId, channelId)
+            ?: throw ModelNotFoundException("Board", boardId)
+        val targetPost = postRepository.findByIdAndBoard(postId, board)
+            ?: throw ModelNotFoundException("Post", postId)
+        val reaction = postReactionRepository.findByIdPostIdAndIdMemberId(postId, memberId)
+            ?: throw ModelNotFoundException("PostReaction", "${postId}/${memberId}")
+
+        targetPost.decreaseReaction(reaction.isUpvoting)
+        postReactionRepository.delete(reaction)
+    }
 
     private fun viewCountUp(
         post: Post,

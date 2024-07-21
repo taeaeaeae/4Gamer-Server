@@ -1,8 +1,8 @@
 package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.model
 
 import jakarta.persistence.*
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.common.type.BaseTimeEntity
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.dto.response.CommentResponse
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.common.type.ReactableEntity
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.model.Post
 import java.util.*
 
@@ -13,7 +13,7 @@ class Comment private constructor(
     memberId: UUID,
     post: Post,
     author: String
-) : BaseTimeEntity() {
+) : ReactableEntity() {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

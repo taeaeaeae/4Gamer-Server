@@ -78,4 +78,37 @@ class CommentController(
         ResponseEntity
             .status(HttpStatus.NO_CONTENT)
             .body(commentService.deleteComment(channelId, boardId, postId, commentId, member.id))
+
+
+    /*
+     * 반응 관련
+     */
+
+    @PutMapping("/{commentId}/reaction")
+    fun addReaction(
+        @AuthenticationPrincipal member: MemberPrincipal,
+        @PathVariable channelId: Long,
+        @PathVariable boardId: Long,
+        @PathVariable postId: Long,
+        @PathVariable commentId: Long,
+        @RequestParam("is-upvoting") isUpvoting: Boolean
+    ): ResponseEntity<Unit> =
+
+        ResponseEntity
+            .status(HttpStatus.OK)
+            .body(commentService.addReaction(channelId, boardId, postId, commentId, member.id, isUpvoting))
+
+
+    @DeleteMapping("/{commentId}/reaction")
+    fun deleteReaction(
+        @AuthenticationPrincipal member: MemberPrincipal,
+        @PathVariable channelId: Long,
+        @PathVariable boardId: Long,
+        @PathVariable postId: Long,
+        @PathVariable commentId: Long
+    ): ResponseEntity<Unit> =
+
+        ResponseEntity
+            .status(HttpStatus.NO_CONTENT)
+            .body(commentService.deleteReaction(channelId, boardId, postId, commentId, member.id))
 }
