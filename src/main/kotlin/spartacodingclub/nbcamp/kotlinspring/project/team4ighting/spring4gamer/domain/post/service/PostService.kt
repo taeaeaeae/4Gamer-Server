@@ -16,9 +16,7 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.do
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.request.UpdatePostRequest
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.response.PostReportResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.model.*
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.repository.PostReactionRepository
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.repository.PostReportRepository
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.repository.PostRepository
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.repository.*
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception.CustomAccessDeniedException
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception.ModelNotFoundException
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.infra.CookieUtil
@@ -31,7 +29,9 @@ class PostService(
     private val commentRepository: CommentRepository,
     private val boardRepository: BoardRepository,
     private val postReactionRepository: PostReactionRepository,
-    private val postReportRepository: PostReportRepository
+    private val postReportRepository: PostReportRepository,
+    private val tagRepository: TagRepository,
+    private val postTagRepository: PostTagRepository
 ) {
 
     @Transactional
@@ -47,17 +47,36 @@ class PostService(
         val member = memberRepository.findByIdOrNull(memberId)
             ?: throw ModelNotFoundException("Member", memberId)
 
-        return postRepository.save(
+        val newPost = postRepository.save(
             Post.from(
-                request = CreatePostRequest(
-                    title = request.title,
-                    body = request.body
-                ),
+                request = request,
                 board = board,
                 memberId = memberId,
                 author = member.nickname
             )
-        ).toResponse()
+        )
+
+
+
+        for (tagName in request.tags) {
+            var tag = tagRepository.findByIdOrNull(tagName)
+
+            if(tag == null) {
+                tag = Tag.from(name = tagName)
+                tagRepository.save(tag)
+            }
+            else
+                tag.refresh()
+
+            postTagRepository.save(
+                PostTag.from(
+                    post = newPost,
+                    tag = tag
+                )
+            )
+        }
+
+        return postRepository.save(newPost).toResponse()
     }
 
     fun getPostList(
