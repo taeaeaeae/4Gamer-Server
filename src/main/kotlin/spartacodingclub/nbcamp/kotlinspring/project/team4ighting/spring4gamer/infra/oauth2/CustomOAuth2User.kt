@@ -9,26 +9,19 @@ class CustomOAuth2User(
     private val oAuth2Response: OAuth2Response,
     private val role: String
 ) : OAuth2User {
-    override fun getAttributes(): Map<String, Any>? {
-        return null
-    }
+    override fun getAttributes(): Map<String, Any>? = null
 
     override fun getAuthorities(): Collection<GrantedAuthority> {
-        val collection: MutableCollection<GrantedAuthority> = ArrayList()
 
+        val collection: MutableCollection<GrantedAuthority> = ArrayList()
         collection.add(GrantedAuthority { role })
 
         return collection
     }
 
-    fun email(): String {
-        return oAuth2Response.email
-    }
+    fun email(): String = oAuth2Response.email
 
-    override fun getName(): String {
-        return oAuth2Response.name
-    }
+    override fun getName(): String = oAuth2Response.name
 
-    val username: String
-        get() = oAuth2Response.provider + " " + oAuth2Response.providerId
+    val username: String = oAuth2Response.provider + " " + oAuth2Response.providerId
 }
