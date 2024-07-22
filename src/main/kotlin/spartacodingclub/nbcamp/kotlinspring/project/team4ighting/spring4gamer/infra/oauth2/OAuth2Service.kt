@@ -27,7 +27,7 @@ class OAuth2Service(
         if (existData == null) {
             val member = Member.from(
                 email = oAuth2Response.email,
-                password = UUID.randomUUID().toString(),
+                password = "",
                 nickname = username
             )
             memberRepository.save(member)
