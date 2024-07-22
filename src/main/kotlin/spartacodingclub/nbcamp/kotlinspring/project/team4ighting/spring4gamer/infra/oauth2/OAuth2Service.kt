@@ -8,12 +8,12 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.dto.response.OAuth2Response
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.model.Member
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.repository.MemberRepository
+import java.util.UUID
 
 
 @Service
 class OAuth2Service(
     private val memberRepository: MemberRepository,
-    private val passwordEncoder: PasswordEncoder,
 ) : DefaultOAuth2UserService() {
 
     override fun loadUser(userRequest: OAuth2UserRequest): OAuth2User {
@@ -27,7 +27,7 @@ class OAuth2Service(
         if (existData == null) {
             val member = Member.from(
                 email = oAuth2Response.email,
-                password = "",
+                password = UUID.randomUUID().toString(),
                 nickname = username
             )
             memberRepository.save(member)
