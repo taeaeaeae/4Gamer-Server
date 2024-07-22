@@ -88,6 +88,8 @@ fun Post.toResponse(): PostResponse =
         title = title,
         body = body,
         views = views,
+        upvotes = upvotes,
+        downvotes = downvotes,
         createdAt = createdAt,
         updatedAt = updatedAt,
         author = author,
@@ -101,6 +103,8 @@ fun Post.toPostSimplifiedResponse(): PostSimplifiedResponse =
         id = id!!,
         title = title,
         view = views,
+        upvotes = upvotes,
+        downvotes = downvotes,
         author = author,
         createdAt = createdAt
     )

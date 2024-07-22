@@ -63,6 +63,8 @@ fun Comment.toResponse(): CommentResponse =
         id = id!!,
         content = content,
         author = author,
+        upvotes = upvotes,
+        downvotes = downvotes,
         createdAt = createdAt,
         updatedAt = updatedAt
     )

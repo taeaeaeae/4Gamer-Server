@@ -67,6 +67,8 @@ fun GameReview.toResponse(): GameReviewResponse =
         gameTitle = gameTitle,
         point = point,
         description = description,
+        upvotes = upvotes,
+        downvotes = downvotes,
         createdAt = createdAt,
         updatedAt = updatedAt
     )

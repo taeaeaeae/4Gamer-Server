@@ -7,6 +7,8 @@ data class GameReviewResponse(
     val gameTitle: String,
     val point: Byte,
     val description: String,
+    val upvotes: Long,
+    val downvotes: Long,
     val createdAt: ZonedDateTime,
     val updatedAt: ZonedDateTime
 )

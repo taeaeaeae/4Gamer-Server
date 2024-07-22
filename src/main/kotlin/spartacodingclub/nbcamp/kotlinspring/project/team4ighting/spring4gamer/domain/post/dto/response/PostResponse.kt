@@ -8,8 +8,8 @@ data class PostResponse(
     val title: String,
     val body: String,
     val views: Long, // 조회수
-//    val upvoteCount: Int, // 추천
-//    val downvoteCount: Int, // 비추천
+    val upvotes: Long,
+    val downvotes: Long,
     val createdAt: ZonedDateTime,
     val updatedAt: ZonedDateTime,
     val author: String, // 닉네임
