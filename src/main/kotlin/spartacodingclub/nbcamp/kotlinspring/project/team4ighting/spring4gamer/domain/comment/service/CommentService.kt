@@ -9,13 +9,15 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.do
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.dto.response.CommentResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.dto.request.CreateCommentRequest
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.dto.request.UpdateCommentRequest
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.dto.response.CommentReportResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.model.Comment
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.model.CommentReaction
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.model.CommentReport
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.model.toResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.repository.CommentReactionRepository
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.repository.CommentReportRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.repository.CommentRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.repository.MemberRepository
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.model.PostReaction
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.repository.PostRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception.CustomAccessDeniedException
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception.ModelNotFoundException
@@ -27,7 +29,8 @@ class CommentService(
     private val postRepository: PostRepository,
     private val memberRepository: MemberRepository,
     private val boardRepository: BoardRepository,
-    private val commentReactionRepository: CommentReactionRepository
+    private val commentReactionRepository: CommentReactionRepository,
+    private val commentReportRepository: CommentReportRepository
 ) {
 
     @Transactional
@@ -181,5 +184,34 @@ class CommentService(
 
         targetComment.decreaseReaction(reaction.isUpvoting)
         commentReactionRepository.delete(reaction)
+    }
+
+
+    fun reportComment(
+        channelId: Long,
+        boardId: Long,
+        postId: Long,
+        commentId: Long,
+        memberId: UUID,
+        reason: String
+    ): CommentReportResponse {
+
+
+        val board = boardRepository.findByIdAndChannelId(boardId, channelId)
+            ?: throw ModelNotFoundException("Board", boardId)
+        val post = postRepository.findByIdAndBoard(postId, board)
+            ?: throw ModelNotFoundException("Post", postId)
+        val targetComment = commentRepository.findByIdAndPost(commentId, post)
+            ?: throw ModelNotFoundException("Comment", commentId)
+        val member = memberRepository.findByIdOrNull(memberId)
+            ?: throw ModelNotFoundException("Member", memberId)
+
+        return commentReportRepository.save(
+            CommentReport.from(
+                comment = targetComment,
+                reason = reason,
+                subject = member
+            )
+        ).toResponse()
     }
 }

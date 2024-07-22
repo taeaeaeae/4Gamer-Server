@@ -15,6 +15,7 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.do
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.response.PostResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.response.PostSimplifiedResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.request.UpdatePostRequest
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.response.PostReportResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.service.PostService
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.infra.security.MemberPrincipal
 
@@ -122,4 +123,18 @@ class PostController(
         ResponseEntity
             .status(HttpStatus.NO_CONTENT)
             .body(postService.deleteReaction(channelId, boardId, postId, member.id))
+
+
+    @PostMapping("/{postId}/report")
+    fun reportPost(
+        @AuthenticationPrincipal member: MemberPrincipal,
+        @PathVariable channelId: Long,
+        @PathVariable boardId: Long,
+        @PathVariable postId: Long,
+        @RequestBody reason: String
+    ): ResponseEntity<PostReportResponse> =
+
+        ResponseEntity
+            .status(HttpStatus.CREATED)
+            .body(postService.reportPost(channelId, boardId, postId, reason, member.id))
 }
