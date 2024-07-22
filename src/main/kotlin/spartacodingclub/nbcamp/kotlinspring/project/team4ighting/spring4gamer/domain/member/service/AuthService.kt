@@ -8,7 +8,6 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.do
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.dto.response.SigninResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.dto.request.SignupRequest
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.model.Member
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.model.MemberRole
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.model.toResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.repository.MemberRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.infra.security.jwt.JwtHelper
@@ -49,7 +48,21 @@ class AuthService(
             accessToken = jwtHelper.generateAccessToken(
                 subject = member.id.toString(),
                 email = member.email,
-                role = MemberRole.USER.name
+                role = member.role.name
+            )
+        )
+    }
+
+    fun googleSignin(email: String): SigninResponse {
+
+        val member = memberRepository.findByEmail(email)
+            ?: throw IllegalArgumentException("회원정보를 찾을 수 없습니다.")
+
+        return SigninResponse(
+            accessToken = jwtHelper.generateAccessToken(
+                subject = member.id.toString(),
+                email = email,
+                role = member.role.name
             )
         )
     }
