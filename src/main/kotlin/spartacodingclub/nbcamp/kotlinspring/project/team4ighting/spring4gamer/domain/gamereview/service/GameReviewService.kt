@@ -64,7 +64,7 @@ class GameReviewService(
     ): GameReviewResponse {
 
         val targetGameReview = gameReviewRepository.findByIdOrNull(gameReviewId)
-                ?: throw ModelNotFoundException("GameReview", gameReviewId)
+            ?: throw ModelNotFoundException("GameReview", gameReviewId)
 
         if (targetGameReview.memberId != memberId) {
             throw CustomAccessDeniedException("해당 게임리뷰에 대한 수정 권한이 없습니다.")
@@ -157,4 +157,9 @@ class GameReviewService(
             )
         ).toResponse()
     }
+
+
+    fun getTopReviews(): List<GameReviewResponse> =
+
+        gameReviewRepository.findTopGameReviews().map { it.toResponse() }
 }
