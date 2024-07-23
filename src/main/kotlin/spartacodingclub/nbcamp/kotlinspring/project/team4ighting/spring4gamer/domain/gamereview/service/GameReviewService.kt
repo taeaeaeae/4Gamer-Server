@@ -1,5 +1,6 @@
 package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.service
 
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
@@ -159,6 +160,7 @@ class GameReviewService(
     }
 
 
+    @Cacheable("TopGameReviews", sync = true)
     fun getTopReviews(): List<GameReviewResponse> =
 
         gameReviewRepository.findTopGameReviews().map { it.toResponse() }

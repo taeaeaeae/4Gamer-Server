@@ -1,5 +1,6 @@
 package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.response
 
+import java.io.Serializable
 import java.time.ZonedDateTime
 
 data class GameReviewResponse(
@@ -11,4 +12,4 @@ data class GameReviewResponse(
     val downvotes: Long,
     val createdAt: ZonedDateTime,
     val updatedAt: ZonedDateTime
-)
+): Serializable

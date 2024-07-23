@@ -1,5 +1,6 @@
 package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channel.service
 
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Slice
 import org.springframework.data.repository.findByIdOrNull
@@ -56,6 +57,7 @@ class ChannelService(
             ?: throw ModelNotFoundException("Channel", channelId)
 
 
+    @Cacheable("TopPosts", sync = true)
     fun getChannelTopPostList(channelId: Long): List<PostResponse> =
 
         channelRepository.findTopPosts(channelId).map { it.toResponse() }
