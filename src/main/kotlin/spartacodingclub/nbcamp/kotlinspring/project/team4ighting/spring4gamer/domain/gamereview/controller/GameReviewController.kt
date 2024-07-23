@@ -1,6 +1,7 @@
 package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.controller
 
 import jakarta.validation.Valid
+import org.apache.coyote.Response
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.request.CreateGameReviewRequest
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.response.GameReviewResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.request.UpdateGameReviewRequest
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.response.GameReviewReportResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.service.GameReviewService
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.infra.security.MemberPrincipal
 
@@ -78,5 +80,41 @@ class GameReviewController(
             .body(gameReviewService.deleteGameReview(gameReviewId, member.id))
 
 
-    // TODO: 리뷰 신고 - POST
+    /*
+     * 반응 관련
+     */
+
+    @PutMapping("/{gameReviewId}/reaction")
+    fun addReaction(
+        @AuthenticationPrincipal member: MemberPrincipal,
+        @PathVariable gameReviewId: Long,
+        @RequestParam("is-upvoting") isUpvoting: Boolean
+    ): ResponseEntity<Unit> =
+
+        ResponseEntity
+            .status(HttpStatus.OK)
+            .body(gameReviewService.addReaction(gameReviewId, member.id, isUpvoting))
+
+
+    @DeleteMapping("/{gameReviewId}/reaction")
+    fun deleteReaction(
+        @AuthenticationPrincipal member: MemberPrincipal,
+        @PathVariable gameReviewId: Long
+    ): ResponseEntity<Unit> =
+
+        ResponseEntity
+            .status(HttpStatus.NO_CONTENT)
+            .body(gameReviewService.deleteReaction(gameReviewId, member.id))
+
+
+    @PostMapping("/{gameReviewId}/report")
+    fun reportGameReview(
+        @AuthenticationPrincipal member: MemberPrincipal,
+        @PathVariable gameReviewId: Long,
+        @RequestBody reason: String
+    ): ResponseEntity<GameReviewReportResponse> =
+
+        ResponseEntity
+            .status(HttpStatus.CREATED)
+            .body(gameReviewService.reportGameReview(gameReviewId, member.id, reason))
 }

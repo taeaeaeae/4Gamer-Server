@@ -6,8 +6,8 @@ data class CommentResponse(
     val id: Long,
     val content: String,
     val author: String,
-//    val upvoteCount: Int,
-//    val downvoteCount: Int
+    val upvotes: Long,
+    val downvotes: Long,
     val createdAt: ZonedDateTime,
     val updatedAt: ZonedDateTime
 )

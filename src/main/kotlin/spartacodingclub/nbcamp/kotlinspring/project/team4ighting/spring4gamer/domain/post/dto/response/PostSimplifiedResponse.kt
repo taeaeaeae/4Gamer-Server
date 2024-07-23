@@ -6,6 +6,8 @@ data class PostSimplifiedResponse(
     val id: Long,
     val title: String,
     val view: Long,
+    val upvotes: Long,
+    val downvotes: Long,
     val author: String,
     val createdAt: ZonedDateTime
 )

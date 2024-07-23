@@ -1,9 +1,9 @@
 package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.model
 
 import jakarta.persistence.*
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.common.type.BaseTimeEntity
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.board.model.Board
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.board.model.toResponse
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.common.type.ReactableEntity
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.request.CreatePostRequest
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.response.PostResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.response.PostSimplifiedResponse
@@ -17,7 +17,7 @@ class Post private constructor(
     board: Board,
     memberId: UUID,
     author: String
-) : BaseTimeEntity() {
+) : ReactableEntity() {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -78,6 +78,7 @@ class Post private constructor(
 
         this.views += 1
     }
+
 }
 
 fun Post.toResponse(): PostResponse =
@@ -87,6 +88,8 @@ fun Post.toResponse(): PostResponse =
         title = title,
         body = body,
         views = views,
+        upvotes = upvotes,
+        downvotes = downvotes,
         createdAt = createdAt,
         updatedAt = updatedAt,
         author = author,
@@ -100,6 +103,8 @@ fun Post.toPostSimplifiedResponse(): PostSimplifiedResponse =
         id = id!!,
         title = title,
         view = views,
+        upvotes = upvotes,
+        downvotes = downvotes,
         author = author,
         createdAt = createdAt
     )
