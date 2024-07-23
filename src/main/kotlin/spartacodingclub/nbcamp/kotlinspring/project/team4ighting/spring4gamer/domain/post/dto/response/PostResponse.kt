@@ -1,6 +1,7 @@
 package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.response
 
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.board.dto.response.BoardResponse
+import java.io.Serializable
 import java.time.ZonedDateTime
 
 data class PostResponse(
@@ -14,4 +15,4 @@ data class PostResponse(
     val updatedAt: ZonedDateTime,
     val author: String, // 닉네임
     val board: BoardResponse,
-)
+): Serializable

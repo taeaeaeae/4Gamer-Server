@@ -1,5 +1,6 @@
 package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.service
 
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
@@ -64,7 +65,7 @@ class GameReviewService(
     ): GameReviewResponse {
 
         val targetGameReview = gameReviewRepository.findByIdOrNull(gameReviewId)
-                ?: throw ModelNotFoundException("GameReview", gameReviewId)
+            ?: throw ModelNotFoundException("GameReview", gameReviewId)
 
         if (targetGameReview.memberId != memberId) {
             throw CustomAccessDeniedException("해당 게임리뷰에 대한 수정 권한이 없습니다.")
@@ -157,4 +158,10 @@ class GameReviewService(
             )
         ).toResponse()
     }
+
+
+    @Cacheable("TopGameReviews", sync = true)
+    fun getTopReviews(): List<GameReviewResponse> =
+
+        gameReviewRepository.findTopGameReviews().map { it.toResponse() }
 }
