@@ -28,7 +28,6 @@ class RedisCacheConfig {
             .cacheDefaults(
                 RedisCacheConfiguration
                     .defaultCacheConfig()
-//                    .prefixCacheNameWith(this.javaClass.simpleName + ".")
                     .entryTtl(Duration.ofMinutes(1))
                     .disableCachingNullValues()
                     .serializeKeysWith(
