@@ -25,9 +25,13 @@ class ReCaptchaService(
         map.add("secret", secret)
         map.add("response", token)
 
+        // 사용자 반응과 시크릿키를 reques에 담아서
         val request = HttpEntity(map, headers)
+
+        //구글 에이피아이에 포스트 요청 보내고
         val response = restTemplate.postForEntity(recaptchaUrl, request, String::class.java)
 
+        //응답 받아옴
         return response.body
     }
 
