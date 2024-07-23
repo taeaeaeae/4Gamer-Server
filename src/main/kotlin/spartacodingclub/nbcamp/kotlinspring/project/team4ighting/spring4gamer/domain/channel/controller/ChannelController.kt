@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channel.dto.response.ChannelResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channel.dto.request.CreateChannelRequest
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channel.service.ChannelService
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.response.PostResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.infra.security.MemberPrincipal
 
 @RestController
@@ -47,4 +48,12 @@ class ChannelController(
         ResponseEntity
             .status(HttpStatus.OK)
             .body(channelService.getChannel(channelId))
+
+
+    @GetMapping("/{channelId}/top-posts")
+    fun getChannelTopPostList(@PathVariable channelId: Long): ResponseEntity<List<PostResponse>> =
+
+        ResponseEntity
+            .status(HttpStatus.OK)
+            .body(channelService.getChannelTopPostList(channelId))
 }
