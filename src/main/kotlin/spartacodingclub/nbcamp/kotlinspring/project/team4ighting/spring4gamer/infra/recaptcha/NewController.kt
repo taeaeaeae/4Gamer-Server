@@ -1,8 +1,7 @@
-package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.controller
+package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.infra.recaptcha
 
 import org.springframework.http.*
 import org.springframework.web.bind.annotation.*
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.service.ReCaptchaService
 
 @RestController
 @RequestMapping("/login")
@@ -11,7 +10,7 @@ class NewController(
 ) {
 
     @PostMapping("/validation")
-    fun recaptcha(token: String?): ResponseEntity<String> {
+    fun recaptcha(@RequestParam token: String?): ResponseEntity<RecaptchaResponse> {
 
         return ResponseEntity
             .status(HttpStatus.OK)

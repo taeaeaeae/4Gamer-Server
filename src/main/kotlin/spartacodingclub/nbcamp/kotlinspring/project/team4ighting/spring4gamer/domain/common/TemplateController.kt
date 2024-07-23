@@ -1,6 +1,7 @@
 package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.common
 
 import org.springframework.stereotype.Controller
+import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
 
 @Controller
@@ -12,7 +13,7 @@ class TemplateController {
     }
 
     @GetMapping("/")
-    fun showHome(): String {
+    fun showHome(model: Model): String {
         return "index"
     }
 
