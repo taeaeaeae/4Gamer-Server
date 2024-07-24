@@ -132,7 +132,8 @@ class PostService(
 
         targetPost.update(
             title = request.title,
-            body = request.body
+            body = request.body,
+            attachment = request.attachment
         )
 
         return postRepository.save(targetPost).toResponse()
