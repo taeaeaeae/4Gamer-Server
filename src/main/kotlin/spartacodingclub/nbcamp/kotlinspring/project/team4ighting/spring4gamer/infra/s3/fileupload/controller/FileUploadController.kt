@@ -58,5 +58,7 @@ class FileUploadController(
         @RequestParam file: String,
     ): ResponseEntity<Unit> =
 
-        ResponseEntity.status(HttpStatus.OK).body(fileUploadService.delete(file))
+        ResponseEntity
+            .status(HttpStatus.OK)
+            .body(fileUploadService.delete(file))
 }

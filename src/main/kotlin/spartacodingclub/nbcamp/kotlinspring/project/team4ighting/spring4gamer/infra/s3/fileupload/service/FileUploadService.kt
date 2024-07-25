@@ -20,9 +20,7 @@ class FileUploadService(
 ) {
 
     @Transactional
-    fun preSignedUrl(
-        file: String,
-    ): String {
+    fun preSignedUrl(file: String): String {
 
         val imageTypes = listOf("jpg", "jpeg", "png", "gif", "bmp")
 
@@ -40,9 +38,7 @@ class FileUploadService(
     }
 
     @Transactional
-    fun getFile(
-        file: String
-    ): String {
+    fun getFile(file: String): String {
 
         return s3Client.getUrl(bucket, file).toString()
     }
@@ -72,9 +68,7 @@ class FileUploadService(
     }
 
     @Transactional
-    fun delete(
-        file: String,
-    ) {
+    fun delete(file: String) {
 
         val toDelete = DeleteObjectRequest(bucket, file)
         s3Client.deleteObject(toDelete)
