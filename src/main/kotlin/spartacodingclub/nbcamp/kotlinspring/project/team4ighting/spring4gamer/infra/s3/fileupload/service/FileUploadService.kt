@@ -14,9 +14,9 @@ import java.util.*
 @Service
 class FileUploadService(
     private val s3Client: AmazonS3Client,
-) {
     @Value("\${spring.cloud.aws.s3.bucket}")
-    private lateinit var bucket: String
+    private val bucket: String
+) {
 
     @Transactional
     fun preSignedUrl(
@@ -45,7 +45,11 @@ class FileUploadService(
         return s3Client.getUrl(bucket, file).toString()
     }
 
-    fun find(bucket: String, prefix: String): S3GetResponseDto {
+    fun find(
+        bucket: String,
+        prefix: String
+    ): S3GetResponseDto {
+
         val fileNames = mutableListOf<String>()
         var listObjectsRequest = ListObjectsRequest().withBucketName(bucket)
         if (prefix.isNotEmpty()) {

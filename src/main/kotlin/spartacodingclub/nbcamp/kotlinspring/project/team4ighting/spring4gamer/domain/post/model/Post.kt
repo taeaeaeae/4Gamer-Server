@@ -36,7 +36,7 @@ class Post private constructor(
     var views: Long = 0
         private set
 
-    @Column(name = "attachment", nullable = false)
+    @Column(name = "attachment", nullable = true)
     var attachment: String? = null
         private set
 

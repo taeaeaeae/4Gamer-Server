@@ -38,7 +38,10 @@ class FileUploadController(
 
     // 이미지 전체 조회
     @GetMapping("/{bucket}/**")
-    fun find(@PathVariable bucket: String, request: HttpServletRequest): ResponseEntity<S3GetResponseDto> {
+    fun find(
+        @PathVariable bucket: String,
+        request: HttpServletRequest
+    ): ResponseEntity<S3GetResponseDto> {
         val split = request.requestURI.split("/s3/$bucket")
         val prefix = if (split.size < 2) "" else split[1].substring(1)
         val s3GetResponseDto = fileUploadService.find(bucket, prefix)
