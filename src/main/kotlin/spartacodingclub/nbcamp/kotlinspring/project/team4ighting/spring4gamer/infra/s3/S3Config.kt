@@ -10,15 +10,16 @@ import org.springframework.context.annotation.Configuration
 
 
 @Configuration
-class S3Config {
+class S3Config(
     @Value("\${spring.cloud.aws.credentials.access-key}")
-    private lateinit var accessKey: String
+    private var accessKey: String,
 
     @Value("\${spring.cloud.aws.credentials.secret-key}")
-    private lateinit var secretKey: String
+private var secretKey: String,
 
-    @Value("\${spring.cloud.aws.region.static}")
-    private lateinit var region: String
+@Value("\${spring.cloud.aws.region.static}")
+private var region: String
+) {
 
     @Bean
     fun amazonS3Client(): AmazonS3Client {

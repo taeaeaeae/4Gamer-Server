@@ -5,10 +5,11 @@ import com.amazonaws.services.s3.model.DeleteObjectRequest
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest
 import com.amazonaws.services.s3.model.ListObjectsRequest
 import com.amazonaws.services.s3.model.ObjectListing
+import jakarta.servlet.http.HttpServletRequest
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.infra.s3.fileupload.dto.S3GetResponseDto
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.infra.s3.fileupload.dto.response.S3GetResponseDto
 import java.util.*
 
 @Service
@@ -22,6 +23,7 @@ class FileUploadService(
     fun preSignedUrl(
         file: String,
     ): String {
+
         val imageTypes = listOf("jpg", "jpeg", "png", "gif", "bmp")
 
         val fileExtension = file.substringAfterLast(".", "")
@@ -47,8 +49,11 @@ class FileUploadService(
 
     fun find(
         bucket: String,
-        prefix: String
+        request: HttpServletRequest
     ): S3GetResponseDto {
+
+        val split = request.requestURI.split("/s3/$bucket")
+        val prefix = if (split.size < 2) "" else split[1].substring(1)
 
         val fileNames = mutableListOf<String>()
         var listObjectsRequest = ListObjectsRequest().withBucketName(bucket)
