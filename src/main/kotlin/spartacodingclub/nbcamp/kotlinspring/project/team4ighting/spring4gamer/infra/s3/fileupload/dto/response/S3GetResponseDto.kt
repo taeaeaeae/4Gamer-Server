@@ -8,9 +8,9 @@ data class S3GetResponseDto(
 
         fun from(
             fileNames: List<String>
-        ): S3GetResponseDto {
+        ): S3GetResponseDto =
 
-            return S3GetResponseDto(fileNames)
-        }
+             S3GetResponseDto(fileNames)
+
     }
 }

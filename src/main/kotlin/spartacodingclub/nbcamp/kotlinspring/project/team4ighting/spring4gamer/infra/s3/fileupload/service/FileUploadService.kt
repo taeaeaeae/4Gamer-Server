@@ -38,10 +38,12 @@ class FileUploadService(
     }
 
     @Transactional
-    fun getFile(file: String): String {
+    fun getFile(file: String): String =
 
-        return s3Client.getUrl(bucket, file).toString()
-    }
+        s3Client.getUrl(
+            bucket,
+            file).toString()
+
 
     fun find(
         bucket: String,
@@ -53,10 +55,13 @@ class FileUploadService(
 
         val fileNames = mutableListOf<String>()
         var listObjectsRequest = ListObjectsRequest().withBucketName(bucket)
+
         if (prefix.isNotEmpty()) {
             listObjectsRequest = listObjectsRequest.withPrefix(prefix)
         }
+
         var s3Objects: ObjectListing?
+
         do {
             s3Objects = s3Client.listObjects(listObjectsRequest)
             s3Objects.objectSummaries.forEach { s3ObjectSummary ->
@@ -64,6 +69,7 @@ class FileUploadService(
             }
             listObjectsRequest.marker = s3Objects.nextMarker
         } while (s3Objects!!.isTruncated)
+
         return S3GetResponseDto.from(fileNames)
     }
 
@@ -71,6 +77,7 @@ class FileUploadService(
     fun delete(file: String) {
 
         val toDelete = DeleteObjectRequest(bucket, file)
+
         s3Client.deleteObject(toDelete)
     }
 }
