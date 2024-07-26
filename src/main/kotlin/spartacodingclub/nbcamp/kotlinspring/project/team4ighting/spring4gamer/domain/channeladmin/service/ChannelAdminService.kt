@@ -8,6 +8,7 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.do
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.board.model.toResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.board.repository.BoardRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channel.dto.response.ChannelResponse
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channel.model.Channel
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channel.model.toResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channel.repository.ChannelRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channeladmin.dto.request.CreateBoardRequest
@@ -19,6 +20,7 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.do
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.repository.CommentRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.repository.MemberRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.repository.PostRepository
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception.CustomAccessDeniedException
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception.ModelNotFoundException
 import java.util.*
 
@@ -36,18 +38,17 @@ class ChannelAdminService(
     fun createBoard(
         channelId: Long,
         request: CreateBoardRequest,
-    ): BoardResponse {
+        channelAdminId: UUID
+    ): BoardResponse =
 
-        val channel = channelRepository.findByIdOrNull(channelId)
-            ?: throw ModelNotFoundException("Channel", channelId)
-
-        return boardRepository.save(
-            Board.from(
-                request = request,
-                channel = channel
-            )
-        ).toResponse()
-    }
+        doAfterResourceValidation(channelId, null, channelAdminId) { channel, _ ->
+            boardRepository.save(
+                Board.from(
+                    request = request,
+                    channel = channel
+                )
+            ).toResponse()
+        }
 
 
     @Transactional
@@ -55,29 +56,30 @@ class ChannelAdminService(
         channelId: Long,
         boardId: Long,
         request: UpdateBoardRequest,
-    ): BoardResponse {
+        channelAdminId: UUID
+    ): BoardResponse =
 
-        val targetBoard = boardRepository.findByIdAndChannelId(boardId, channelId)
-            ?: throw ModelNotFoundException("Channel", channelId)
-        targetBoard.update(request)
-        return boardRepository.save(targetBoard).toResponse()
-    }
+        doAfterResourceValidation(channelId, boardId, channelAdminId) { _, targetBoard ->
+            targetBoard.update(request)
+            targetBoard.toResponse()
+        }
 
 
     @Transactional
     fun deleteBoard(
         channelId: Long,
         boardId: Long,
+        channelAdminId: UUID
     ) {
 
-        val targetBoard = boardRepository.findByIdAndChannelId(boardId, channelId)
-            ?: throw ModelNotFoundException("Channel", channelId)
-        val subPosts = postRepository.findAllByBoardId(targetBoard.id!!)
-        val subComments = commentRepository.findAllByPostIdIn(subPosts.map { it.id!! })
+        doAfterResourceValidation(channelId, boardId, channelAdminId) { _, targetBoard ->
+            val subPosts = postRepository.findAllByBoardId(targetBoard.id!!)
+            val subComments = commentRepository.findAllByPostIdIn(subPosts.map { it.id!! })
 
-        commentRepository.deleteAllInBatch(subComments)
-        postRepository.deleteAllInBatch(subPosts)
-        boardRepository.delete(targetBoard)
+            commentRepository.deleteAllInBatch(subComments)
+            postRepository.deleteAllInBatch(subPosts)
+            boardRepository.delete(targetBoard)
+        }
     }
 
 
@@ -85,38 +87,40 @@ class ChannelAdminService(
     fun doBlack(
         channelId: Long,
         memberId: UUID,
-    ): ChannelBlacklist {
+        channelAdminId: UUID
+    ): ChannelBlacklist =
 
-        val channel = channelRepository.findByIdOrNull(channelId)
-            ?: throw ModelNotFoundException("Channel", channelId)
-        val member = memberRepository.findByIdOrNull(memberId)
-            ?: throw ModelNotFoundException("Member", memberId)
+        doAfterResourceValidation(channelId, null, channelAdminId) { targetChannel, _ ->
+            val member = memberRepository.findByIdOrNull(memberId)
+                ?: throw ModelNotFoundException("Member", memberId)
 
-        return channelBlacklistRepository.save(
-            ChannelBlacklist.from(
-                channel,
-                member,
+            channelBlacklistRepository.save(
+                ChannelBlacklist.from(
+                    targetChannel,
+                    member,
+                )
             )
-        )
-    }
+        }
 
 
     @Transactional
     fun unBlack(
         channelId: Long,
         memberId: UUID,
+        channelAdminId: UUID
     ) {
 
-        val channelBlacklistId = ChannelBlacklistId(
-            channel = (channelRepository.findByIdOrNull(channelId)
-                ?: throw ModelNotFoundException("Channel", channelId)),
-            member = (memberRepository.findByIdOrNull(memberId)
-                ?: throw ModelNotFoundException("Member", memberId))
-        )
-        val targetBlacklist = channelBlacklistRepository.findByIdOrNull(channelBlacklistId)
-            ?: throw ModelNotFoundException("ChannelBlacklist", channelBlacklistId)
+        doAfterResourceValidation(channelId, null, channelAdminId) { targetChannel, _ ->
+            val channelBlacklistId = ChannelBlacklistId(
+                channel = targetChannel,
+                member = (memberRepository.findByIdOrNull(memberId)
+                    ?: throw ModelNotFoundException("Member", memberId))
+            )
+            val targetBlacklist = channelBlacklistRepository.findByIdOrNull(channelBlacklistId)
+                ?: throw ModelNotFoundException("ChannelBlacklist", channelBlacklistId)
 
-        channelBlacklistRepository.delete(targetBlacklist)
+            channelBlacklistRepository.delete(targetBlacklist)
+        }
     }
 
 
@@ -124,28 +128,53 @@ class ChannelAdminService(
     fun updateChannel(
         channelId: Long,
         request: UpdateChannelRequest,
-    ): ChannelResponse {
+        channelAdminId: UUID
+    ): ChannelResponse =
 
-        val targetChannel = channelRepository.findByIdOrNull(channelId)
-            ?: throw ModelNotFoundException("Channel", channelId)
-        targetChannel.update(request)
-        return channelRepository.save(targetChannel).toResponse()
-    }
+        doAfterResourceValidation(channelId, null, channelAdminId) { targetChannel, _ ->
+            targetChannel.update(request)
+            targetChannel.toResponse()
+        }
 
 
     @Transactional
-    fun deleteChannel(channelId: Long) {
+    fun deleteChannel(
+        channelId: Long,
+        channelAdminId: UUID
+    ) {
 
+        doAfterResourceValidation(channelId, null, channelAdminId) { targetChannel, _ ->
+            val subBoards = boardRepository.findAllByChannelId(channelId)
+            val subPosts = postRepository.findAllByBoardIdIn(subBoards.map { it.id!! })
+            val subComments = commentRepository.findAllByPostIdIn(subPosts.map { it.id!! })
+
+            commentRepository.deleteAllInBatch(subComments)
+            postRepository.deleteAllInBatch(subPosts)
+            boardRepository.deleteAllInBatch(subBoards)
+            channelRepository.delete(targetChannel)
+        }
+    }
+
+
+    fun <T> doAfterResourceValidation(
+        channelId: Long,
+        boardId: Long?,
+        channelAdminId: UUID,
+        func: (channel: Channel, board: Board) -> T
+    ): T {
+
+        lateinit var targetBoard: Board
         val targetChannel = channelRepository.findByIdOrNull(channelId)
             ?: throw ModelNotFoundException("Channel", channelId)
+        if (boardId != null)
+            targetBoard = boardRepository.findByIdOrNull(boardId)
+                ?: throw ModelNotFoundException("Board", boardId)
 
-        val subBoards = boardRepository.findAllByChannelId(channelId)
-        val subPosts = postRepository.findAllByBoardIdIn(subBoards.map { it.id!! })
-        val subComments = commentRepository.findAllByPostIdIn(subPosts.map { it.id!! })
+        if (targetChannel.admin != channelAdminId)
+            throw CustomAccessDeniedException("해당 채널에 대한 권한이 없습니다.")
 
-        commentRepository.deleteAllInBatch(subComments)
-        postRepository.deleteAllInBatch(subPosts)
-        boardRepository.deleteAllInBatch(subBoards)
-        channelRepository.delete(targetChannel)
+        return kotlin.run {
+            func.invoke(targetChannel, targetBoard)
+        }
     }
 }
