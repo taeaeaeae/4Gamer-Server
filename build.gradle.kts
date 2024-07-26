@@ -45,6 +45,8 @@ dependencies {
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.5")
     runtimeOnly("com.mysql:mysql-connector-j")
 
+    // igdb
+    implementation("io.github.husnjak:igdb-api-jvm:1.2.0")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
