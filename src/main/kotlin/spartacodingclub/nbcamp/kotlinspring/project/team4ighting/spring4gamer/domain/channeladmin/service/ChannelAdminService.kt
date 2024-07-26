@@ -60,8 +60,8 @@ class ChannelAdminService(
     ): BoardResponse =
 
         doAfterResourceValidation(channelId, boardId, channelAdminId) { _, targetBoard ->
-            targetBoard.update(request)
-            targetBoard.toResponse()
+            targetBoard!!.update(request)
+            targetBoard!!.toResponse()
         }
 
 
@@ -73,7 +73,7 @@ class ChannelAdminService(
     ) {
 
         doAfterResourceValidation(channelId, boardId, channelAdminId) { _, targetBoard ->
-            val subPosts = postRepository.findAllByBoardId(targetBoard.id!!)
+            val subPosts = postRepository.findAllByBoardId(targetBoard!!.id!!)
             val subComments = commentRepository.findAllByPostIdIn(subPosts.map { it.id!! })
 
             commentRepository.deleteAllInBatch(subComments)
@@ -156,19 +156,20 @@ class ChannelAdminService(
     }
 
 
-    fun <T> doAfterResourceValidation(
+    private fun <T> doAfterResourceValidation(
         channelId: Long,
         boardId: Long?,
         channelAdminId: UUID,
-        func: (channel: Channel, board: Board) -> T
+        func: (channel: Channel, board: Board?) -> T
     ): T {
 
-        lateinit var targetBoard: Board
         val targetChannel = channelRepository.findByIdOrNull(channelId)
             ?: throw ModelNotFoundException("Channel", channelId)
-        if (boardId != null)
-            targetBoard = boardRepository.findByIdOrNull(boardId)
-                ?: throw ModelNotFoundException("Board", boardId)
+        val targetBoard =
+            if (boardId != null)
+                boardRepository.findByIdOrNull(boardId)
+                    ?: throw ModelNotFoundException("Board", boardId)
+            else null
 
         if (targetChannel.admin != channelAdminId)
             throw CustomAccessDeniedException("해당 채널에 대한 권한이 없습니다.")
