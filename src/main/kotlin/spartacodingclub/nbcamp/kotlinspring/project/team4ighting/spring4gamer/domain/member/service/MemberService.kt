@@ -13,14 +13,17 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.do
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.repository.MemberBlacklistRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.repository.MemberRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.repository.MessageRepository
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.notification.dto.MessageSubResponse
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.notification.service.RedisPublisher
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception.ModelNotFoundException
-import java.util.UUID
+import java.util.*
 
 @Service
 class MemberService(
     private val memberRepository: MemberRepository,
     private val memberBlacklistRepository: MemberBlacklistRepository,
-    private val messageRepository: MessageRepository
+    private val messageRepository: MessageRepository,
+    private val redisPublisher: RedisPublisher
 ) {
 
     fun getMember(id: UUID): MemberResponse =
@@ -48,13 +51,23 @@ class MemberService(
         val target = memberRepository.findByIdOrNull(targetId)
             ?: throw ModelNotFoundException("Member", targetId)
 
-        return messageRepository.save(
-            Message.from (
+        val result = messageRepository.save(
+            Message.from(
                 subject = member,
                 target = target,
                 message = message
             )
-        ).toResponse()
+        )
+
+        redisPublisher.publish(
+            MessageSubResponse(
+                subjectId = memberId,
+                targetId = targetId,
+                message = message
+            )
+        )
+
+        return result.toResponse()
     }
 
 

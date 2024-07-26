@@ -11,6 +11,9 @@ import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.AuthenticationEntryPoint
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.web.cors.CorsConfiguration
+import org.springframework.web.cors.CorsConfigurationSource
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.infra.OAuth2Service
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.infra.security.jwt.jwtAuthenticationFilter
 
@@ -31,6 +34,7 @@ class SecurityConfig(
             .httpBasic { it.disable() }
             .formLogin { it.disable() }
             .csrf { it.disable() }
+            .cors { it.configurationSource(corsConfigurationSource()) } // cors 설정
             .authorizeHttpRequests {
                 it.requestMatchers(HttpMethod.GET, "/**")
                     .permitAll()
@@ -60,4 +64,19 @@ class SecurityConfig(
             }
             .build()
 
+
+    @Bean
+    fun corsConfigurationSource(): CorsConfigurationSource {
+        val configuration = CorsConfiguration()
+
+        configuration.setAllowedOriginPatterns(listOf("*"))
+        configuration.allowedMethods = listOf("HEAD", "GET", "POST", "PUT", "DELETE", "OPTIONS") // 허용 HTTP 메서드 지정
+        configuration.allowedHeaders = listOf("*") // 허용 HTTP 헤더 지정
+        configuration.allowCredentials = true // 자격 증명(쿠키, HTTP 인증, Client SSL 인증 등)
+        configuration.addExposedHeader("Set-Cookie")
+        val source = UrlBasedCorsConfigurationSource()
+        source.registerCorsConfiguration("/**", configuration) // 모든 URL 패턴에 대해 설정한 configuration 적용
+
+        return source
+    }
 }
