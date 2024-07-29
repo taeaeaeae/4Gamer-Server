@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component
 class SaveAccessToken {
 
     @Volatile
-    var accessToken : String? = null
+    var accessToken: String? = null
 
         @Synchronized set
 }

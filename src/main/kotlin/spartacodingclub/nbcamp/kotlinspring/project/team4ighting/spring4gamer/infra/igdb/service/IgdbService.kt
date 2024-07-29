@@ -41,8 +41,6 @@ class IgdbService(
 
         token?.let { saveAccessToken.accessToken = it }
 
-        println(response.body) // 개발용
-
         return token
     }
 
@@ -71,8 +69,6 @@ class IgdbService(
                     entity,
                     String::class.java
                 )
-
-            println("Response: ${response.body}") // 개발용
 
             return response
 
@@ -145,8 +141,6 @@ class IgdbService(
                     String::class.java
                 )
 
-            println("Response: ${response.body}") // 개발용
-
             return response
 
         } catch (ex: RestClientException) {
@@ -168,7 +162,8 @@ class IgdbService(
                 set("content-type", "text/plain")
             }
 
-            val query = "fields name, total_rating, total_rating_count; where total_rating_count >= 1000; sort rating desc; limit 10; "
+            val query =
+                "fields name, total_rating, total_rating_count; where total_rating_count >= 1000; sort rating desc; limit 10; "
 
             val entity = HttpEntity<String>(query, headers)
 
@@ -178,8 +173,6 @@ class IgdbService(
                 entity,
                 String::class.java
             )
-
-            println("Response: ${response.body}") // 개발용
 
             return response
 

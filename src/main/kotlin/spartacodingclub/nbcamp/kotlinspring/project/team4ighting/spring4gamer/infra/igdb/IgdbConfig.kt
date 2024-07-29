@@ -8,8 +8,7 @@ import org.springframework.web.client.RestTemplate
 class IgdbConfig {
 
     @Bean
-    fun restTemplate(): RestTemplate {
+    fun restTemplate(): RestTemplate =
 
-        return RestTemplate()
-    }
+        RestTemplate()
 }
