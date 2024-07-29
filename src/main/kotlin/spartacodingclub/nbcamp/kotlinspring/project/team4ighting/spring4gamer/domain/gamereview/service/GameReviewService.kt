@@ -20,6 +20,7 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.do
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.repository.MemberRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception.CustomAccessDeniedException
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception.ModelNotFoundException
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.infra.igdb.service.IgdbService
 import java.util.UUID
 
 @Service
@@ -27,21 +28,27 @@ class GameReviewService(
     private val gameReviewRepository: GameReviewRepository,
     private val memberRepository: MemberRepository,
     private val gameReviewReactionRepository: GameReviewReactionRepository,
-    private val gameReviewReportRepository: GameReviewReportRepository
+    private val gameReviewReportRepository: GameReviewReportRepository,
+    private val igdbService: IgdbService
 ) {
 
     @Transactional
     fun createGameReview(
         request: CreateGameReviewRequest,
         memberId: UUID
-    ): GameReviewResponse =
+    ): GameReviewResponse {
 
-        gameReviewRepository.save(
+        if(!igdbService.checkGamesName(request.gameTitle)) {
+            throw CustomAccessDeniedException("다음과 같은 게임의 이름을 찾을 수 없습니다. ${request.gameTitle}")
+        }
+
+        return gameReviewRepository.save(
             GameReview.from(
                 request,
                 memberId
             )
         ).toResponse()
+    }
 
 
     fun getGameReviewList(pageable: Pageable): Page<GameReviewResponse> =
