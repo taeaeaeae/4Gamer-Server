@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestClientException
 import org.springframework.web.client.RestTemplate
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception.CustomAccessDeniedException
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.infra.igdb.SaveAccessToken
 
 @Service
@@ -23,15 +24,15 @@ class IgdbService(
     private val tokenUrl: String,
 
     private val restTemplate: RestTemplate,
-
     private val saveAccessToken: SaveAccessToken
 ) {
 
     fun getAccessToken(): String? {
+
         val requestBody = mapOf(
             "client_id" to clientId,
             "client_secret" to clientSecret,
-            "grant_type" to "client_credentials"
+            "grant_type" to "client_credentials",
         )
 
         val response = restTemplate.postForEntity(tokenUrl, requestBody, JsonNode::class.java)
@@ -40,21 +41,29 @@ class IgdbService(
 
         token?.let { saveAccessToken.accessToken = it }
 
+        println(response.body) // 개발용
+
         return token
     }
 
     fun searchGamesByName(
-        token: String,
-        gameName: String
+        gameTitle: String
     ): ResponseEntity<String> {
 
         try {
+
+            val token = saveAccessToken.accessToken
+                ?: throw CustomAccessDeniedException("Twitch Token is not available")
+
             val headers = HttpHeaders().apply {
                 set("Client-ID", clientId)
                 set("Authorization", "Bearer $token")
+
             }
-            val query = "search $gameName; fields name;"
+            val query = "search $gameTitle; fields name;"
+
             val entity = HttpEntity<String>(query, headers)
+
             val response =
                 restTemplate.exchange(
                     "https://api.igdb.com/v4/games",
@@ -62,25 +71,36 @@ class IgdbService(
                     entity,
                     String::class.java
                 )
+
             println("Response: ${response.body}") // 개발용
+
             return response
+
         } catch (ex: RestClientException) {
+
             throw RestClientException("REST request failed", ex)
+
         }
     }
 
     fun checkGamesName(
-        token: String,
-        gameName: String
+        gameTitle: String
     ): Boolean {
 
         try {
+
+            val token = saveAccessToken.accessToken
+                ?: throw CustomAccessDeniedException("Twitch Token is not available")
+
             val headers = HttpHeaders().apply {
                 set("Client-ID", clientId)
                 set("Authorization", "Bearer $token")
             }
-            val query = "search $gameName; fields name;"
+
+            val query = "search \"$gameTitle\"; fields name;"
+
             val entity = HttpEntity<String>(query, headers)
+
             val response =
                 restTemplate.exchange(
                     "https://api.igdb.com/v4/games",
@@ -88,24 +108,35 @@ class IgdbService(
                     entity,
                     String::class.java
                 )
-            return response.body?.contains(gameName) ?: false
+
+            val content = response.body?.replace(Regex("[\'\"]"), "")?.contains("name: $gameTitle\n") ?: false
+
+            return content
+
         } catch (ex: RestClientException) {
+
             throw RestClientException("REST request failed", ex)
+
         }
     }
 
     fun getGamesById(
-        token: String,
         gameId: String
     ): ResponseEntity<String> {
 
         try {
+            val token = saveAccessToken.accessToken
+                ?: throw CustomAccessDeniedException("Twitch Token is not available")
+
             val headers = HttpHeaders().apply {
                 set("Client-ID", clientId)
                 set("Authorization", "Bearer $token")
             }
+
             val query = "fields *; where id = $gameId;"
+
             val entity = HttpEntity<String>(query, headers)
+
             val response =
                 restTemplate.exchange(
                     "https://api.igdb.com/v4/games",
@@ -113,18 +144,24 @@ class IgdbService(
                     entity,
                     String::class.java
                 )
+
             println("Response: ${response.body}") // 개발용
+
             return response
+
         } catch (ex: RestClientException) {
+
             throw RestClientException("REST request failed", ex)
+
         }
     }
 
-    fun getTopGames(
-        token: String,
-    ): ResponseEntity<String> {
+    fun getTopGames(): ResponseEntity<String> {
 
         try {
+            val token = saveAccessToken.accessToken
+                ?: throw CustomAccessDeniedException("Twitch Token is not available")
+
             val headers = HttpHeaders().apply {
                 set("Client-ID", clientId)
                 set("Authorization", "Bearer $token")
@@ -143,9 +180,13 @@ class IgdbService(
             )
 
             println("Response: ${response.body}") // 개발용
+
             return response
+
         } catch (ex: RestClientException) {
+
             throw RestClientException("REST request failed", ex)
+
         }
     }
 }

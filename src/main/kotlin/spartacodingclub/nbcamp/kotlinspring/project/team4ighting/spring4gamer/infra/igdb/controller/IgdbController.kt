@@ -2,6 +2,7 @@ package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.i
 
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -14,6 +15,12 @@ class IgdbController(
     private val igdbService: IgdbService,
 ) {
 
+    @Scheduled(fixedRate = 600000)
+    fun refreshAccessToken() {
+        igdbService.getAccessToken()
+    }
+
+
     // token 생성
     @PostMapping("/get-token")
     fun getAccessToken(): ResponseEntity<String> =
@@ -22,46 +29,45 @@ class IgdbController(
             .status(HttpStatus.OK)
             .body(igdbService.getAccessToken())
 
+
     // 단일 게임 정보 반환
     @PostMapping("/get-info")
     fun getGamesById(
-        @RequestParam token: String,
         @RequestParam gameId: String,
     ): ResponseEntity<ResponseEntity<String>> =
 
         ResponseEntity
             .status(HttpStatus.OK)
-            .body(igdbService.getGamesById(token, gameId))
+            .body(igdbService.getGamesById(gameId))
+
 
     // 게임 이름 검색
     @PostMapping("/get-name")
     fun searchGamesByName(
-        @RequestParam token: String,
-        @RequestParam gameName: String,
+        @RequestParam gameTitle: String,
     ): ResponseEntity<ResponseEntity<String>> =
 
         ResponseEntity
             .status(HttpStatus.OK)
-            .body(igdbService.searchGamesByName(token, gameName))
+            .body(igdbService.searchGamesByName(gameTitle))
+
 
     // 게임 네임 사용 가능 체크
     @PostMapping("/check-name")
     fun checkGamesName(
-        @RequestParam token: String,
-        @RequestParam gameName: String,
+        @RequestParam gameTitle: String,
     ): ResponseEntity<Boolean> =
 
         ResponseEntity
             .status(HttpStatus.OK)
-            .body(igdbService.checkGamesName(token, gameName))
+            .body(igdbService.checkGamesName(gameTitle))
+
 
     // Top 10 게임
     @PostMapping("/top-games")
-    fun getTopGames(
-        @RequestParam token: String,
-    ): ResponseEntity<ResponseEntity<String>> =
+    fun getTopGames(): ResponseEntity<ResponseEntity<String>> =
 
         ResponseEntity
             .status(HttpStatus.OK)
-            .body(igdbService.getTopGames(token))
+            .body(igdbService.getTopGames())
 }
