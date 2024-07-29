@@ -9,6 +9,7 @@ class IgdbConfig {
 
     @Bean
     fun restTemplate(): RestTemplate {
+
         return RestTemplate()
     }
 }

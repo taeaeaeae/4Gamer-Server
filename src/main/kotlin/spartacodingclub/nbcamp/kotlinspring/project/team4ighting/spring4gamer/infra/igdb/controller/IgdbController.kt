@@ -15,6 +15,8 @@ class IgdbController(
     private val igdbService: IgdbService,
 ) {
 
+
+    // token refreshing
     @Scheduled(fixedRate = 600000)
     fun refreshAccessToken() {
         igdbService.getAccessToken()
@@ -32,9 +34,7 @@ class IgdbController(
 
     // 단일 게임 정보 반환
     @PostMapping("/get-info")
-    fun getGamesById(
-        @RequestParam gameId: String,
-    ): ResponseEntity<ResponseEntity<String>> =
+    fun getGamesById(@RequestParam gameId: String): ResponseEntity<ResponseEntity<String>> =
 
         ResponseEntity
             .status(HttpStatus.OK)
@@ -43,9 +43,7 @@ class IgdbController(
 
     // 게임 이름 검색
     @PostMapping("/get-name")
-    fun searchGamesByName(
-        @RequestParam gameTitle: String,
-    ): ResponseEntity<ResponseEntity<String>> =
+    fun searchGamesByName(@RequestParam gameTitle: String): ResponseEntity<ResponseEntity<String>> =
 
         ResponseEntity
             .status(HttpStatus.OK)
@@ -54,9 +52,7 @@ class IgdbController(
 
     // 게임 네임 사용 가능 체크
     @PostMapping("/check-name")
-    fun checkGamesName(
-        @RequestParam gameTitle: String,
-    ): ResponseEntity<Boolean> =
+    fun checkGamesName(@RequestParam gameTitle: String): ResponseEntity<Boolean> =
 
         ResponseEntity
             .status(HttpStatus.OK)
