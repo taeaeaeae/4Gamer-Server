@@ -58,7 +58,7 @@ class IgdbService(
                 set("Authorization", "Bearer $token")
 
             }
-            val query = "search $gameTitle; fields name;"
+            val query = "search \"$gameTitle\"; fields name;"
 
             val entity = HttpEntity<String>(query, headers)
 
