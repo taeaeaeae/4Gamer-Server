@@ -46,7 +46,7 @@ class RedisConfig(
     @Bean
     fun messageListenerAdapter(subscriber: RedisSubscriber): MessageListenerAdapter =
 
-        MessageListenerAdapter(subscriber, "sendMessage")
+        MessageListenerAdapter(subscriber)
 
 
     @Bean

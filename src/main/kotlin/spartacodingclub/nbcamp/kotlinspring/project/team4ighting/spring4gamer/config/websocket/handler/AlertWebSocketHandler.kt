@@ -5,13 +5,12 @@ import org.springframework.stereotype.Component
 import org.springframework.web.socket.CloseStatus
 import org.springframework.web.socket.WebSocketSession
 import org.springframework.web.socket.handler.TextWebSocketHandler
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.config.websocket.WebSocketConfig
 import java.util.concurrent.ConcurrentHashMap
 
 @Component
 class AlertWebSocketHandler : TextWebSocketHandler() {
 
-    private val logger = LoggerFactory.getLogger(WebSocketConfig::class.java)
+    private val logger = LoggerFactory.getLogger(AlertWebSocketHandler::class.java)
     private val sessionMap = ConcurrentHashMap<String, WebSocketSession>()
 
 
