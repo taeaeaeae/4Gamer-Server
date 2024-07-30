@@ -2,6 +2,7 @@ package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.d
 
 import java.io.Serializable
 import java.time.ZonedDateTime
+import java.util.UUID
 
 data class GameReviewResponse(
     val id: Long,
@@ -11,5 +12,6 @@ data class GameReviewResponse(
     val upvotes: Long,
     val downvotes: Long,
     val createdAt: ZonedDateTime,
-    val updatedAt: ZonedDateTime
+    val updatedAt: ZonedDateTime,
+    val memberId: UUID
 ): Serializable
