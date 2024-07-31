@@ -128,6 +128,9 @@ class GameReviewService(
             }
             gameReviewReactionRepository.save(newReaction)
         } else {
+            if (reaction.isUpvoting != isUpvoting)
+                throw IllegalArgumentException("같은 대상에 같은 반응을 중복하여 넣을 수 없습니다.")
+
             redissonLockUtility.runExclusive("$gameReviewId") {
                 targetGameReview.applySwitchedReaction(isUpvoting)
             }
