@@ -35,6 +35,8 @@ dependencies {
     implementation("com.querydsl:querydsl-jpa:$queryDslVersion:jakarta")
     kapt("com.querydsl:querydsl-apt:$queryDslVersion:jakarta")
 
+    implementation("org.redisson:redisson-spring-boot-starter:3.27.0")
+
     // AWS S3
     implementation("io.awspring.cloud:spring-cloud-aws-starter-s3:3.1.1")
     implementation("org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE")

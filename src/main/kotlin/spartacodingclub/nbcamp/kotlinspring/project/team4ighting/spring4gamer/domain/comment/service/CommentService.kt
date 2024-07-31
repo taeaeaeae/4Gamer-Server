@@ -22,6 +22,7 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.do
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.repository.MemberRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.model.Post
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.repository.PostRepository
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.util.RedissonLockUtility
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception.CustomAccessDeniedException
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception.ModelNotFoundException
 import java.util.*
@@ -35,6 +36,7 @@ class CommentService(
     private val memberRepository: MemberRepository,
     private val commentReactionRepository: CommentReactionRepository,
     private val commentReportRepository: CommentReportRepository,
+    private val redissonLockUtility: RedissonLockUtility
 ) {
 
     @Transactional
@@ -125,10 +127,14 @@ class CommentService(
             if (reaction == null) {
                 val newReaction = CommentReaction.from(member!!, targetComment!!, isUpvoting)
 
-                targetComment!!.increaseReaction(isUpvoting)
+                redissonLockUtility.runExclusive("$commentId") {
+                    targetComment!!.increaseReaction(isUpvoting)
+                }
                 commentReactionRepository.save(newReaction)
             } else {
-                targetComment!!.applySwitchedReaction(isUpvoting)
+                redissonLockUtility.runExclusive("$commentId") {
+                    targetComment!!.applySwitchedReaction(isUpvoting)
+                }
                 reaction.isUpvoting = isUpvoting
             }
         }
@@ -148,7 +154,9 @@ class CommentService(
             val reaction = commentReactionRepository.findByIdCommentIdAndIdMemberId(commentId, member!!.id)
                 ?: throw ModelNotFoundException("CommentReaction", "${commentId}/${memberId}")
 
-            targetComment!!.decreaseReaction(reaction.isUpvoting)
+            redissonLockUtility.runExclusive("$commentId") {
+                targetComment!!.decreaseReaction(reaction.isUpvoting)
+            }
             commentReactionRepository.delete(reaction)
         }
     }

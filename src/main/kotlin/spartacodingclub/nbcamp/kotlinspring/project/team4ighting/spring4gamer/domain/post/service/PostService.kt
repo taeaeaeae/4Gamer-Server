@@ -7,8 +7,11 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.board.model.Board
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.board.repository.BoardRepository
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channel.repository.ChannelRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.repository.CommentRepository
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.model.Member
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.repository.MemberRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.request.CreatePostRequest
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.response.PostResponse
@@ -20,18 +23,21 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.do
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception.CustomAccessDeniedException
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception.ModelNotFoundException
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.util.CookieUtil
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.util.RedissonLockUtility
 import java.util.*
 
 @Service
 class PostService(
-    private val postRepository: PostRepository,
-    private val memberRepository: MemberRepository,
-    private val commentRepository: CommentRepository,
+    private val channelRepository: ChannelRepository,
     private val boardRepository: BoardRepository,
+    private val postRepository: PostRepository,
+    private val commentRepository: CommentRepository,
+    private val memberRepository: MemberRepository,
     private val postReactionRepository: PostReactionRepository,
     private val postReportRepository: PostReportRepository,
     private val tagRepository: TagRepository,
-    private val postTagRepository: PostTagRepository
+    private val postTagRepository: PostTagRepository,
+    private val redissonLockUtility: RedissonLockUtility
 ) {
 
     @Transactional
@@ -40,44 +46,38 @@ class PostService(
         boardId: Long,
         request: CreatePostRequest,
         memberId: UUID
-    ): PostResponse {
+    ): PostResponse =
 
-        val board = boardRepository.findByIdAndChannelId(boardId, channelId)
-            ?: throw ModelNotFoundException("Board", boardId)
-        val member = memberRepository.findByIdOrNull(memberId)
-            ?: throw ModelNotFoundException("Member", memberId)
-
-        val newPost = postRepository.save(
-            Post.from(
-                request = request,
-                board = board,
-                memberId = memberId,
-                author = member.nickname
-            )
-        )
-
-
-
-        for (tagName in request.tags) {
-            var tag = tagRepository.findByIdOrNull(tagName)
-
-            if(tag == null) {
-                tag = Tag.from(name = tagName)
-                tagRepository.save(tag)
-            }
-            else
-                tag.refresh()
-
-            postTagRepository.save(
-                PostTag.from(
-                    post = newPost,
-                    tag = tag
+        doAfterResourceValidation(channelId, boardId, null, memberId) { board, _, member ->
+            val newPost = postRepository.save(
+                Post.from(
+                    request = request,
+                    board = board,
+                    memberId = memberId,
+                    author = member!!.nickname
                 )
             )
+
+            for (tagName in request.tags) {
+                var tag = tagRepository.findByIdOrNull(tagName)
+
+                if (tag == null) {
+                    tag = Tag.from(name = tagName)
+                    tagRepository.save(tag)
+                } else
+                    tag.refresh()
+
+                postTagRepository.save(
+                    PostTag.from(
+                        post = newPost,
+                        tag = tag
+                    )
+                )
+            }
+
+            postRepository.save(newPost).toResponse()
         }
 
-        return postRepository.save(newPost).toResponse()
-    }
 
     fun getPostList(
         channelId: Long,
@@ -85,11 +85,13 @@ class PostService(
         pageable: Pageable
     ): Page<PostSimplifiedResponse> =
 
-        postRepository.findByBoard(
-            board = (boardRepository.findByIdAndChannelId(boardId, channelId)
-                ?: throw ModelNotFoundException("Board", boardId)),
-            pageable = pageable
-        ).map { it.toPostSimplifiedResponse() }
+        doAfterResourceValidation(channelId, boardId, null, null) { _, _, _ ->
+            postRepository.findByBoard(
+                board = (boardRepository.findByIdAndChannelId(boardId, channelId)
+                    ?: throw ModelNotFoundException("Board", boardId)),
+                pageable = pageable
+            ).map { it.toPostSimplifiedResponse() }
+        }
 
 
     @Transactional
@@ -99,17 +101,13 @@ class PostService(
         postId: Long,
         request: HttpServletRequest,
         response: HttpServletResponse
-    ): PostResponse {
+    ): PostResponse =
 
-        val board = boardRepository.findByIdAndChannelId(boardId, channelId)
-            ?: throw ModelNotFoundException("Board", boardId)
-        val post = postRepository.findByIdAndBoard(postId, board)
-            ?: throw ModelNotFoundException("Post", postId)
+        doAfterResourceValidation(channelId, boardId, postId, null) { _, targetPost, _ ->
+            viewCountUp(targetPost!!, request, response)
 
-        viewCountUp(post, request, response)
-
-        return postRepository.save(post).toResponse()
-    }
+            targetPost.toResponse()
+        }
 
 
     @Transactional
@@ -119,25 +117,19 @@ class PostService(
         postId: Long,
         request: UpdatePostRequest,
         memberId: UUID
-    ): PostResponse {
+    ): PostResponse =
 
-        val board = boardRepository.findByIdAndChannelId(boardId, channelId)
-            ?: throw ModelNotFoundException("Board", boardId)
-        val targetPost = postRepository.findByIdAndBoard(postId, board)
-            ?: throw ModelNotFoundException("Post", postId)
+        doAfterResourceValidation(channelId, boardId, postId, memberId) { _, targetPost, member ->
+            checkResourceOwnership(targetPost!!, member!!)
 
-        if (targetPost.memberId != memberId) {
-            throw CustomAccessDeniedException("해당 게시글에 대한 수정 권한이 없습니다.")
+            targetPost.update(
+                title = request.title,
+                body = request.body,
+                attachment = request.attachment
+            )
+
+            targetPost.toResponse()
         }
-
-        targetPost.update(
-            title = request.title,
-            body = request.body,
-            attachment = request.attachment
-        )
-
-        return postRepository.save(targetPost).toResponse()
-    }
 
 
     @Transactional
@@ -148,19 +140,14 @@ class PostService(
         memberId: UUID
     ) {
 
-        val board = boardRepository.findByIdAndChannelId(boardId, channelId)
-            ?: throw ModelNotFoundException("Board", boardId)
-        val targetPost = postRepository.findByIdAndBoard(postId, board)
-            ?: throw ModelNotFoundException("Post", postId)
+        doAfterResourceValidation(channelId, boardId, postId, memberId) { _, targetPost, member ->
+            checkResourceOwnership(targetPost!!, member!!)
 
-        if (targetPost.memberId != memberId) {
-            throw CustomAccessDeniedException("해당 게시글에 대한 삭제 권한이 없습니다.")
+            val comments = commentRepository.findAllByPostId(targetPost.id!!)
+
+            commentRepository.deleteAllInBatch(comments)
+            postRepository.delete(targetPost)
         }
-
-        val comments = commentRepository.findAllByPostId(targetPost.id!!)
-
-        commentRepository.deleteAllInBatch(comments)
-        postRepository.delete(targetPost)
     }
 
 
@@ -173,23 +160,22 @@ class PostService(
         isUpvoting: Boolean
     ) {
 
-        val board = boardRepository.findByIdAndChannelId(boardId, channelId)
-            ?: throw ModelNotFoundException("Board", boardId)
-        val targetPost = postRepository.findByIdAndBoard(postId, board)
-            ?: throw ModelNotFoundException("Post", postId)
-        val member = memberRepository.findByIdOrNull(memberId)
-            ?: throw ModelNotFoundException("Member", memberId)
+        doAfterResourceValidation(channelId, boardId, postId, memberId) { _, targetPost, member ->
+            val reaction = postReactionRepository.findByIdPostIdAndIdMemberId(postId, memberId)
 
-        val reaction = postReactionRepository.findByIdPostIdAndIdMemberId(postId, memberId)
+            if (reaction == null) {
+                val newReaction = PostReaction.from(member!!, targetPost!!, isUpvoting)
 
-        if (reaction == null) {
-            val newReaction = PostReaction.from(member, targetPost, isUpvoting)
-
-            targetPost.increaseReaction(isUpvoting)
-            postReactionRepository.save(newReaction)
-        } else {
-            targetPost.applySwitchedReaction(isUpvoting)
-            reaction.isUpvoting = isUpvoting
+                redissonLockUtility.runExclusive("$postId") {
+                    targetPost.increaseReaction(isUpvoting)
+                }
+                postReactionRepository.save(newReaction)
+            } else {
+                redissonLockUtility.runExclusive("$postId") {
+                    targetPost!!.applySwitchedReaction(isUpvoting)
+                }
+                reaction.isUpvoting = isUpvoting
+            }
         }
     }
 
@@ -202,15 +188,15 @@ class PostService(
         memberId: UUID
     ) {
 
-        val board = boardRepository.findByIdAndChannelId(boardId, channelId)
-            ?: throw ModelNotFoundException("Board", boardId)
-        val targetPost = postRepository.findByIdAndBoard(postId, board)
-            ?: throw ModelNotFoundException("Post", postId)
-        val reaction = postReactionRepository.findByIdPostIdAndIdMemberId(postId, memberId)
-            ?: throw ModelNotFoundException("PostReaction", "${postId}/${memberId}")
+        doAfterResourceValidation(channelId, boardId, postId, memberId) { _, targetPost, _ ->
+            val reaction = postReactionRepository.findByIdPostIdAndIdMemberId(postId, memberId)
+                ?: throw ModelNotFoundException("PostReaction", "${postId}/${memberId}")
 
-        targetPost.decreaseReaction(reaction.isUpvoting)
-        postReactionRepository.delete(reaction)
+            redissonLockUtility.runExclusive("$postId") {
+                targetPost!!.decreaseReaction(reaction.isUpvoting)
+            }
+            postReactionRepository.delete(reaction)
+        }
     }
 
 
@@ -220,24 +206,17 @@ class PostService(
         postId: Long,
         reason: String,
         memberId: UUID
-    ): PostReportResponse {
+    ): PostReportResponse =
 
-
-        val board = boardRepository.findByIdAndChannelId(boardId, channelId)
-            ?: throw ModelNotFoundException("Board", boardId)
-        val targetPost = postRepository.findByIdAndBoard(postId, board)
-            ?: throw ModelNotFoundException("Post", postId)
-        val member = memberRepository.findByIdOrNull(memberId)
-            ?: throw ModelNotFoundException("Member", memberId)
-
-        return postReportRepository.save(
-            PostReport.from(
-                post = targetPost,
-                reason = reason,
-                subject = member
-            )
-        ).toResponse()
-    }
+        doAfterResourceValidation(channelId, boardId, postId, memberId) { _, targetPost, member ->
+            postReportRepository.save(
+                PostReport.from(
+                    post = targetPost!!,
+                    reason = reason,
+                    subject = member!!
+                )
+            ).toResponse()
+        }
 
 
     private fun viewCountUp(
@@ -260,5 +239,39 @@ class PostService(
         CookieUtil.generateMidnightExpiryCookie(post.id!!, null, response)
 
         return post.updateViews()
+    }
+
+
+    private fun <T> doAfterResourceValidation(
+        channelId: Long,
+        boardId: Long,
+        postId: Long?,
+        memberId: UUID?,
+        func: (board: Board, post: Post?, member: Member?) -> T
+    ): T {
+
+        if (channelRepository.findByIdOrNull(channelId) == null)
+            throw ModelNotFoundException("Channel", channelId)
+
+        val board = boardRepository.findByIdAndChannelId(boardId, channelId)
+            ?: throw ModelNotFoundException("Board", boardId)
+        val post =
+            if (postId != null)
+                postRepository.findByIdAndBoard(postId, board)
+                    ?: throw ModelNotFoundException("Post", postId)
+            else null
+        val member =
+            if (memberId != null)
+                memberRepository.findByIdOrNull(memberId)
+                    ?: throw ModelNotFoundException("Member", memberId)
+            else null
+
+        return kotlin.run { func.invoke(board, post, member) }
+    }
+
+    private fun checkResourceOwnership(post: Post, member: Member) {
+
+        if (post.memberId != member.id)
+            throw CustomAccessDeniedException("해당 댓글에 대한 권한이 없습니다.")
     }
 }
