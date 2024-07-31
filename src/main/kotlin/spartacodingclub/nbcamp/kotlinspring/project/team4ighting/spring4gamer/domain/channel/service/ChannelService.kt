@@ -14,13 +14,18 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.do
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.repository.MemberRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.response.PostResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.model.toResponse
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception.CustomAccessDeniedException
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception.ModelNotFoundException
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.infra.igdb.SaveAccessToken
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.infra.igdb.service.IgdbService
 import java.util.*
 
 @Service
 class ChannelService(
     private val channelRepository: ChannelRepository,
     private val memberRepository: MemberRepository,
+    private val igdbService: IgdbService,
+    private val saveAccessToken: SaveAccessToken,
 ) {
 
     fun createChannel(
@@ -31,6 +36,11 @@ class ChannelService(
         val member = memberRepository.findByIdOrNull(memberId)
             ?: throw ModelNotFoundException("Member", memberId)
         member.assignChannelAdmin()
+        println(igdbService.checkGamesName(request.gameTitle))
+
+        if(!igdbService.checkGamesName(request.gameTitle)) {
+            throw CustomAccessDeniedException("다음과 같은 게임의 이름을 찾을 수 없습니다. ${request.gameTitle}")
+        }
 
         memberRepository.save(member)
         return channelRepository.save(
