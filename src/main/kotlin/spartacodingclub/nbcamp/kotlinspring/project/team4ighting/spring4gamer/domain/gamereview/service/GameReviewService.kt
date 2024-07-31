@@ -178,5 +178,5 @@ class GameReviewService(
 
     fun getGameReviewReactionList(memberId: UUID): List<GameReviewReactionResponse> =
 
-        gameReviewReactionRepository.findByIdMemberId(memberId).map { it.toResponse() }
+        gameReviewReactionRepository.findByMemberId(memberId).map { it.toResponse() }
 }

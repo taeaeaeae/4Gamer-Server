@@ -10,7 +10,8 @@ interface GameReviewReactionRepository : JpaRepository<GameReviewReaction, GameR
 
     fun findByIdGameReviewIdAndIdMemberId(gameReviewId: Long, memberId: UUID): GameReviewReaction?
 
-    fun findByIdMemberId(memberId: UUID): List<GameReviewReaction>
+    @Query("select grr from GameReviewReaction grr join fetch grr.id.gameReview where grr.id.member.id = :memberId")
+    fun findByMemberId(memberId: UUID): List<GameReviewReaction>
 
     fun deleteByIdGameReviewId(gameReviewId: Long)
 }
