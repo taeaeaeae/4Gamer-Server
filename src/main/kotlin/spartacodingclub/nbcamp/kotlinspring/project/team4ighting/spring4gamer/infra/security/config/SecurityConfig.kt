@@ -38,6 +38,7 @@ class SecurityConfig(
                     "/api/v1/auth/signin",
                     "/api/v1/auth/signup",
                     "/api/v1/recaptcha"
+                    "/api/v1/**" // 테스트 확인 용
                 )
                     .permitAll()
                     .anyRequest().authenticated()

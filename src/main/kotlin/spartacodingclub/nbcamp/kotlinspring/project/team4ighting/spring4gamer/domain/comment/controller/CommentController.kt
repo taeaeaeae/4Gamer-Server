@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.dto.response.CommentResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.dto.request.CreateCommentRequest
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.dto.request.UpdateCommentRequest
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.dto.response.CommentReportResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.service.CommentService
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.infra.security.MemberPrincipal
 
@@ -78,4 +79,52 @@ class CommentController(
         ResponseEntity
             .status(HttpStatus.NO_CONTENT)
             .body(commentService.deleteComment(channelId, boardId, postId, commentId, member.id))
+
+
+    /*
+     * 반응 관련
+     */
+
+    @PutMapping("/{commentId}/reaction")
+    fun addReaction(
+        @AuthenticationPrincipal member: MemberPrincipal,
+        @PathVariable channelId: Long,
+        @PathVariable boardId: Long,
+        @PathVariable postId: Long,
+        @PathVariable commentId: Long,
+        @RequestParam("is-upvoting") isUpvoting: Boolean
+    ): ResponseEntity<Unit> =
+
+        ResponseEntity
+            .status(HttpStatus.OK)
+            .body(commentService.addReaction(channelId, boardId, postId, commentId, member.id, isUpvoting))
+
+
+    @DeleteMapping("/{commentId}/reaction")
+    fun deleteReaction(
+        @AuthenticationPrincipal member: MemberPrincipal,
+        @PathVariable channelId: Long,
+        @PathVariable boardId: Long,
+        @PathVariable postId: Long,
+        @PathVariable commentId: Long
+    ): ResponseEntity<Unit> =
+
+        ResponseEntity
+            .status(HttpStatus.NO_CONTENT)
+            .body(commentService.deleteReaction(channelId, boardId, postId, commentId, member.id))
+
+
+    @PostMapping("/{commentId}/report")
+    fun reportComment(
+        @AuthenticationPrincipal member: MemberPrincipal,
+        @PathVariable channelId: Long,
+        @PathVariable boardId: Long,
+        @PathVariable postId: Long,
+        @PathVariable commentId: Long,
+        @RequestBody reason: String
+    ): ResponseEntity<CommentReportResponse> =
+
+        ResponseEntity
+            .status(HttpStatus.CREATED)
+            .body(commentService.reportComment(channelId, boardId, postId, commentId, member.id, reason))
 }

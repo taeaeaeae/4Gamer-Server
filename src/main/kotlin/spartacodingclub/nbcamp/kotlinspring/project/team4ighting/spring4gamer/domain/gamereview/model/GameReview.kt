@@ -1,7 +1,7 @@
 package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.model
 
 import jakarta.persistence.*
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.common.type.BaseTimeEntity
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.common.type.ReactableEntity
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.request.CreateGameReviewRequest
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.response.GameReviewResponse
 import java.util.*
@@ -13,7 +13,7 @@ class GameReview private constructor(
     point: Byte,
     description: String,
     memberId: UUID
-) : BaseTimeEntity() {
+) : ReactableEntity() {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -67,6 +67,8 @@ fun GameReview.toResponse(): GameReviewResponse =
         gameTitle = gameTitle,
         point = point,
         description = description,
+        upvotes = upvotes,
+        downvotes = downvotes,
         createdAt = createdAt,
         updatedAt = updatedAt
     )

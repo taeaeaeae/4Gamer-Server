@@ -1,4 +1,4 @@
-package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.infra
+package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.util
 
 import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletResponse

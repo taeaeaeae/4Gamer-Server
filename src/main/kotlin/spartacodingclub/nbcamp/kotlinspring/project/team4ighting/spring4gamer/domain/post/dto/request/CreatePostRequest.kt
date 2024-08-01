@@ -7,5 +7,9 @@ data class CreatePostRequest (
     val title: String,
 
     @field:Size(min = 10, max = 8192, message = "최소 1자에서 최대 8192자까지 입력 가능합니다.")
-    val body: String
+    val body: String,
+
+    val tags: List<String>,
+
+    val attachment: String?,
 )
