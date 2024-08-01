@@ -4,12 +4,12 @@ import org.springframework.http.*
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/login")
-class NewController(
+@RequestMapping("/api/v1/recaptcha")
+class RecaptchaController(
     private val reCaptchaService: ReCaptchaService
 ) {
 
-    @PostMapping("/validation")
+    @PostMapping
     fun recaptcha(@RequestParam token: String?): ResponseEntity<RecaptchaResponse> {
 
         return ResponseEntity

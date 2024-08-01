@@ -37,7 +37,7 @@ class SecurityConfig(
                 it.requestMatchers(
                     "/api/v1/auth/signin",
                     "/api/v1/auth/signup",
-                    "/login/validation"
+                    "/api/v1/recaptcha"
                 )
                     .permitAll()
                     .anyRequest().authenticated()
