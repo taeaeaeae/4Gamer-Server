@@ -3,6 +3,9 @@ package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.d
 import jakarta.persistence.EntityNotFoundException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.response.GameReviewReactionResponse
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.model.toResponse
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.repository.GameReviewReactionRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.dto.response.MemberResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.dto.response.MemberSimplifiedResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.dto.response.MessageResponse
@@ -14,13 +17,14 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.do
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.repository.MemberRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.repository.MessageRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception.ModelNotFoundException
-import java.util.UUID
+import java.util.*
 
 @Service
 class MemberService(
     private val memberRepository: MemberRepository,
     private val memberBlacklistRepository: MemberBlacklistRepository,
-    private val messageRepository: MessageRepository
+    private val messageRepository: MessageRepository,
+    private val gameReviewReactionRepository: GameReviewReactionRepository
 ) {
 
     fun getMember(id: UUID): MemberResponse =
@@ -49,7 +53,7 @@ class MemberService(
             ?: throw ModelNotFoundException("Member", targetId)
 
         return messageRepository.save(
-            Message.from (
+            Message.from(
                 subject = member,
                 target = target,
                 message = message
@@ -90,4 +94,9 @@ class MemberService(
 
         memberBlacklistRepository.delete(targetMemberBlacklist)
     }
+
+
+    fun getGameReviewReactionList(memberId: UUID): List<GameReviewReactionResponse> =
+
+        gameReviewReactionRepository.findByMemberId(memberId).map { it.toResponse() }
 }

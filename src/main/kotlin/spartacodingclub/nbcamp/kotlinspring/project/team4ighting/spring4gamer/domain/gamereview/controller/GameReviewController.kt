@@ -11,7 +11,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.request.CreateGameReviewRequest
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.request.UpdateGameReviewRequest
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.response.GameReviewReactionResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.response.GameReviewReportResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.response.GameReviewResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.service.GameReviewService
@@ -125,14 +124,4 @@ class GameReviewController(
         ResponseEntity
             .status(HttpStatus.OK)
             .body(gameReviewService.getTopReviews())
-
-
-    @GetMapping("/reactions")
-    fun getGameReviewReactionList(
-        @AuthenticationPrincipal member: MemberPrincipal
-    ): ResponseEntity<List<GameReviewReactionResponse>> =
-
-        ResponseEntity
-            .status(HttpStatus.OK)
-            .body(gameReviewService.getGameReviewReactionList(member.id))
 }
