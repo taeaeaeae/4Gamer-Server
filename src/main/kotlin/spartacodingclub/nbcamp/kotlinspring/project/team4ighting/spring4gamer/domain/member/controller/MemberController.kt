@@ -9,6 +9,7 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.do
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.dto.response.MemberSimplifiedResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.dto.response.MessageResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.service.MemberService
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.response.PostResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.infra.security.MemberPrincipal
 import java.util.*
 
@@ -84,4 +85,14 @@ class MemberController(
         ResponseEntity
             .status(HttpStatus.OK)
             .body(memberService.getGameReviewReactionList(member.id))
+
+
+    @GetMapping("/member/posts")
+    fun getAllPost(
+        @AuthenticationPrincipal member: MemberPrincipal
+    ): ResponseEntity<List<PostResponse>> =
+
+        ResponseEntity
+            .status(HttpStatus.OK)
+            .body(memberService.getPostList(member.id))
 }
