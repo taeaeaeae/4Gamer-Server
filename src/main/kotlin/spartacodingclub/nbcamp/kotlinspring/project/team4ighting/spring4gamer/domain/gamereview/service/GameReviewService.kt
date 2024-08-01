@@ -7,9 +7,10 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.request.CreateGameReviewRequest
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.response.GameReviewResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.request.UpdateGameReviewRequest
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.response.GameReviewReactionResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.response.GameReviewReportResponse
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.response.GameReviewResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.model.GameReview
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.model.GameReviewReaction
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.model.GameReviewReport
@@ -22,7 +23,7 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.do
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception.CustomAccessDeniedException
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception.ModelNotFoundException
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.infra.igdb.service.IgdbService
-import java.util.UUID
+import java.util.*
 
 @Service
 class GameReviewService(
@@ -40,8 +41,8 @@ class GameReviewService(
         memberId: UUID
     ): GameReviewResponse {
 
-        if(!igdbService.checkGamesName(request.gameTitle)) {
-            throw CustomAccessDeniedException("다음과 같은 게임의 이름을 찾을 수 없습니다. ${request.gameTitle}")
+        if (!igdbService.checkGamesName(request.gameTitle)) {
+            throw IllegalArgumentException("다음과 같은 게임의 이름을 찾을 수 없습니다. ${request.gameTitle}")
         }
 
         return gameReviewRepository.save(
@@ -101,6 +102,8 @@ class GameReviewService(
         if (targetGameReview.memberId != memberId) {
             throw CustomAccessDeniedException("해당 게임리뷰에 대한 삭제 권한이 없습니다.")
         }
+
+        gameReviewReactionRepository.deleteByIdGameReviewId(gameReviewId)
 
         gameReviewRepository.delete(targetGameReview)
     }

@@ -4,6 +4,7 @@ import jakarta.persistence.Column
 import jakarta.persistence.EmbeddedId
 import jakarta.persistence.Entity
 import jakarta.persistence.Table
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.response.GameReviewReactionResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.model.Member
 
 @Entity
@@ -35,3 +36,9 @@ class GameReviewReaction private constructor (
             )
     }
 }
+
+fun GameReviewReaction.toResponse(): GameReviewReactionResponse =
+
+    GameReviewReactionResponse(
+        gameReviewId = id.gameReview!!.id!!,
+        isUpvoting = isUpvoting)
