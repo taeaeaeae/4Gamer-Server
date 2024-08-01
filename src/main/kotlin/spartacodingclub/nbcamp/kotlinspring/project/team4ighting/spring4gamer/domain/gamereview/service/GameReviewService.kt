@@ -42,7 +42,7 @@ class GameReviewService(
     ): GameReviewResponse {
 
         if (!igdbService.checkGamesName(request.gameTitle)) {
-            throw CustomAccessDeniedException("다음과 같은 게임의 이름을 찾을 수 없습니다. ${request.gameTitle}")
+            throw IllegalArgumentException("다음과 같은 게임의 이름을 찾을 수 없습니다. ${request.gameTitle}")
         }
 
         return gameReviewRepository.save(
