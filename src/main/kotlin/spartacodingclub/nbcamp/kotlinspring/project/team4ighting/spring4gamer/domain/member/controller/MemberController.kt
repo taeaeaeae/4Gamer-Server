@@ -76,7 +76,7 @@ class MemberController(
             .body(memberService.removeBlacklist(principal.id, targetId))
 
 
-    @GetMapping("/reactions")
+    @GetMapping("/member/reactions")
     fun getGameReviewReactionList(
         @AuthenticationPrincipal member: MemberPrincipal
     ): ResponseEntity<List<GameReviewReactionResponse>> =
