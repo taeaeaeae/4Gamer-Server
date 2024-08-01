@@ -16,6 +16,9 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.do
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.repository.MemberBlacklistRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.repository.MemberRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.repository.MessageRepository
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.response.PostResponse
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.model.toResponse
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.repository.PostRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception.ModelNotFoundException
 import java.util.*
 
@@ -24,7 +27,8 @@ class MemberService(
     private val memberRepository: MemberRepository,
     private val memberBlacklistRepository: MemberBlacklistRepository,
     private val messageRepository: MessageRepository,
-    private val gameReviewReactionRepository: GameReviewReactionRepository
+    private val gameReviewReactionRepository: GameReviewReactionRepository,
+    private val postRepository: PostRepository
 ) {
 
     fun getMember(id: UUID): MemberResponse =
@@ -99,4 +103,9 @@ class MemberService(
     fun getGameReviewReactionList(memberId: UUID): List<GameReviewReactionResponse> =
 
         gameReviewReactionRepository.findByMemberId(memberId).map { it.toResponse() }
+
+
+    fun getPostList(memberId: UUID): List<PostResponse> =
+
+        postRepository.findByMemberId(memberId).map { it.toResponse() }
 }
