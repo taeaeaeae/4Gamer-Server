@@ -7,9 +7,10 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.request.CreateGameReviewRequest
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.response.GameReviewResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.request.UpdateGameReviewRequest
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.response.GameReviewReactionResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.response.GameReviewReportResponse
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.response.GameReviewResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.model.GameReview
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.model.GameReviewReaction
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.model.GameReviewReport
@@ -18,30 +19,39 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.do
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.repository.GameReviewReportRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.repository.GameReviewRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.repository.MemberRepository
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.util.RedissonLockUtility
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception.CustomAccessDeniedException
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception.ModelNotFoundException
-import java.util.UUID
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.infra.igdb.service.IgdbService
+import java.util.*
 
 @Service
 class GameReviewService(
     private val gameReviewRepository: GameReviewRepository,
     private val memberRepository: MemberRepository,
     private val gameReviewReactionRepository: GameReviewReactionRepository,
-    private val gameReviewReportRepository: GameReviewReportRepository
+    private val gameReviewReportRepository: GameReviewReportRepository,
+    private val igdbService: IgdbService,
+    private val redissonLockUtility: RedissonLockUtility
 ) {
 
     @Transactional
     fun createGameReview(
         request: CreateGameReviewRequest,
         memberId: UUID
-    ): GameReviewResponse =
+    ): GameReviewResponse {
 
-        gameReviewRepository.save(
+        if (!igdbService.checkGamesName(request.gameTitle)) {
+            throw IllegalArgumentException("다음과 같은 게임의 이름을 찾을 수 없습니다. ${request.gameTitle}")
+        }
+
+        return gameReviewRepository.save(
             GameReview.from(
                 request,
                 memberId
             )
         ).toResponse()
+    }
 
 
     fun getGameReviewList(pageable: Pageable): Page<GameReviewResponse> =
@@ -93,6 +103,8 @@ class GameReviewService(
             throw CustomAccessDeniedException("해당 게임리뷰에 대한 삭제 권한이 없습니다.")
         }
 
+        gameReviewReactionRepository.deleteByIdGameReviewId(gameReviewId)
+
         gameReviewRepository.delete(targetGameReview)
     }
 
@@ -114,10 +126,17 @@ class GameReviewService(
         if (reaction == null) {
             val newReaction = GameReviewReaction.from(member, targetGameReview, isUpvoting)
 
-            targetGameReview.increaseReaction(isUpvoting)
+            redissonLockUtility.runExclusive("$gameReviewId") {
+                targetGameReview.increaseReaction(isUpvoting)
+            }
             gameReviewReactionRepository.save(newReaction)
         } else {
-            targetGameReview.applySwitchedReaction(isUpvoting)
+            if (reaction.isUpvoting == isUpvoting)
+                throw IllegalArgumentException("같은 대상에 같은 반응을 중복하여 넣을 수 없습니다.")
+
+            redissonLockUtility.runExclusive("$gameReviewId") {
+                targetGameReview.applySwitchedReaction(isUpvoting)
+            }
             reaction.isUpvoting = isUpvoting
         }
     }
@@ -134,7 +153,9 @@ class GameReviewService(
         val reaction = gameReviewReactionRepository.findByIdGameReviewIdAndIdMemberId(gameReviewId, memberId)
             ?: throw ModelNotFoundException("GameReviewReaction", "${gameReviewId}/${memberId}")
 
-        targetGameReview.decreaseReaction(reaction.isUpvoting)
+        redissonLockUtility.runExclusive("$gameReviewId") {
+            targetGameReview.decreaseReaction(reaction.isUpvoting)
+        }
         gameReviewReactionRepository.delete(reaction)
     }
 

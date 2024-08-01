@@ -40,7 +40,9 @@ class SecurityConfig(
                     .permitAll()
                 it.requestMatchers(
                     "/api/v1/auth/signin",
-                    "/api/v1/auth/signup"
+                    "/api/v1/auth/signup",
+                    "/api/v1/recaptcha",
+                    "/api/v1/**" // 테스트 확인 용
                 )
                     .permitAll()
                     .anyRequest().authenticated()
@@ -70,12 +72,13 @@ class SecurityConfig(
         val configuration = CorsConfiguration()
 
         configuration.setAllowedOriginPatterns(listOf("*"))
-        configuration.allowedMethods = listOf("HEAD", "GET", "POST", "PUT", "DELETE", "OPTIONS") // 허용 HTTP 메서드 지정
-        configuration.allowedHeaders = listOf("*") // 허용 HTTP 헤더 지정
-        configuration.allowCredentials = true // 자격 증명(쿠키, HTTP 인증, Client SSL 인증 등)
+        configuration.allowedMethods = listOf("HEAD", "GET", "POST", "PUT", "DELETE", "OPTIONS")
+        configuration.allowedHeaders = listOf("*")
+        configuration.allowCredentials = true
         configuration.addExposedHeader("Set-Cookie")
+
         val source = UrlBasedCorsConfigurationSource()
-        source.registerCorsConfiguration("/**", configuration) // 모든 URL 패턴에 대해 설정한 configuration 적용
+        source.registerCorsConfiguration("/**", configuration)
 
         return source
     }

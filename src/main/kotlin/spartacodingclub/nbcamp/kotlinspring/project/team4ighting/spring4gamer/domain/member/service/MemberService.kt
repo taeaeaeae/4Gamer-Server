@@ -3,6 +3,9 @@ package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.d
 import jakarta.persistence.EntityNotFoundException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.response.GameReviewReactionResponse
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.model.toResponse
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.repository.GameReviewReactionRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.dto.response.MemberResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.dto.response.MemberSimplifiedResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.dto.response.MessageResponse
@@ -23,6 +26,7 @@ class MemberService(
     private val memberRepository: MemberRepository,
     private val memberBlacklistRepository: MemberBlacklistRepository,
     private val messageRepository: MessageRepository,
+    private val gameReviewReactionRepository: GameReviewReactionRepository,
     private val redisPublisher: RedisPublisher
 ) {
 
@@ -103,4 +107,9 @@ class MemberService(
 
         memberBlacklistRepository.delete(targetMemberBlacklist)
     }
+
+
+    fun getGameReviewReactionList(memberId: UUID): List<GameReviewReactionResponse> =
+
+        gameReviewReactionRepository.findByMemberId(memberId).map { it.toResponse() }
 }

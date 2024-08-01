@@ -6,6 +6,7 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.board.repository.BoardRepository
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channel.repository.ChannelRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.dto.response.CommentResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.dto.request.CreateCommentRequest
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.dto.request.UpdateCommentRequest
@@ -17,20 +18,25 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.do
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.repository.CommentReactionRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.repository.CommentReportRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.repository.CommentRepository
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.model.Member
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.repository.MemberRepository
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.model.Post
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.repository.PostRepository
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.util.RedissonLockUtility
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception.CustomAccessDeniedException
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception.ModelNotFoundException
 import java.util.*
 
 @Service
 class CommentService(
-    private val commentRepository: CommentRepository,
-    private val postRepository: PostRepository,
-    private val memberRepository: MemberRepository,
+    private val channelRepository: ChannelRepository,
     private val boardRepository: BoardRepository,
+    private val postRepository: PostRepository,
+    private val commentRepository: CommentRepository,
+    private val memberRepository: MemberRepository,
     private val commentReactionRepository: CommentReactionRepository,
-    private val commentReportRepository: CommentReportRepository
+    private val commentReportRepository: CommentReportRepository,
+    private val redissonLockUtility: RedissonLockUtility
 ) {
 
     @Transactional
@@ -40,24 +46,18 @@ class CommentService(
         postId: Long,
         request: CreateCommentRequest,
         memberId: UUID
-    ): CommentResponse {
+    ): CommentResponse =
 
-        val board = boardRepository.findByIdAndChannelId(boardId, channelId)
-            ?: throw ModelNotFoundException("Board", boardId)
-        val post = postRepository.findByIdAndBoard(postId, board)
-            ?: throw ModelNotFoundException("Post", postId)
-        val member = memberRepository.findByIdOrNull(memberId)
-            ?: throw ModelNotFoundException("Member", memberId)
-
-        return commentRepository.save(
-            Comment.from(
-                content = request.content,
-                memberId = memberId,
-                post = post,
-                author = member.nickname
-            )
-        ).toResponse()
-    }
+        doAfterResourceValidation(channelId, boardId, postId, null, memberId) { targetPost, _, member ->
+            commentRepository.save(
+                Comment.from(
+                    content = request.content,
+                    memberId = member!!.id,
+                    post = targetPost,
+                    author = member!!.nickname
+                )
+            ).toResponse()
+        }
 
 
     fun getCommentList(
@@ -65,16 +65,12 @@ class CommentService(
         boardId: Long,
         postId: Long,
         pageable: Pageable
-    ): Page<CommentResponse> {
+    ): Page<CommentResponse> =
 
-        val board = boardRepository.findByIdAndChannelId(boardId, channelId)
-            ?: throw ModelNotFoundException("Board", boardId)
-        val post = postRepository.findByIdAndBoard(postId, board)
-            ?: throw ModelNotFoundException("Post", postId)
-
-        return commentRepository.findByPost(post, pageable)
-            .map { it.toResponse() }
-    }
+        doAfterResourceValidation(channelId, boardId, postId, null, null) { targetPost, _, _ ->
+            commentRepository.findByPost(targetPost, pageable)
+                .map { it.toResponse() }
+        }
 
 
     @Transactional
@@ -85,25 +81,16 @@ class CommentService(
         commentId: Long,
         request: UpdateCommentRequest,
         memberId: UUID
-    ): CommentResponse {
+    ): CommentResponse =
 
-        val board = boardRepository.findByIdAndChannelId(boardId, channelId)
-            ?: throw ModelNotFoundException("Board", boardId)
-        val post = postRepository.findByIdAndBoard(postId, board)
-            ?: throw ModelNotFoundException("Post", postId)
-        val targetComment = commentRepository.findByIdAndPost(commentId, post)
-            ?: throw ModelNotFoundException("Comment", commentId)
+        doAfterResourceValidation(channelId, boardId, postId, commentId, memberId) { _, targetComment, member ->
+            checkCommentOwnership(targetComment!!, member!!)
+            targetComment.update(
+                content = request.content
+            )
 
-        if (targetComment.memberId != memberId) {
-            throw CustomAccessDeniedException("해당 댓글에 대한 수정 권한이 없습니다.")
+            targetComment.toResponse()
         }
-
-        targetComment.update(
-            content = request.content
-        )
-
-        return commentRepository.save(targetComment).toResponse()
-    }
 
 
     @Transactional
@@ -115,18 +102,11 @@ class CommentService(
         memberId: UUID
     ) {
 
-        val board = boardRepository.findByIdAndChannelId(boardId, channelId)
-            ?: throw ModelNotFoundException("Board", boardId)
-        val post = postRepository.findByIdAndBoard(postId, board)
-            ?: throw ModelNotFoundException("Post", postId)
-        val targetComment = commentRepository.findByIdAndPost(commentId, post)
-            ?: throw ModelNotFoundException("Comment", commentId)
+        doAfterResourceValidation(channelId, boardId, postId, commentId, memberId) { _, targetComment, member ->
+            checkCommentOwnership(targetComment!!, member!!)
 
-        if (targetComment.memberId != memberId) {
-            throw CustomAccessDeniedException("해당 댓글에 대한 삭제 권한이 없습니다.")
+            commentRepository.delete(targetComment)
         }
-
-        commentRepository.delete(targetComment)
     }
 
 
@@ -141,25 +121,25 @@ class CommentService(
         isUpvoting: Boolean
     ) {
 
-        val board = boardRepository.findByIdAndChannelId(boardId, channelId)
-            ?: throw ModelNotFoundException("Board", boardId)
-        val post = postRepository.findByIdAndBoard(postId, board)
-            ?: throw ModelNotFoundException("Post", postId)
-        val targetComment = commentRepository.findByIdAndPost(commentId, post)
-            ?: throw ModelNotFoundException("Comment", commentId)
-        val member = memberRepository.findByIdOrNull(memberId)
-            ?: throw ModelNotFoundException("Member", memberId)
+        doAfterResourceValidation(channelId, boardId, postId, commentId, memberId) { _, targetComment, member ->
+            val reaction = commentReactionRepository.findByIdCommentIdAndIdMemberId(commentId, memberId)
 
-        val reaction = commentReactionRepository.findByIdCommentIdAndIdMemberId(commentId, memberId)
+            if (reaction == null) {
+                val newReaction = CommentReaction.from(member!!, targetComment!!, isUpvoting)
 
-        if (reaction == null) {
-            val newReaction = CommentReaction.from(member, targetComment, isUpvoting)
+                redissonLockUtility.runExclusive("$commentId") {
+                    targetComment!!.increaseReaction(isUpvoting)
+                }
+                commentReactionRepository.save(newReaction)
+            } else {
+                if (reaction.isUpvoting == isUpvoting)
+                    throw IllegalArgumentException("같은 대상에 같은 반응을 중복하여 넣을 수 없습니다.")
 
-            targetComment.increaseReaction(isUpvoting)
-            commentReactionRepository.save(newReaction)
-        } else {
-            targetComment.applySwitchedReaction(isUpvoting)
-            reaction.isUpvoting = isUpvoting
+                redissonLockUtility.runExclusive("$commentId") {
+                    targetComment!!.applySwitchedReaction(isUpvoting)
+                }
+                reaction.isUpvoting = isUpvoting
+            }
         }
     }
 
@@ -173,17 +153,15 @@ class CommentService(
         memberId: UUID
     ) {
 
-        val board = boardRepository.findByIdAndChannelId(boardId, channelId)
-            ?: throw ModelNotFoundException("Board", boardId)
-        val post = postRepository.findByIdAndBoard(postId, board)
-            ?: throw ModelNotFoundException("Post", postId)
-        val targetComment = commentRepository.findByIdAndPost(commentId, post)
-            ?: throw ModelNotFoundException("Comment", commentId)
-        val reaction = commentReactionRepository.findByIdCommentIdAndIdMemberId(commentId, memberId)
-            ?: throw ModelNotFoundException("CommentReaction", "${commentId}/${memberId}")
+        doAfterResourceValidation(channelId, boardId, postId, commentId, memberId) { _, targetComment, member ->
+            val reaction = commentReactionRepository.findByIdCommentIdAndIdMemberId(commentId, member!!.id)
+                ?: throw ModelNotFoundException("CommentReaction", "${commentId}/${memberId}")
 
-        targetComment.decreaseReaction(reaction.isUpvoting)
-        commentReactionRepository.delete(reaction)
+            redissonLockUtility.runExclusive("$commentId") {
+                targetComment!!.decreaseReaction(reaction.isUpvoting)
+            }
+            commentReactionRepository.delete(reaction)
+        }
     }
 
 
@@ -194,24 +172,51 @@ class CommentService(
         commentId: Long,
         memberId: UUID,
         reason: String
-    ): CommentReportResponse {
+    ): CommentReportResponse =
+
+        doAfterResourceValidation(channelId, boardId, postId, commentId, memberId) { _, targetComment, member ->
+            commentReportRepository.save(
+                CommentReport.from(
+                    comment = targetComment!!,
+                    reason = reason,
+                    subject = member!!
+                )
+            ).toResponse()
+        }
 
 
+    private fun <T> doAfterResourceValidation(
+        channelId: Long,
+        boardId: Long,
+        postId: Long,
+        commentId: Long?,
+        memberId: UUID?,
+        func: (post: Post, comment: Comment?, member: Member?) -> T
+    ): T {
+
+        val channel = channelRepository.findByIdOrNull(channelId)
+            ?: throw ModelNotFoundException("Channel", channelId)
         val board = boardRepository.findByIdAndChannelId(boardId, channelId)
             ?: throw ModelNotFoundException("Board", boardId)
         val post = postRepository.findByIdAndBoard(postId, board)
             ?: throw ModelNotFoundException("Post", postId)
-        val targetComment = commentRepository.findByIdAndPost(commentId, post)
-            ?: throw ModelNotFoundException("Comment", commentId)
-        val member = memberRepository.findByIdOrNull(memberId)
-            ?: throw ModelNotFoundException("Member", memberId)
+        val comment =
+            if (commentId != null)
+                commentRepository.findByIdAndPost(commentId, post)
+                    ?: throw ModelNotFoundException("Comment", commentId)
+            else null
+        val member =
+            if (memberId != null)
+                memberRepository.findByIdOrNull(memberId)
+                    ?: throw ModelNotFoundException("Member", memberId)
+            else null
 
-        return commentReportRepository.save(
-            CommentReport.from(
-                comment = targetComment,
-                reason = reason,
-                subject = member
-            )
-        ).toResponse()
+        return kotlin.run { func.invoke(post, comment, member) }
+    }
+
+    private fun checkCommentOwnership(comment: Comment, member: Member) {
+
+        if (comment.memberId != member.id)
+            throw CustomAccessDeniedException("해당 댓글에 대한 권한이 없습니다.")
     }
 }

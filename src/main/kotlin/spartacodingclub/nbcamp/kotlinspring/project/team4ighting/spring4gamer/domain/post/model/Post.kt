@@ -16,7 +16,8 @@ class Post private constructor(
     body: String,
     board: Board,
     memberId: UUID,
-    author: String
+    author: String,
+    attachment: String?,
 ) : ReactableEntity() {
 
     @Id
@@ -35,6 +36,10 @@ class Post private constructor(
     var views: Long = 0
         private set
 
+    @Column(name = "attachment", nullable = true)
+    var attachment: String? = null
+        private set
+
     @Column(name = "member_id", nullable = false)
     val memberId: UUID = memberId
 
@@ -51,7 +56,7 @@ class Post private constructor(
             request: CreatePostRequest,
             board: Board,
             memberId: UUID,
-            author: String
+            author: String,
         ): Post =
 
             Post(
@@ -59,18 +64,21 @@ class Post private constructor(
                 body = request.body,
                 board = board,
                 memberId = memberId,
-                author = author
+                author = author,
+                attachment = request.attachment,
             )
-        }
+    }
 
 
     fun update(
         title: String,
-        body: String
+        body: String,
+        attachment: String?,
     ) {
 
         this.title = title
         this.body = body
+        this.attachment = attachment
     }
 
 
@@ -93,7 +101,8 @@ fun Post.toResponse(): PostResponse =
         createdAt = createdAt,
         updatedAt = updatedAt,
         author = author,
-        board = board.toResponse()
+        board = board.toResponse(),
+        attachment = attachment,
     )
 
 
@@ -106,5 +115,6 @@ fun Post.toPostSimplifiedResponse(): PostSimplifiedResponse =
         upvotes = upvotes,
         downvotes = downvotes,
         author = author,
-        createdAt = createdAt
+        createdAt = createdAt,
+        attachment = attachment,
     )

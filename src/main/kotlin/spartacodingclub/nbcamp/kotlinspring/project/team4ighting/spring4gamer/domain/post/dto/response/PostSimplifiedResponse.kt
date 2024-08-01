@@ -9,5 +9,6 @@ data class PostSimplifiedResponse(
     val upvotes: Long,
     val downvotes: Long,
     val author: String,
-    val createdAt: ZonedDateTime
+    val createdAt: ZonedDateTime,
+    val attachment: String?,
 )

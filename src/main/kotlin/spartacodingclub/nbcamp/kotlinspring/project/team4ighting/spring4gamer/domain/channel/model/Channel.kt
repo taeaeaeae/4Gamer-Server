@@ -26,7 +26,7 @@ class Channel private constructor(
     var title: String = title
         private set
 
-    @Column(name = "game_title", nullable = false)
+    @Column(name = "game_title", nullable = false, unique = true)
     var gameTitle: String = gameTitle
         private set
 

@@ -15,4 +15,5 @@ data class PostResponse(
     val updatedAt: ZonedDateTime,
     val author: String, // 닉네임
     val board: BoardResponse,
+    val attachment: String?,
 ): Serializable

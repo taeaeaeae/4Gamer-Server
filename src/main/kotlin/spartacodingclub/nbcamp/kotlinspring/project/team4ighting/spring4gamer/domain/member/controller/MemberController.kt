@@ -3,20 +3,14 @@ package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.d
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.response.GameReviewReactionResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.dto.response.MemberResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.dto.response.MemberSimplifiedResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.dto.response.MessageResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.service.MemberService
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.infra.security.MemberPrincipal
-import java.util.UUID
+import java.util.*
 
 @RestController
 @RequestMapping("/api/v1")
@@ -38,7 +32,6 @@ class MemberController(
         ResponseEntity
             .status(HttpStatus.OK)
             .body(memberService.getSimpleMember(UUID.fromString(id)))
-
 
 
     /*
@@ -81,4 +74,14 @@ class MemberController(
         ResponseEntity
             .status(HttpStatus.NO_CONTENT)
             .body(memberService.removeBlacklist(principal.id, targetId))
+
+
+    @GetMapping("/member/reactions")
+    fun getGameReviewReactionList(
+        @AuthenticationPrincipal member: MemberPrincipal
+    ): ResponseEntity<List<GameReviewReactionResponse>> =
+
+        ResponseEntity
+            .status(HttpStatus.OK)
+            .body(memberService.getGameReviewReactionList(member.id))
 }

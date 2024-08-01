@@ -37,10 +37,20 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     kapt("com.querydsl:querydsl-apt:$queryDslVersion:jakarta")
 
+    implementation("org.redisson:redisson-spring-boot-starter:3.27.0")
+
+    // AWS S3
+    implementation("io.awspring.cloud:spring-cloud-aws-starter-s3:3.1.1")
+    implementation("org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE")
+    implementation("com.amazonaws:aws-java-sdk-s3:1.12.741")
+
+
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.5")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.5")
     runtimeOnly("com.mysql:mysql-connector-j")
 
+    // igdb
+    implementation("io.github.husnjak:igdb-api-jvm:1.2.0")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
