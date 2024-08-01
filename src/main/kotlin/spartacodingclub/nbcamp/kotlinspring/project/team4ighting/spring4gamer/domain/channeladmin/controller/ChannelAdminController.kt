@@ -27,7 +27,7 @@ class ChannelAdminController(
 
     // 채널 게시판 생성
     @PostMapping("/boards")
-    fun creatBoard(
+    fun createBoard(
         @AuthenticationPrincipal principal: MemberPrincipal,
         @PathVariable channelId: Long,
         @RequestBody @Valid request: CreateBoardRequest
@@ -35,7 +35,7 @@ class ChannelAdminController(
 
         ResponseEntity
             .status(HttpStatus.CREATED)
-            .body(channelAdminService.createBoard(channelId, request))
+            .body(channelAdminService.createBoard(channelId, request, principal.id))
 
 
     // 채널 게시판 수정
@@ -49,7 +49,7 @@ class ChannelAdminController(
 
         ResponseEntity
             .status(HttpStatus.OK)
-            .body(channelAdminService.updateBoard(channelId, boardId, request))
+            .body(channelAdminService.updateBoard(channelId, boardId, request, principal.id))
 
 
     // 채널 게시판 삭제
@@ -62,7 +62,7 @@ class ChannelAdminController(
 
         ResponseEntity
             .status(HttpStatus.NO_CONTENT)
-            .body(channelAdminService.deleteBoard(channelId, boardId))
+            .body(channelAdminService.deleteBoard(channelId, boardId, principal.id))
 
 
     /*
@@ -74,14 +74,12 @@ class ChannelAdminController(
     fun doBlackMember(
         @AuthenticationPrincipal principal: MemberPrincipal,
         @PathVariable channelId: Long,
-        @RequestParam memberId: String
+        @RequestParam memberId: UUID
     ): ResponseEntity<ChannelBlacklist> =
 
-        UUID.fromString(memberId).let { memberUUID ->
-            ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(channelAdminService.doBlack(channelId, memberUUID))
-        }
+        ResponseEntity
+            .status(HttpStatus.CREATED)
+            .body(channelAdminService.doBlack(channelId, memberId, principal.id))
 
 
     // 회원 이용 차단 해제
@@ -89,14 +87,12 @@ class ChannelAdminController(
     fun unBlackMember(
         @AuthenticationPrincipal principal: MemberPrincipal,
         @PathVariable channelId: Long,
-        @RequestParam memberId: String
+        @RequestParam memberId: UUID
     ): ResponseEntity<Unit> =
 
-        UUID.fromString(memberId).let { memberUUID ->
-            ResponseEntity
-                .status(HttpStatus.NO_CONTENT)
-                .body(channelAdminService.unBlack(channelId, memberUUID))
-        }
+        ResponseEntity
+            .status(HttpStatus.NO_CONTENT)
+            .body(channelAdminService.unBlack(channelId, memberId, principal.id))
 
 
     /*
@@ -113,7 +109,7 @@ class ChannelAdminController(
 
         ResponseEntity
             .status(HttpStatus.OK)
-            .body(channelAdminService.updateChannel(channelId, request))
+            .body(channelAdminService.updateChannel(channelId, request, principal.id))
 
     // 채널 삭제
     @DeleteMapping
@@ -124,5 +120,5 @@ class ChannelAdminController(
 
         ResponseEntity
             .status(HttpStatus.NO_CONTENT)
-            .body(channelAdminService.deleteChannel(channelId))
+            .body(channelAdminService.deleteChannel(channelId, principal.id))
 }

@@ -19,6 +19,7 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.do
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.repository.GameReviewReportRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.repository.GameReviewRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.repository.MemberRepository
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.util.RedissonLockUtility
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception.CustomAccessDeniedException
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception.ModelNotFoundException
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.infra.igdb.service.IgdbService
@@ -30,7 +31,8 @@ class GameReviewService(
     private val memberRepository: MemberRepository,
     private val gameReviewReactionRepository: GameReviewReactionRepository,
     private val gameReviewReportRepository: GameReviewReportRepository,
-    private val igdbService: IgdbService
+    private val igdbService: IgdbService,
+    private val redissonLockUtility: RedissonLockUtility
 ) {
 
     @Transactional
@@ -124,10 +126,17 @@ class GameReviewService(
         if (reaction == null) {
             val newReaction = GameReviewReaction.from(member, targetGameReview, isUpvoting)
 
-            targetGameReview.increaseReaction(isUpvoting)
+            redissonLockUtility.runExclusive("$gameReviewId") {
+                targetGameReview.increaseReaction(isUpvoting)
+            }
             gameReviewReactionRepository.save(newReaction)
         } else {
-            targetGameReview.applySwitchedReaction(isUpvoting)
+            if (reaction.isUpvoting == isUpvoting)
+                throw IllegalArgumentException("같은 대상에 같은 반응을 중복하여 넣을 수 없습니다.")
+
+            redissonLockUtility.runExclusive("$gameReviewId") {
+                targetGameReview.applySwitchedReaction(isUpvoting)
+            }
             reaction.isUpvoting = isUpvoting
         }
     }
@@ -144,7 +153,9 @@ class GameReviewService(
         val reaction = gameReviewReactionRepository.findByIdGameReviewIdAndIdMemberId(gameReviewId, memberId)
             ?: throw ModelNotFoundException("GameReviewReaction", "${gameReviewId}/${memberId}")
 
-        targetGameReview.decreaseReaction(reaction.isUpvoting)
+        redissonLockUtility.runExclusive("$gameReviewId") {
+            targetGameReview.decreaseReaction(reaction.isUpvoting)
+        }
         gameReviewReactionRepository.delete(reaction)
     }
 
