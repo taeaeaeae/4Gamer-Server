@@ -33,6 +33,7 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt-api:0.12.5")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
     implementation("com.querydsl:querydsl-jpa:$queryDslVersion:jakarta")
+    implementation("org.springframework.boot:spring-boot-starter-websocket")
     kapt("com.querydsl:querydsl-apt:$queryDslVersion:jakarta")
 
     implementation("org.redisson:redisson-spring-boot-starter:3.27.0")
