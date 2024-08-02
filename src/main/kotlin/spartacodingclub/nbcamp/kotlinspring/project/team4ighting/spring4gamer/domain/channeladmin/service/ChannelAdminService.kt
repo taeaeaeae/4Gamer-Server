@@ -167,7 +167,7 @@ class ChannelAdminService(
             ?: throw ModelNotFoundException("Channel", channelId)
         val targetBoard =
             if (boardId != null)
-                boardRepository.findByIdOrNull(boardId)
+                boardRepository.findByIdAndChannelId(boardId, channelId)
                     ?: throw ModelNotFoundException("Board", boardId)
             else null
 
