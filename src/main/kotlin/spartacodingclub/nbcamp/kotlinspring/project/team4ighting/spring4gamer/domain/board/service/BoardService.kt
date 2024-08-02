@@ -15,7 +15,7 @@ class BoardService(
     @Transactional
     fun getBoardList(channelId: Long): List<BoardResponse> =
 
-        boardRepository.findAll()
+        boardRepository.findAllByChannelId(channelId)
             .map { it.toResponse() }
 
 
