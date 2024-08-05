@@ -24,4 +24,14 @@ class BoardController(
             .status(HttpStatus.OK)
             .body(boardService.getBoardList(channelId))
 
+
+    @GetMapping("/boards/{boardId}")
+    fun getBoard(
+        @PathVariable channelId: Long,
+        @PathVariable boardId: Long
+    ): ResponseEntity<BoardResponse> =
+
+        ResponseEntity
+            .status(HttpStatus.OK)
+            .body(boardService.getBoardById(channelId, boardId))
 }
