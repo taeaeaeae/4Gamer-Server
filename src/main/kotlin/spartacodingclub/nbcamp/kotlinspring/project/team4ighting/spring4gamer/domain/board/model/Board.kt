@@ -51,6 +51,7 @@ class Board private constructor(
 
         title = updateBoardRequest.title
         introduction = updateBoardRequest.introduction
+        preUpdate()
     }
 }
 

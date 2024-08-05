@@ -79,6 +79,7 @@ class Post private constructor(
         this.title = title
         this.body = body
         this.attachment = attachment
+        preUpdate()
     }
 
 
