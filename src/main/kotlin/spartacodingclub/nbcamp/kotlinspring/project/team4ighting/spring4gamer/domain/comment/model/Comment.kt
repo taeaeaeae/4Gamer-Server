@@ -54,6 +54,7 @@ class Comment private constructor(
     fun update(content: String) {
 
         this.content = content
+        preUpdate()
     }
 }
 

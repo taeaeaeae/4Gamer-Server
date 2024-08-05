@@ -64,6 +64,7 @@ class Channel private constructor(
 
         title = updateChannelRequest.title
         introduction = updateChannelRequest.introduction
+        preUpdate()
     }
 }
 

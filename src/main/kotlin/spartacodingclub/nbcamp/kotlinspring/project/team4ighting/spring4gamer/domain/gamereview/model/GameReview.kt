@@ -57,6 +57,7 @@ class GameReview private constructor(
 
         this.description = description
         this.point = point
+        preUpdate()
     }
 }
 

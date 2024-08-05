@@ -63,6 +63,7 @@ class Member private constructor(
     fun assignChannelAdmin() {
 
         role = MemberRole.CHANNEL_ADMIN
+        preUpdate()
     }
 }
 

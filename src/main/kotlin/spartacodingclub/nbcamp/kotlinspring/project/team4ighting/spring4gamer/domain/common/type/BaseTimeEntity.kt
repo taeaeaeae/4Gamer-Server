@@ -17,7 +17,6 @@ abstract class BaseTimeEntity {
         private set
 
 
-    @PreUpdate
     fun preUpdate() {
 
         updatedAt = ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
