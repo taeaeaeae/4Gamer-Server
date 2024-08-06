@@ -1,17 +1,22 @@
 package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.infra
 
+import org.springframework.security.core.Authentication
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest
 import org.springframework.security.oauth2.core.user.OAuth2User
 import org.springframework.stereotype.Service
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.dto.response.OAuth2Response
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.dto.response.SigninResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.model.Member
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.repository.MemberRepository
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.infra.security.jwt.JwtHelper
 
 
 @Service
 class OAuth2Service(
     private val memberRepository: MemberRepository,
+    private val jwtHelper: JwtHelper
 ) : DefaultOAuth2UserService() {
 
     override fun loadUser(userRequest: OAuth2UserRequest): OAuth2User {
@@ -35,5 +40,23 @@ class OAuth2Service(
         }
 
         return CustomOAuth2User(oAuth2Response, role)
+    }
+
+
+    fun googleSignin(authentication: Authentication): String {
+
+        val oauthToken = authentication as OAuth2AuthenticationToken
+        val internalToken = oauthToken.principal as CustomOAuth2User
+        val member = memberRepository.findByEmail(internalToken.email())
+            ?: throw IllegalArgumentException("회원정보를 찾을 수 없습니다.")
+        val token = SigninResponse(
+            accessToken = jwtHelper.generateAccessToken(
+                subject = member.id.toString(),
+                email = member.email,
+                role = member.role.name
+            )
+        )
+        return "http://127.0.0.1:5173/login/google?token=${token.accessToken}"
+
     }
 }

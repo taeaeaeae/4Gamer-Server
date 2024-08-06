@@ -1,5 +1,6 @@
 package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.infra.security.config
 
+import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -8,12 +9,17 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
+import org.springframework.security.core.Authentication
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken
+import org.springframework.security.oauth2.core.user.OAuth2User
 import org.springframework.security.web.AuthenticationEntryPoint
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.dto.response.OAuth2Response
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.infra.CustomOAuth2User
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.infra.OAuth2Service
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.infra.security.jwt.jwtAuthenticationFilter
 
@@ -24,7 +30,7 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.in
 class SecurityConfig(
     private val jwtAuthenticationFilter: jwtAuthenticationFilter,
     private val authenticationEntryPoint: AuthenticationEntryPoint,
-    private val customOAuth2UserService: OAuth2Service,
+    private val customOAuth2UserService: OAuth2Service
 ) {
 
     @Bean
@@ -53,7 +59,10 @@ class SecurityConfig(
             .oauth2Login {
                 it.loginProcessingUrl("/google")
                 it.userInfoEndpoint { u -> u.userService(customOAuth2UserService) }
-                it.defaultSuccessUrl("/api/v1/auth/signin/google")
+                it.successHandler { request, response, authentication ->
+                    response.sendRedirect(customOAuth2UserService.googleSignin(authentication))
+//                    response.writer.write(customOAuth2UserService.googleSignin(authentication))
+                }
                 it.failureHandler { request, response, exception ->
                     response.status = HttpServletResponse.SC_UNAUTHORIZED
                     response.contentType = "application/json"
