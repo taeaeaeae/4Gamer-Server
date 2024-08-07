@@ -3,12 +3,14 @@ package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.d
 import jakarta.persistence.EntityNotFoundException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.response.GameReviewReactionResponse
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.model.toResponse
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.model.toReactionResponse
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.repository.CommentReactionRepository
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.model.toReactionResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.repository.GameReviewReactionRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.dto.response.MemberResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.dto.response.MemberSimplifiedResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.dto.response.MessageResponse
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.dto.response.TargetReactionResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.model.MemberBlacklist
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.model.Message
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.model.toResponse
@@ -19,7 +21,9 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.do
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.notification.dto.MessageSubResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.notification.service.RedisPublisher
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.response.PostResponse
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.model.toReactionResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.model.toResponse
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.repository.PostReactionRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.repository.PostRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception.ModelNotFoundException
 import java.util.*
@@ -30,6 +34,8 @@ class MemberService(
     private val memberBlacklistRepository: MemberBlacklistRepository,
     private val messageRepository: MessageRepository,
     private val gameReviewReactionRepository: GameReviewReactionRepository,
+    private val postReactionRepository: PostReactionRepository,
+    private val commentReactionRepository: CommentReactionRepository,
     private val postRepository: PostRepository,
     private val redisPublisher: RedisPublisher
 ) {
@@ -113,9 +119,14 @@ class MemberService(
     }
 
 
-    fun getGameReviewReactionList(memberId: UUID): List<GameReviewReactionResponse> =
+    fun getTargetReactionList(memberId: UUID, target: String): List<TargetReactionResponse> =
 
-        gameReviewReactionRepository.findByMemberId(memberId).map { it.toResponse() }
+        when (target) {
+            "gameReview" -> gameReviewReactionRepository.findByMemberId(memberId).map { it.toReactionResponse() }
+            "post" -> postReactionRepository.findByMemberId(memberId).map { it.toReactionResponse() }
+            "comment" -> commentReactionRepository.findByMemberId(memberId).map { it.toReactionResponse() }
+            else -> throw ModelNotFoundException("Target", target)
+        }
 
 
     fun getPostList(memberId: UUID): List<PostResponse> =
