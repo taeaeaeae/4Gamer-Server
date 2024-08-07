@@ -10,7 +10,7 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.do
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channeladmin.dto.request.CreateBoardRequest
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channeladmin.dto.request.UpdateBoardRequest
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channeladmin.dto.request.UpdateChannelRequest
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channeladmin.model.ChannelBlacklist
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channeladmin.dto.response.ChannelBlacklistResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channeladmin.service.ChannelAdminService
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.infra.security.MemberPrincipal
 import java.util.*
@@ -69,13 +69,25 @@ class ChannelAdminController(
      * 회원 차단 관련
      */
 
+    // 차단 회원 목록 조회
+    @GetMapping("/blacklists")
+    fun getBlacklists(
+        @AuthenticationPrincipal principal: MemberPrincipal,
+        @PathVariable channelId: Long
+    ): ResponseEntity<List<ChannelBlacklistResponse>> =
+
+        ResponseEntity
+            .status(HttpStatus.OK)
+            .body(channelAdminService.getBlacklists(channelId))
+
+
     // 회원 이용 차단
     @PostMapping("/blacklist")
     fun doBlackMember(
         @AuthenticationPrincipal principal: MemberPrincipal,
         @PathVariable channelId: Long,
         @RequestParam memberId: UUID
-    ): ResponseEntity<ChannelBlacklist> =
+    ): ResponseEntity<ChannelBlacklistResponse> =
 
         ResponseEntity
             .status(HttpStatus.CREATED)
