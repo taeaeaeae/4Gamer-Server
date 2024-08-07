@@ -14,8 +14,10 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.do
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channeladmin.dto.request.CreateBoardRequest
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channeladmin.dto.request.UpdateBoardRequest
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channeladmin.dto.request.UpdateChannelRequest
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channeladmin.dto.response.ChannelBlacklistResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channeladmin.model.ChannelBlacklist
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channeladmin.model.ChannelBlacklistId
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channeladmin.model.toResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channeladmin.repository.ChannelBlacklistRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.repository.CommentRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.repository.MemberRepository
@@ -88,7 +90,7 @@ class ChannelAdminService(
         channelId: Long,
         memberId: UUID,
         channelAdminId: UUID
-    ): ChannelBlacklist =
+    ): ChannelBlacklistResponse =
 
         doAfterResourceValidation(channelId, null, channelAdminId) { targetChannel, _ ->
             val member = memberRepository.findByIdOrNull(memberId)
@@ -99,7 +101,7 @@ class ChannelAdminService(
                     targetChannel,
                     member,
                 )
-            )
+            ).toResponse()
         }
 
 
@@ -178,4 +180,8 @@ class ChannelAdminService(
             func.invoke(targetChannel, targetBoard)
         }
     }
+
+    fun getBlacklists(channelId: Long): List<ChannelBlacklistResponse> =
+
+        channelBlacklistRepository.findByChannelId(channelId).map { it.toResponse() }
 }
