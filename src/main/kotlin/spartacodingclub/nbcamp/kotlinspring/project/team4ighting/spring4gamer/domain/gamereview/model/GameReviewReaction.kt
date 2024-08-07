@@ -5,11 +5,12 @@ import jakarta.persistence.EmbeddedId
 import jakarta.persistence.Entity
 import jakarta.persistence.Table
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.response.GameReviewReactionResponse
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.dto.response.TargetReactionResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.model.Member
 
 @Entity
 @Table(name = "game_review_reaction")
-class GameReviewReaction private constructor (
+class GameReviewReaction private constructor(
     member: Member,
     gameReview: GameReview,
     isUpvoting: Boolean
@@ -37,8 +38,18 @@ class GameReviewReaction private constructor (
     }
 }
 
+
 fun GameReviewReaction.toResponse(): GameReviewReactionResponse =
 
     GameReviewReactionResponse(
         gameReviewId = id.gameReview!!.id!!,
-        isUpvoting = isUpvoting)
+        isUpvoting = isUpvoting
+    )
+
+
+fun GameReviewReaction.toReactionResponse(): TargetReactionResponse =
+
+    TargetReactionResponse(
+        id = id.gameReview!!.id!!,
+        isUpvoting = isUpvoting
+    )

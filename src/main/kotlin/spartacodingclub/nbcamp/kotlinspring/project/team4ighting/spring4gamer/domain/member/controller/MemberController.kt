@@ -4,10 +4,10 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.gamereview.dto.response.GameReviewReactionResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.dto.response.MemberResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.dto.response.MemberSimplifiedResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.dto.response.MessageResponse
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.dto.response.TargetReactionResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.service.MemberService
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.response.PostResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.infra.security.MemberPrincipal
@@ -77,14 +77,15 @@ class MemberController(
             .body(memberService.removeBlacklist(principal.id, targetId))
 
 
-    @GetMapping("/member/reactions")
+    @GetMapping("/member/reactions/{target}")
     fun getGameReviewReactionList(
-        @AuthenticationPrincipal member: MemberPrincipal
-    ): ResponseEntity<List<GameReviewReactionResponse>> =
+        @AuthenticationPrincipal member: MemberPrincipal,
+        @PathVariable target: String
+    ): ResponseEntity<List<TargetReactionResponse>> =
 
         ResponseEntity
             .status(HttpStatus.OK)
-            .body(memberService.getGameReviewReactionList(member.id))
+            .body(memberService.getTargetReactionList(member.id, target))
 
 
     @GetMapping("/member/posts")

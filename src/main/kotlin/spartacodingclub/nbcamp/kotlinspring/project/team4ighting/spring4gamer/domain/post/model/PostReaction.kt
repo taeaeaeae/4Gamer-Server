@@ -4,11 +4,12 @@ import jakarta.persistence.Column
 import jakarta.persistence.EmbeddedId
 import jakarta.persistence.Entity
 import jakarta.persistence.Table
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.dto.response.TargetReactionResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.model.Member
 
 @Entity
 @Table(name = "post_reaction")
-class PostReaction private constructor (
+class PostReaction private constructor(
     member: Member,
     post: Post,
     isUpvoting: Boolean
@@ -35,3 +36,11 @@ class PostReaction private constructor (
             )
     }
 }
+
+
+fun PostReaction.toReactionResponse(): TargetReactionResponse =
+
+    TargetReactionResponse(
+        id = id.post!!.id!!,
+        isUpvoting = isUpvoting
+    )
