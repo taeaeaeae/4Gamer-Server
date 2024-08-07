@@ -40,4 +40,3 @@ class AuthController(
             .status(HttpStatus.OK)
             .body(authService.googleSignin(principal.email()))
 }
-
