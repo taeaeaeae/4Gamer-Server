@@ -49,5 +49,6 @@ fun Message.toResponse(): MessageResponse =
     MessageResponse(
         subjectId = subject!!.id,
         targetId = target!!.id,
-        message = message
+        message = message,
+        createdAt = createdAt
     )
