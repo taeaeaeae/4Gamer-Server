@@ -1,5 +1,6 @@
 package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.controller
 
+import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -40,7 +41,7 @@ class MemberController(
     @PutMapping("/members/profile")
     fun updateMember(
         @AuthenticationPrincipal principal: MemberPrincipal,
-        @RequestBody request: UpdateProfileRequest
+        @RequestBody @Valid request: UpdateProfileRequest
     ): ResponseEntity<MemberResponse> =
 
         ResponseEntity
@@ -51,7 +52,7 @@ class MemberController(
     @PutMapping("/members/password")
     fun updatePassword(
         @AuthenticationPrincipal principal: MemberPrincipal,
-        @RequestBody request: UpdateMemberPasswordRequest
+        @RequestBody @Valid request: UpdateMemberPasswordRequest
     ): ResponseEntity<Unit> =
 
         ResponseEntity
@@ -61,7 +62,7 @@ class MemberController(
 
     @PostMapping("/members/password-check")
     fun passwordCheck(
-        @RequestBody request: UpdateMemberPasswordRequest
+        @RequestBody @Valid request: UpdateMemberPasswordRequest
     ): ResponseEntity<Unit> =
 
         ResponseEntity

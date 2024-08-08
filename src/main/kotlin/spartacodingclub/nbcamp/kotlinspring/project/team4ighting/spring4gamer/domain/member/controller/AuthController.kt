@@ -1,5 +1,6 @@
 package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.controller
 
+import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -18,7 +19,7 @@ class AuthController(
 ) {
 
     @PostMapping("/signin")
-    fun signin(@RequestBody request: SigninRequest): ResponseEntity<SigninResponse> =
+    fun signin(@RequestBody @Valid request: SigninRequest): ResponseEntity<SigninResponse> =
 
         ResponseEntity
             .status(HttpStatus.OK)
@@ -26,7 +27,7 @@ class AuthController(
 
 
     @PostMapping("/signup")
-    fun signup(@RequestBody request: SignupRequest): ResponseEntity<MemberResponse> =
+    fun signup(@RequestBody @Valid request: SignupRequest): ResponseEntity<MemberResponse> =
 
         ResponseEntity
             .status(HttpStatus.CREATED)

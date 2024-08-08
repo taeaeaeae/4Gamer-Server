@@ -64,6 +64,10 @@ class MemberService(
         val member = memberRepository.findByIdOrNull(memberId)
             ?: throw ModelNotFoundException("Member", memberId)
 
+        if (member.nickname == request.nickname) {
+            throw IllegalArgumentException("동일한 닉네임으로 변경할 수 없습니다.")
+        }
+
         member.nickname = request.nickname
 
         return memberRepository.save(member).toResponse()
@@ -77,7 +81,7 @@ class MemberService(
         val member = memberRepository.findByIdOrNull(memberId)
             ?: throw ModelNotFoundException("Member", memberId)
 
-        if (memberRepository.existsByPassword(member.password)) {
+        if (!memberRepository.existsByPassword(member.password)) {
             throw IllegalArgumentException("구글 아이디로 로그인한 유저는 비밀번호를 변경할 수 없습니다.")
         }
 
