@@ -1,9 +1,12 @@
 package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.controller
 
+import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.dto.request.UpdateMemberPasswordRequest
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.dto.request.UpdateProfileRequest
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.dto.response.MemberResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.dto.response.MemberSimplifiedResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.dto.response.MessageResponse
@@ -33,6 +36,38 @@ class MemberController(
         ResponseEntity
             .status(HttpStatus.OK)
             .body(memberService.getSimpleMember(UUID.fromString(id)))
+
+
+    @PutMapping("/members/profile")
+    fun updateMember(
+        @AuthenticationPrincipal principal: MemberPrincipal,
+        @RequestBody @Valid request: UpdateProfileRequest
+    ): ResponseEntity<MemberResponse> =
+
+        ResponseEntity
+            .status(HttpStatus.OK)
+            .body(memberService.updateMember(request))
+
+
+    @PutMapping("/members/password")
+    fun updatePassword(
+        @AuthenticationPrincipal principal: MemberPrincipal,
+        @RequestBody @Valid request: UpdateMemberPasswordRequest
+    ): ResponseEntity<Unit> =
+
+        ResponseEntity
+            .status(HttpStatus.OK)
+            .body(memberService.passwordUpdate(request))
+
+
+    @PostMapping("/members/password-check")
+    fun passwordCheck(
+        @RequestBody @Valid request: UpdateMemberPasswordRequest
+    ): ResponseEntity<Unit> =
+
+        ResponseEntity
+            .status(HttpStatus.OK)
+            .body(memberService.passwordCheck(request))
 
 
     /*

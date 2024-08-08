@@ -1,5 +1,6 @@
 package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception
 
+import jakarta.persistence.EntityNotFoundException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.BindingResult
@@ -36,4 +37,21 @@ class GlobalExceptionHandler {
         ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
             .body(ErrorResponse(bindingResult.fieldError?.defaultMessage))
+
+
+    @ExceptionHandler(IllegalArgumentException::class)
+    fun handleIllegalArgumentException(e: IllegalArgumentException): ResponseEntity<ErrorResponse> =
+
+        ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(ErrorResponse(e.message))
+
+
+    @ExceptionHandler(EntityNotFoundException::class)
+    fun handleEntityNotFoundException(e: EntityNotFoundException): ResponseEntity<ErrorResponse> =
+
+        ResponseEntity
+            .status(HttpStatus.NOT_FOUND)
+            .body(ErrorResponse(e.message))
+
 }

@@ -2,6 +2,7 @@ package spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.d
 
 import jakarta.persistence.*
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.common.type.BaseTimeEntity
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.dto.request.UpdateProfileRequest
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.dto.response.MemberResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.dto.response.MemberSimplifiedResponse
 import java.time.ZoneId
@@ -24,11 +25,9 @@ class Member private constructor(
 
     @Column(name = "password", nullable = false)
     var password: String = password
-        private set
 
     @Column(name = "nickname", nullable = false, unique = true)
     var nickname: String = nickname
-        private set
 
     @Column(name = "lv", nullable = false)
     var lv: Int = 0
@@ -58,7 +57,6 @@ class Member private constructor(
                 nickname = nickname,
             )
     }
-
 
     fun assignChannelAdmin() {
 
