@@ -58,12 +58,6 @@ class Member private constructor(
             )
     }
 
-    fun update(nickname: String) {
-        this.nickname = nickname
-        preUpdate()
-    }
-
-
     fun assignChannelAdmin() {
 
         role = MemberRole.CHANNEL_ADMIN

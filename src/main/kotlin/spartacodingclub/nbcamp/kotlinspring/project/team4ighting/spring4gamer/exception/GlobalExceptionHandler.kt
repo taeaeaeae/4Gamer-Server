@@ -43,7 +43,7 @@ class GlobalExceptionHandler {
     fun handleIllegalArgumentException(e: IllegalArgumentException): ResponseEntity<ErrorResponse> =
 
         ResponseEntity
-            .status(HttpStatus.NOT_FOUND)
+            .status(HttpStatus.BAD_REQUEST)
             .body(ErrorResponse(e.message))
 
 
