@@ -51,6 +51,14 @@ class MemberController(
             .body(memberService.addMessage(principal.id, targetId, message))
 
 
+    @GetMapping("member/messages")
+    fun getMessages(@AuthenticationPrincipal principal: MemberPrincipal): ResponseEntity<List<MessageResponse>> =
+
+        ResponseEntity
+            .status(HttpStatus.OK)
+            .body(memberService.getMessages(principal.id))
+
+
     /*
      * 차단 관련
      */

@@ -85,6 +85,11 @@ class MemberService(
     }
 
 
+    fun getMessages(memberId: UUID): List<MessageResponse> =
+
+        messageRepository.findByTargetId(memberId).map { it.toResponse() }
+
+
     fun addBlacklist(
         memberId: UUID,
         targetId: UUID

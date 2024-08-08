@@ -8,4 +8,6 @@ interface MessageRepository : JpaRepository<Message, Long> {
 
     fun findAllBySubjectId(subjectId: UUID): List<Message>
     fun findAllBySubjectIdAndTargetId(subjectId: UUID, targetId: UUID): List<Message>
+
+    fun findByTargetId(targetId: UUID): List<Message>
 }
