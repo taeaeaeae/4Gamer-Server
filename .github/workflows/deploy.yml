@@ -1,10 +1,10 @@
 name: Spring CICD with Gradle
 
 on:
-  # pull_request:
-  #   branches: [ "develop" ]
   push:
-    branches: [ "feature/#65-cicd" ] # 현재 브랜치 하나에서 진행중이라 피알되는 상황이 없어서 해뒀었음
+    branches: [ "develop" ] 
+  pull_request:
+    branches: [ "develop" ]
 
 jobs:
   build:
@@ -23,7 +23,7 @@ jobs:
         
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@dbbdc275be76ac10734476cc723d82dfe7ec6eda # v3.4.2
-# 여기까지 깃 액션 Choose a workflow 에서 'java with gradle' 했을 때 생성된부분
+# 여기까지 깃 액션 Choose a workflow 에서 'java with gradle' 로 만들었을 때 생성된부분
     
     - name: Set YML
       run: |
