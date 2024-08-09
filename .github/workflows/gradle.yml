@@ -25,6 +25,7 @@ jobs:
         
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@dbbdc275be76ac10734476cc723d82dfe7ec6eda # v3.4.2
+# 여기까지 paths 부분 빼고 깃 액션 Choose a workflow 에서 'java with gradle'
     
     - name: Set YML
       run: |
