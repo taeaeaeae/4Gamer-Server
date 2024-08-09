@@ -1,10 +1,10 @@
 name: Spring CICD with Gradle
 
 on:
-  # push:
-  #   branches: [ "develop" ] # 현재 브랜치 하나에서 진행중이라 피알되는 상황이 없어서 해뒀었음
-  pull_request:
-    branches: [ "develop" ]
+  # pull_request:
+  #   branches: [ "develop" ]
+  push:
+    branches: [ "feature/#65-cicd" ] # 현재 브랜치 하나에서 진행중이라 피알되는 상황이 없어서 해뒀었음
 
 jobs:
   build:
