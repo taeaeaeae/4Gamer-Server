@@ -49,7 +49,7 @@ jobs:
       run: ./gradlew build
 
     - name: docker image build
-      run: sudo docker build -t ${{ secrets.DOCKER_NAME }}/4gamer .
+      run: sudo docker build -t 4gamer ${{ secrets.DOCKER_NAME }}/4gamer .
       
           # 4. DockerHub 로그인
     - name: docker login
