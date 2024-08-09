@@ -58,6 +58,6 @@ jobs:
         port: ${{ secrets.PORT }}
         script_stop: true
         script: |
-          docker pull ${{ secrets.DOCKER_NAME }}/4gamer:latest
-          docker stop server
-          docker run -d --rm --name server -p 8080:8080 ${{ secrets.DOCKER_NAME }}/4gamer:latest
+          sudo docker pull ${{ secrets.DOCKER_NAME }}/4gamer:latest
+          sudo docker stop server
+          sudo docker run -d --rm --name server -p 8080:8080 ${{ secrets.DOCKER_NAME }}/4gamer:latest
