@@ -63,7 +63,7 @@ jobs:
 
     # 5. Docker Hub 이미지 푸시
     - name: docker Hub push
-      run: sudo docker push ${{ secrets.DOCKER_NAME }}/4gamer:v1
+      run: docker push ${{ secrets.DOCKER_NAME }}/4gamer:v1
 
     - name: Deploy
       uses: appleboy/ssh-action@master
