@@ -51,7 +51,7 @@ jobs:
       run: sudo docker build -t ${{ secrets.DOCKER_NAME }}/4gamer:v1 .
       
     # - name: docker tag
-    #   run: sudo docker image ${{ secrets.DOCKER_NAME }}/4gamer:v1 .
+    #   run: sudo docker image ${{ secrets.DOCKER_NAME }}/4gamer .
       
           # 4. DockerHub 로그인
     - name: docker login
@@ -62,7 +62,7 @@ jobs:
 
     # 5. Docker Hub 이미지 푸시
     - name: docker Hub push
-      run: docker push ${{ secrets.DOCKER_NAME }}/4gamer:v1
+      run: docker push ${{ secrets.DOCKER_NAME }}/4gamer
 
     - name: Deploy
       uses: appleboy/ssh-action@master
