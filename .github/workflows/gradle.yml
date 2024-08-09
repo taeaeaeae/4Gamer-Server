@@ -76,7 +76,7 @@ jobs:
         script: |
           docker pull ${{ secrets.DOCKER_NAME }}/4gamer:latest
           docker stop server
-          docker run -d --rm --name server -p 8080:8080 4gamer:latest
+          docker run -d --rm --name server -p 8080:8080 ${{ secrets.DOCKER_NAME }}/4gamer:latest
 
     # NOTE: The Gradle Wrapper is the default and recommended way to run Gradle (https://docs.gradle.org/current/userguide/gradle_wrapper.html).
     # If your project does not have the Gradle Wrapper configured, you can use the following configuration to run Gradle with a specified version.
