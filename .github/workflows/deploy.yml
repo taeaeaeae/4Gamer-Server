@@ -1,4 +1,4 @@
-name: Spring CI with Gradle
+name: Spring CICD with Gradle
 
 on:
   push:
