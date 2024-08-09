@@ -63,7 +63,7 @@ jobs:
 
     # 5. Docker Hub 이미지 푸시
     - name: docker Hub push
-      run: docker push ${{ secrets.DOCKER_NAME }}/4gamer
+      run: docker push ${{ secrets.DOCKER_NAME }}/4gamer:latest
 
     - name: Deploy
       uses: appleboy/ssh-action@master
@@ -74,7 +74,7 @@ jobs:
         port: ${{ secrets.PORT }}
         script_stop: true
         script: |
-          docker pull ${{ secrets.DOCKER_NAME }}/4gamer
+          docker pull ${{ secrets.DOCKER_NAME }}/4gamer:latest
           docker stop server
           docker run -d --rm --name server -p 8080:8080 4gamer
 
