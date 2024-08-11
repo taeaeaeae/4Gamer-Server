@@ -14,7 +14,8 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.do
 class RedisSubscriber(
     private val objectMapper: ObjectMapper,
     private val redisTemplate: RedisTemplate<String, Any>,
-    private val messageTemplate: SimpMessageSendingOperations
+    private val messageTemplate: SimpMessageSendingOperations,
+    private val notificationService: NotificationService
 ) : MessageListener {
 
     private val logger = LoggerFactory.getLogger(RedisSubscriber::class.java)
@@ -39,6 +40,19 @@ class RedisSubscriber(
                         "/sub/chat/${message.roomId}",
                         message
                     )
+
+                PublishType.EXIT -> {
+
+                    message.roomId?.let {
+                        messageTemplate
+                            .convertAndSend(
+                                "/sub/chat/${message.roomId}",
+                                "${message.subjectId}님이 채팅을 종료하셨습니다."
+                            )
+                    } ?: run {
+                        notificationService.delete(message.subjectId)
+                    }
+                }
             }
 
         }.onFailure {

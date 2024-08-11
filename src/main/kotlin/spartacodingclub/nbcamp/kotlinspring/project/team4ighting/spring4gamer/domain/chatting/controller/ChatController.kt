@@ -6,13 +6,13 @@ import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RestController
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.chatting.ChatService
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.notification.dto.MessageSubResponse
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.notification.service.NotificationService
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.notification.service.RedisPublisher
 
 @RestController
 class ChatController(
-    private val chatService: ChatService,
+    private val notificationService: NotificationService,
     private val redisPublisher: RedisPublisher
 ) {
 
@@ -22,7 +22,8 @@ class ChatController(
 
         ResponseEntity
             .status(HttpStatus.OK)
-            .body(chatService.isExistsMember(memberId))
+            .body(notificationService.isExistsMember(memberId))
+
 
     @MessageMapping("/chat")
     fun sendMessage(message: MessageSubResponse) =

@@ -11,19 +11,18 @@ import org.springframework.messaging.support.ChannelInterceptor
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer
-import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.chatting.ChatService
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.common.type.PublishType
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.notification.dto.MessageSubResponse
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.notification.service.NotificationService
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.notification.service.RedisPublisher
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.infra.security.jwt.JwtHelper
 import java.time.ZonedDateTime
-import java.util.*
 
 @Configuration
 @EnableWebSocketMessageBroker // WebSocket 메시지 처리 활성화(stomp)
 class StompWebSocketConfig(
     private val jwtHelper: JwtHelper,
-    private val chatService: ChatService,
+    private val notificationService: NotificationService,
     private val publisher: RedisPublisher
 ) : WebSocketMessageBrokerConfigurer {
 
@@ -47,39 +46,38 @@ class StompWebSocketConfig(
             object : ChannelInterceptor {
 
                 override fun preSend(message: Message<*>, channel: MessageChannel): Message<*> {
-
                     val accessor = StompHeaderAccessor.wrap(message)
 
                     if (StompCommand.CONNECT == accessor.command) {
                         val token = accessor.getFirstNativeHeader("token")
                             ?: throw IllegalArgumentException("Invalid token")
 
-                        val targetId = accessor.getFirstNativeHeader("targetId")
-                        var roomId = accessor.getFirstNativeHeader("roomId")
-
                         jwtHelper.validateToken(token)
-                            .onSuccess { claims ->
-                                targetId?.let {
-                                    accessor.sessionId?.let { id -> chatService.save(id, claims.payload.subject) }
-                                    publisher.publish(
-                                        MessageSubResponse(
-                                            type = PublishType.NOTIFICATION,
-                                            subjectId = claims.payload.subject,
-                                            targetId = targetId,
-                                            message = "${targetId}님이 채팅 요청을 보냈습니다.",
-                                            createdAt = ZonedDateTime.now(),
-                                            roomId = roomId
+                            .onSuccess { claims -> // 토큰 인증 후 헤더에 roomId 유무에 따라 알림인지 채팅인지 구분
+
+                                val subjectId = claims.payload.subject
+
+                                accessor.getFirstNativeHeader("roomId")?.let { roomId -> // roomId가 있다면 채팅 요청이므로
+                                    accessor.getFirstNativeHeader("targetId")?.let { targetId -> // 헤더에서 targetId를 확인
+                                        publisher.publish( // 수신자(targetId)에게 알림 전송
+                                            MessageSubResponse(
+                                                type = PublishType.NOTIFICATION,
+                                                subjectId = subjectId,
+                                                targetId = targetId,
+                                                message = "${subjectId}님이 채팅 요청을 보냈습니다.",
+                                                createdAt = ZonedDateTime.now(),
+                                                roomId = roomId
+                                            )
                                         )
-                                    )
+                                    }
+
+                                } ?: run {  // roomId가 없다면 알림 구독 요청
+                                    accessor.sessionId?.let { id -> notificationService.save(subjectId) }
                                 }
                             }
                             .onFailure {
                                 throw IllegalArgumentException("Invalid token")
                             }
-                    }
-
-                    if (StompCommand.DISCONNECT == accessor.command) { // 연결을 종료할 때는 JWT 토큰이 없음
-                        accessor.sessionId?.let { id -> chatService.delete(id) }
                     }
 
                     return message
