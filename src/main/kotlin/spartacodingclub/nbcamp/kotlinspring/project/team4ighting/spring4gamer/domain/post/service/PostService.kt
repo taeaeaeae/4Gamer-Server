@@ -18,6 +18,7 @@ import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.do
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.response.PostSimplifiedResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.request.UpdatePostRequest
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.response.PostReportResponse
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.dto.response.PostTagResponse
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.model.*
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.post.repository.*
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.exception.CustomAccessDeniedException
@@ -110,6 +111,18 @@ class PostService(
         }
 
 
+    fun getTagsInPost(
+        channelId: Long,
+        boardId: Long,
+        postId: Long
+    ): List<PostTagResponse> =
+
+        doAfterResourceValidation(channelId, boardId, postId, null) { _, targetPost, _ ->
+            postTagRepository.findAllTagsByPostId(targetPost!!.id!!)
+                .map{ it.toResponse() }
+        }
+
+
     @Transactional
     fun updatePost(
         channelId: Long,
@@ -128,6 +141,31 @@ class PostService(
                 attachment = request.attachment
             )
 
+            val previousTags = postTagRepository.findAllTagsByPostId(targetPost.id!!).toSet()
+            val previousTagsString = previousTags.map { it.id.tag.name }
+
+            val oldTagsName = previousTags.filter { it.id.tag.name !in request.tags }
+            val newTagsName = request.tags.filter { it !in previousTagsString }
+
+            postTagRepository.deleteAllInBatch(oldTagsName)
+            for (tagName in newTagsName) {
+
+                var tag = tagRepository.findByIdOrNull(tagName)
+
+                if (tag == null) {
+                    tag = Tag.from(name = tagName)
+                    tagRepository.save(tag)
+                } else
+                    tag.refresh()
+
+                postTagRepository.save(
+                    PostTag.from(
+                        post = targetPost,
+                        tag = tag
+                    )
+                )
+            }
+
             targetPost.toResponse()
         }
 
@@ -144,8 +182,10 @@ class PostService(
             checkResourceOwnership(targetPost!!, member!!)
 
             val comments = commentRepository.findAllByPostId(targetPost.id!!)
+            val tags = postTagRepository.findAllTagsByPostId(targetPost.id!!)
 
             commentRepository.deleteAllInBatch(comments)
+            postTagRepository.deleteAllInBatch(tags)
             postRepository.delete(targetPost)
         }
     }
