@@ -59,11 +59,19 @@ class IgdbController(
             .body(igdbService.checkGamesName(gameTitle))
 
 
-    // Top 10 게임
+    // Average IGDB user rating
     @PostMapping("/top-games")
     fun getTopGames(): ResponseEntity<ResponseEntity<String>> =
 
         ResponseEntity
             .status(HttpStatus.OK)
             .body(igdbService.getTopGames())
+
+    // Rating based on external critic scores
+    @PostMapping("/top-follow")
+    fun getFollowTopGames(): ResponseEntity<ResponseEntity<String>> =
+
+        ResponseEntity
+            .status(HttpStatus.OK)
+            .body(igdbService.getFollowTopGames())
 }
