@@ -10,6 +10,8 @@ import org.springframework.transaction.annotation.Transactional
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.board.model.Board
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.board.repository.BoardRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channel.repository.ChannelRepository
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channeladmin.model.ChannelBlacklistId
+import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.channeladmin.repository.ChannelBlacklistRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.comment.repository.CommentRepository
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.model.Member
 import spartacodingclub.nbcamp.kotlinspring.project.team4ighting.spring4gamer.domain.member.repository.MemberRepository
@@ -38,7 +40,8 @@ class PostService(
     private val postReportRepository: PostReportRepository,
     private val tagRepository: TagRepository,
     private val postTagRepository: PostTagRepository,
-    private val redissonLockUtility: RedissonLockUtility
+    private val redissonLockUtility: RedissonLockUtility,
+    private val channelBlacklistRepository: ChannelBlacklistRepository
 ) {
 
     @Transactional
@@ -119,7 +122,7 @@ class PostService(
 
         doAfterResourceValidation(channelId, boardId, postId, null) { _, targetPost, _ ->
             postTagRepository.findAllTagsByPostId(targetPost!!.id!!)
-                .map{ it.toResponse() }
+                .map { it.toResponse() }
         }
 
 
@@ -293,9 +296,9 @@ class PostService(
         func: (board: Board, post: Post?, member: Member?) -> T
     ): T {
 
-        if (channelRepository.findByIdOrNull(channelId) == null)
-            throw ModelNotFoundException("Channel", channelId)
-
+        val channel =
+            channelRepository.findByIdOrNull(channelId)
+                ?: throw ModelNotFoundException("Channel", channelId)
         val board = boardRepository.findByIdAndChannelId(boardId, channelId)
             ?: throw ModelNotFoundException("Board", boardId)
         val post =
@@ -308,6 +311,8 @@ class PostService(
                 memberRepository.findByIdOrNull(memberId)
                     ?: throw ModelNotFoundException("Member", memberId)
             else null
+        if (channelBlacklistRepository.existsById(ChannelBlacklistId(channel, member)))
+            throw CustomAccessDeniedException("해당 채널에 대한 권한이 없습니다.")
 
         return kotlin.run { func.invoke(board, post, member) }
     }
