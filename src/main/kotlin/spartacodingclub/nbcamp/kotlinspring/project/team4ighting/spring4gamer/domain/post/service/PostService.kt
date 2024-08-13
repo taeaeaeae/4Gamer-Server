@@ -76,7 +76,7 @@ class PostService(
                 )
             }
 
-            postRepository.save(newPost).toResponse()
+            newPost.toResponse()
         }
 
 
