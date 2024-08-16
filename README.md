@@ -7,15 +7,14 @@
 - [프로젝트 기획](#-프로젝트-기획)
 - [서비스 아키텍쳐](#-서비스-아키텍쳐)
 - [주요 기능](#-주요-기능)
-- [기술 선택의 이유](#-기술-선택의-이유)
-- [트러블 슈팅](#-트러블-슈팅)
 - [환경 설정](#-환경-설정)
 
 ## ![free-icon-project-management-6788500](https://github.com/user-attachments/assets/4baecd55-edbd-43e2-bec3-f9bbf97b9d61) 프로젝트 소개
 
 인기 / 비인기 게임을 가리지 않고, 모든 게임의 정보를 공유하기 위한 사이트
 
-배포 URL : https://4gamer.vercel.app
+배포 URL : https://4gamer.vercel.app <br />
+팀 노션 : [4IGHTING](https://hellou8363.notion.site/4IGHTING-7072b1a98191441da932a2514b26b33c?pvs=4)
 
 ## ![free-icon-team-1478928 (2)](https://github.com/user-attachments/assets/4f3c1b95-de23-4959-b926-7558888fdc06) 팀 소개
 
@@ -85,20 +84,43 @@
 
 ## ![free-icon-blueprint-1833020](https://github.com/user-attachments/assets/962a479d-a16b-467e-b5b1-b8240af973bc) 서비스 아키텍쳐
 
-![20240814_172106](https://github.com/user-attachments/assets/445d0d47-59be-44d4-a0ea-e29b302e59af)
+![20240816_115832](https://github.com/user-attachments/assets/9158e95a-ff4a-4518-9ad8-b10d5ca2c272)
 
 ## ![free-icon-function-11337201](https://github.com/user-attachments/assets/52cd4b40-3d68-4ee4-b7dd-f9276c617f8f) 주요 기능
 
-## ![free-icon-quiz-5824253](https://github.com/user-attachments/assets/70723d26-648d-44c2-b748-8b5ebbe9c0ee) 기술 선택의 이유
+- `채널 - 게시판 - 게시물` 로 이어지는 세분화된 정보 분류
 
-## ![free-icon-problem-solving-9132468](https://github.com/user-attachments/assets/77057f61-939f-4e14-871d-f6d73455d6e1) 트러블 슈팅
+- `IGDB API`
+    - 현존하는 게임의 채널만 생성할 수 있도록 게임 존재 확인
+    - 실시간 게임 평점 순위 및 최다 팔로우 게임 순위
 
-## ![ghksrudtjfwjd](https://github.com/KangBaekho10/LuckyWiki/assets/166815465/debe07f2-1467-4f66-b968-73dd3a2ea14c) 환경 설정 <br>
+- Web Socket을 이용한 `채팅 / 쪽지 및 알림`
+    - 게시물 등에 존재하는 타인 프로필로 1 대 1 `채팅` 가능
+    - 상대방이 접속하지 않는 경우를 생각한 `쪽지` 기능
+    - `채팅` 또는 `쪽지`가 수신 된 경우 발생하는 `알림`
+
+- Amazon S3를 이용한 `이미지 업로드`
+    - 게시물에서 `이미지 업로드` 가능
+
+- reCAPTCHA
+    - 컴퓨터 봇에 의한 스팸, 해킹 등을 방지
+    - v3을 사용하는 것으로 사용자가 직접 봇인지 증명하는 것이 아닌 웹 사이트 상호작용 기반 확인
+ 
+- Redis를 이용한 `동시성 제어`
+    - Pub/Sub 채널을 사용하는 것으로 다른 스레드의 LOCK 여부 확인
+
+## ![ghksrudtjfwjd](https://github.com/KangBaekho10/LuckyWiki/assets/166815465/debe07f2-1467-4f66-b968-73dd3a2ea14c) 환경 설정 
+
 ![Kotlin](https://img.shields.io/badge/kotlin-%237F52FF.svg?style=for-the-badge&logo=kotlin&logoColor=white)
 ![IntelliJ IDEA](https://img.shields.io/badge/IntelliJIDEA-000000.svg?style=for-the-badge&logo=intellij-idea&logoColor=white) 
 ![Jdk17](https://img.shields.io/badge/jdk17-%23ED8B00.svg?style=for-the-badge&logo=openjdk&logoColor=white"/)
-![MySQL](https://img.shields.io/badge/mysql-4479A1.svg?style=for-the-badge&logo=mysql&logoColor=white) <br/>
+![MySQL](https://img.shields.io/badge/mysql-4479A1.svg?style=for-the-badge&logo=mysql&logoColor=white) 
 ![AWS](https://img.shields.io/badge/AWS-%23FF9900.svg?style=for-the-badge&logo=amazon-aws&logoColor=white)
-![Apache](https://img.shields.io/badge/apache-%23D42029.svg?style=for-the-badge&logo=apache&logoColor=white)
+![Apache](https://img.shields.io/badge/apache-%23D42029.svg?style=for-the-badge&logo=apache&logoColor=white) <br/>
 ![Postman](https://img.shields.io/badge/Postman-FF6C37?style=for-the-badge&logo=postman&logoColor=white)
 ![Redis](https://img.shields.io/badge/redis-%23DD0031.svg?style=for-the-badge&logo=redis&logoColor=white)
+![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
+![Nginx](https://img.shields.io/badge/nginx-%23009639.svg?style=for-the-badge&logo=nginx&logoColor=white)
+![Gradle](https://img.shields.io/badge/Gradle-02303A.svg?style=for-the-badge&logo=Gradle&logoColor=white)
+![JWT](https://img.shields.io/badge/JWT-black?style=for-the-badge&logo=JSON%20web%20tokens)
+
