@@ -13,7 +13,8 @@
 
 인기 / 비인기 게임을 가리지 않고, 모든 게임의 정보를 공유하기 위한 사이트
 
-배포 URL : https://4gamer.vercel.app
+배포 URL : https://4gamer.vercel.app <br />
+팀 노션 : [4IGHTING](https://hellou8363.notion.site/4IGHTING-7072b1a98191441da932a2514b26b33c?pvs=4)
 
 ## ![free-icon-team-1478928 (2)](https://github.com/user-attachments/assets/4f3c1b95-de23-4959-b926-7558888fdc06) 팀 소개
 
