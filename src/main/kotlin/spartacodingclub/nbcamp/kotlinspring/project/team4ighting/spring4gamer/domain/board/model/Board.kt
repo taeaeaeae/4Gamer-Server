@@ -60,6 +60,7 @@ fun Board.toResponse(): BoardResponse =
     BoardResponse(
         id = id!!,
         title = title,
+        introduction = introduction,
         createdAt = createdAt,
         updatedAt = updatedAt
     )
