@@ -6,6 +6,7 @@ import java.time.ZonedDateTime
 data class BoardResponse(
     val id: Long,
     val title: String,
+    val introduction: String,
     val createdAt: ZonedDateTime,
     val updatedAt: ZonedDateTime
-): Serializable
+) : Serializable
