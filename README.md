@@ -84,7 +84,7 @@
 
 ## ![free-icon-blueprint-1833020](https://github.com/user-attachments/assets/962a479d-a16b-467e-b5b1-b8240af973bc) 서비스 아키텍쳐
 
-![20240816_115832](https://github.com/user-attachments/assets/9158e95a-ff4a-4518-9ad8-b10d5ca2c272)
+![image](https://github.com/user-attachments/assets/b881bd3c-00fa-4896-b4ae-6a7564d472d5)
 
 ## ![free-icon-function-11337201](https://github.com/user-attachments/assets/52cd4b40-3d68-4ee4-b7dd-f9276c617f8f) 주요 기능
 
